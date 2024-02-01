@@ -2,25 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
-## [4.9.0] - TBD
-
-### Changed
-
-- Removed conventional commits, changelog, linter and CodeQL of GitHub Action.
-
-### Added
-
-- Add integration tests for Update field to CPE_Helper. ([#4574](https://github.com/wazuh/wazuh-qa/pull/4574)) \- (Core)
-
-### Changed
-
-- Enhance the PR template. ([#4881](https://github.com/wazuh/wazuh-qa/pull/4881)) \- (Framework)
-
+## [4.8.2] - TBD
 ### Fixed
 
 - Fixed agent_simulator response for active-response configuration commands. ([#4895](https://github.com/wazuh/wazuh-qa/pull/4895)) \- (Framework)
 
-## [4.8.2] - TBD
 
 ## [4.8.1] - TBD
 
@@ -41,7 +27,6 @@ All notable changes to this project will be documented in this file.
 - Added tests for checking agent status upon ungraceful closure.([#4146](https://github.com/wazuh/wazuh-qa/pull/4146)) \- (Tests)
 - Agent syncronization testing after group deleting ([#4143](https://github.com/wazuh/wazuh-qa/pull/4143)) \- (Tests)
 - Add test for AWS Custom Logs. ([#4675](https://github.com/wazuh/wazuh-qa/pull/4675)) \- (Tests)
-- Add new behaviour for endpoints marked as xfail in api_endpoints_performance test ([#4657](https://github.com/wazuh/wazuh-qa/pull/4657)) \ (Tests)
 
 ### Changed
 
@@ -60,7 +45,6 @@ All notable changes to this project will be documented in this file.
 - Update the JSON schema with the required fields for the output content of the migration tool ([#4375](https://github.com/wazuh/wazuh-qa/pull/4375)) \- (Tests)
 - Update framework known flaws file ([#4443](https://github.com/wazuh/wazuh-qa/pull/4443)) \- (Tests)
 - Align migration tool system tests to the tool's new output directory structure ([#4561](https://github.com/wazuh/wazuh-qa/pull/4561)) \- (Tests)
-- Update the migration tool's system tests to match the new log file naming convention ([#4618](https://github.com/wazuh/wazuh-qa/pull/4618)) \- (Tests)
 
 ### Fixed
 
