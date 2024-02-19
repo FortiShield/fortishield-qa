@@ -10,6 +10,10 @@ import argparse
 import threading
 import datetime
 
+from socket import socket, AF_UNIX, SOCK_STREAM
+from struct import pack, unpack
+from sys import argv, exit, stdin, stdout
+
 from wazuh_testing.api import make_api_call, get_api_details_dict
 
 
@@ -18,6 +22,65 @@ metrics_monitoring_pid = None
 STOP_STATISTICS_MONITORING = False
 
 logger = logging.getLogger(__name__)
+
+
+def get_database_fragmentation(options, monitoring_evidences_directory):
+
+    # Create CSV header for framentation wazuhdb
+    with open(os.path.join(monitoring_evidences_directory, "wazuhdb_fragmentation.csv"), 'w', newline='') as file:
+        writer = csv.writer(file)
+        row = ["timestamp"]
+        for agent in options.agents:
+            row.append(f"fragmentation_{agent}")
+
+        writer.writerow(row)
+
+    while not STOP_STATISTICS_MONITORING:
+        timestamp = datetime.datetime.now()
+
+        row = [timestamp]
+        for agent in options.agents:
+            query = f'agent {agent} get_fragmentation'
+
+            last_vacuum_value = pretty(db_query(query))['fragmentation']
+
+            row.append(last_vacuum_value)
+
+        file_path = os.path.join(monitoring_evidences_directory, "wazuhdb_fragmentation.csv")
+
+        with open(file_path, 'a', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(row)
+
+        time.sleep(options.sleep_time)
+
+
+def pretty(response):
+    if response.startswith('ok '):
+        try:
+            data = json.loads(response[3:])
+            return data
+        except json.JSONDecodeError:
+            return response[3:]
+    else:
+        return response
+
+
+def db_query(query):
+    WDB = '/var/ossec/queue/db/wdb'
+    sock = socket(AF_UNIX, SOCK_STREAM)
+    sock.connect(WDB)
+
+    query = query.encode()
+    payload = pack("<I{0}s".format(len(query)), len(query), query)
+    sock.send(payload)
+
+    length = unpack("<I", sock.recv(4))[0]
+    response = sock.recv(length)
+
+    sock.close()
+
+    return response.decode()
 
 
 def setup_logger(log_file, debug=False):
@@ -295,6 +358,9 @@ def get_script_arguments():
     parser.add_argument('-v', '--version', dest='version', required=True, help='Version of the binaries. Default none.')
     parser.add_argument('-d', '--debug', dest='debug', action='store_true', help='Enable debug mode.')
 
+    parser.add_argument('-a', '--agents', dest='agents', required=False, type=str, nargs='+', action='store',
+                        default=None, help='Type the agents id to monitor separated by whitespace.')
+
     return parser.parse_args()
 
 
@@ -333,6 +399,11 @@ def main(options):
     database_monitoring_thread = threading.Thread(target=get_database_size,
                                                   args=(options, monitoring_evidences_directory,))
     database_monitoring_thread.start()
+
+    logger.info("Monitoring get fragmentation for wazuhdb")
+    fragmentation_monitoring = threading.Thread(target=get_database_fragmentation, args=(options, monitoring_evidences_directory,))
+    fragmentation_monitoring.start()
+
 
     logger.info(f"Monitoring started. Monitoring time: {options.monitoring_time} seconds. Please wait...")
     time.sleep(options.monitoring_time)
