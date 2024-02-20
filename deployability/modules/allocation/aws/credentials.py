@@ -5,6 +5,7 @@ from botocore.exceptions import ClientError
 from pathlib import Path
 
 from modules.allocation.generic import Credentials
+from modules.allocation.generic.utils import logger
 
 
 class AWSCredentials(Credentials):
@@ -46,6 +47,7 @@ class AWSCredentials(Credentials):
 
         # Validate base directory
         if not base_dir.exists():
+            logger.debug(f"Creating base directory: {base_dir}")
             base_dir.mkdir(parents=True, exist_ok=True)
         elif base_dir.is_file():
             raise self.CredentialsError(f"Invalid base directory: {base_dir}")
@@ -57,6 +59,7 @@ class AWSCredentials(Credentials):
                 if not overwrite:
                     raise self.CredentialsError(f"Key pair {name} already exists.")
                 else:
+                    logger.warning(f"Key pair {name} already exists. Overwriting.")
                     key_pair.delete()
         except ClientError:
             pass
@@ -112,6 +115,7 @@ class AWSCredentials(Credentials):
     def delete(self) -> None:
         """Deletes the key pair."""
         if not self.name:
+            logger.warning(f"Key pair doesn't exist. Skipping deletion.")
             return
 
         try:
@@ -122,9 +126,30 @@ class AWSCredentials(Credentials):
 
         # Remove the local private key file
         if self.key_path:
+            logger.debug(f"Deleting private key: {self.key_path}")
             Path(self.key_path).unlink()
 
         # Clear instance attributes
         self.name = None
         self.key_id = None
         self.key_path = None
+
+    def ssh_key_interpreter(self, ssh_key_path: str | Path) -> str:
+        """
+        Gets the id of the SSH Key stored in AWS from the provisioned public or private key
+
+        Args:
+            public_key_path (str): The public or private key path or aws key id.
+
+        Returns:
+            str: The ID of the key pair.
+
+        Raises:
+            CredentialsError: An error occurred during key pair loading.
+        """
+        ssh_key_name = os.path.basename(ssh_key_path)
+        if ssh_key_name.endswith('.pub'):
+            key_id = os.path.splitext(ssh_key_name)[0]
+        else:
+            key_id = ssh_key_name
+        return key_id

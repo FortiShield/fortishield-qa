@@ -6,6 +6,7 @@ from pathlib import Path
 
 from modules.allocation.generic import Provider
 from modules.allocation.generic.models import CreationPayload
+from modules.allocation.generic.utils import logger
 from .credentials import VagrantCredentials
 from .instance import VagrantInstance
 from .models import VagrantConfig
@@ -22,7 +23,7 @@ class VagrantProvider(Provider):
     provider_name = 'vagrant'
 
     @classmethod
-    def _create_instance(cls, base_dir: Path, params: CreationPayload, config: VagrantConfig = None) -> VagrantInstance:
+    def _create_instance(cls, base_dir: Path, params: CreationPayload, config: VagrantConfig = None, ssh_key: str = None) -> VagrantInstance:
         """
         Creates a Vagrant instance.
 
@@ -30,6 +31,7 @@ class VagrantProvider(Provider):
             base_dir (Path): The base directory for the instance.
             params (CreationPayload): The parameters for instance creation.
             config (VagrantConfig, optional): The configuration for the instance. Defaults to None.
+            ssh_key (str, optional): Public or private key for the instance. For example, we assume that if the public key is provided, the private key is located in the same directory and has the same name as the public key. Defaults to None.
 
         Returns:
             VagrantInstance: The created Vagrant instance.
@@ -40,14 +42,23 @@ class VagrantProvider(Provider):
         instance_dir.mkdir(parents=True, exist_ok=True)
         credentials = VagrantCredentials()
         if not config:
-            # Generate the credentials.
-            credentials.generate(instance_dir, 'instance_key')
+            logger.debug(f"No config provided. Generating from payload")
+            # Keys.
+            if not ssh_key:
+                logger.debug(f"Generating new key pair")
+                credentials.generate(instance_dir, 'instance_key')
+            else:
+                logger.debug(f"Using provided key pair")
+                public_key = credentials.ssh_key_interpreter(ssh_key)
+                credentials.load(public_key)
             # Parse the config if it is not provided.
-            config = cls.__parse_config(params, credentials)
+            config = cls.__parse_config(params, credentials, instance_id)
         else:
+            logger.debug(f"Using provided config")
             credentials.load(config.public_key)
         # Create the Vagrantfile.
         cls.__create_vagrantfile(instance_dir, config)
+        logger.debug(f"Vagrantfile created. Creating instance.")
         return VagrantInstance(instance_dir, instance_id, credentials)
 
     @staticmethod
@@ -64,8 +75,8 @@ class VagrantProvider(Provider):
         """
         return VagrantInstance(instance_dir, identifier)
 
-    @staticmethod
-    def _destroy_instance(instance_dir: Path, identifier: str) -> None:
+    @classmethod
+    def _destroy_instance(cls, instance_dir: Path, identifier: str, key_path: str) -> None:
         """
         Destroys a Vagrant instance.
 
@@ -77,6 +88,9 @@ class VagrantProvider(Provider):
             None
         """
         instance = VagrantInstance(instance_dir, identifier)
+        if os.path.dirname(key_path) != str(instance_dir):
+            logger.debug(f"The key {key_path} will not be deleted. It is the user's responsibility to delete it.")
+        logger.debug(f"Destroying instance {identifier}")
         instance.delete()
 
     @classmethod
@@ -114,7 +128,7 @@ class VagrantProvider(Provider):
         return template.render(config=config)
 
     @classmethod
-    def __parse_config(cls, params: CreationPayload, credentials: VagrantCredentials) -> VagrantConfig:
+    def __parse_config(cls, params: CreationPayload, credentials: VagrantCredentials, instance_id: str) -> VagrantConfig:
         """
         Parses the configuration for a Vagrant instance.
 
@@ -137,6 +151,7 @@ class VagrantProvider(Provider):
         config['public_key'] = str(credentials.key_path.with_suffix('.pub'))
         config['cpu'] = size_specs['cpu']
         config['memory'] = size_specs['memory']
+        config['name'] = instance_id
 
         return VagrantConfig(**config)
 
