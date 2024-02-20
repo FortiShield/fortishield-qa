@@ -7,6 +7,7 @@ class ComponentType:
     def __init__(self, component_info):
         self.component = component_info.component
         self.type = component_info.type
+        self.live = component_info.live
         self.version = component_info.version
         self.manager_ip = component_info.manager_ip or None
 
@@ -29,7 +30,7 @@ class ComponentType:
         variables = {
                     'component': self.component,
                     'version': self.version,
-                    'version': self.type,
+                    'live': self.live,
                     'manager_ip': self.manager_ip,
                     'templates_path': self.templates_path,
                     'templates_order': self.templates_order or None
@@ -64,7 +65,16 @@ class AIO(ComponentType):
         super().__init__(component_info)
         self.templates_path = f'{self.TEMPLATE_BASE_PATH}/{self.type}/{action}'
         self.templates_order = self.get_templates_order(action)
+        self.version_mayor_minor = self.version.split('.')[0] + '.' + self.version.split('.')[1]
         self.variables_dict = self.generate_dict()
+
+    def generate_dict(self):
+        """
+        Generate the dictionary with the variables to be used to render the templates.
+        """
+        variables = super().generate_dict()
+        variables['version_mayor_minor'] = self.version_mayor_minor
+        return variables
 
     def get_templates_order(self, action):
         return ["download.j2", f"{action}.j2"]

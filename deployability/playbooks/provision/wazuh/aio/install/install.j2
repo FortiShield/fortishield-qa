@@ -1,3 +1,6 @@
 
+- name: Generate certificates
+  shell: "bash wazuh-install.sh --generate-config-files"
+
 - name: Install {{ component }} with asistant
   shell: "bash wazuh-install.sh --{{ component }} {{ component }}"

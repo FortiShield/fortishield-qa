@@ -9,6 +9,7 @@ class ComponentInfo(BaseModel):
     component: str
     type: str = ""
     version: str = ""
+    live : bool = True
     manager_ip: str = None
 
 class InputPayload(BaseModel):
@@ -85,6 +86,8 @@ class InputPayload(BaseModel):
           componentObj.type = "generic"
         if "wazuh-agent" in componentObj.component:
           componentObj.type = "package"
+        if componentObj.component == "wazuh-manager":
+            componentObj.component = "wazuh-server"
         component_info.append(componentObj)
 
     return component_info or None

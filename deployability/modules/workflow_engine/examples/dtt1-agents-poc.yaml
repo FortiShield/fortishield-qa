@@ -21,7 +21,7 @@ tasks:
         args:
           - test.py
           - inventory: "{working-dir}/agent-{agent}/inventory.yaml"
-          - dependencies: 
+          - dependencies:
             - manager: "{working-dir}/manager-{manager-os}/inventory.yaml"
             - agent: "{working-dir}/agent-{agent}/inventory.yaml"
           - tests: "install,register,stop"
@@ -69,7 +69,8 @@ tasks:
           - inventory-manager: "{working-dir}/manager-{manager-os}/inventory.yaml"
           - install:
             - component: wazuh-manager
-              type: package
+              type: aio
+              version: "4.7.0"
     depends-on:
       - "allocate-manager"
 
@@ -110,8 +111,9 @@ tasks:
           - inventory-manager: "{working-dir}/manager-{manager-os}/inventory.yaml"
           - install:
             - component: wazuh-agent
-              type: package
-            - component: curl
+              type: aio
+              version: "4.8.0"
+              live: False
     depends-on:
       - "allocate-{agent}"
       - "provision-manager"
