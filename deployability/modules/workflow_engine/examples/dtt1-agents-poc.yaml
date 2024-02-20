@@ -90,14 +90,14 @@ tasks:
           - composite-name: "{manager-os}"
           - inventory-output: "{working-dir}/manager-{manager-os}/inventory.yaml"
           - track-output: "{working-dir}/manager-{manager-os}/track.yaml"
-    cleanup:
-      this: process
-      with:
-        path: python3
-        args:
-          - modules/allocation/main.py
-          - action: delete
-          - track-output: "{working-dir}/manager-{manager-os}/track.yaml"
+    #cleanup:
+    #  this: process
+    #  with:
+    #    path: python3
+    #    args:
+    #      - modules/allocation/main.py
+    #      - action: delete
+    #      - track-output: "{working-dir}/manager-{manager-os}/track.yaml"
 
   # Generic agent provision task
   - task: "provision-install-{agent}"
@@ -157,14 +157,14 @@ tasks:
           - composite-name: "{agent}"
           - inventory-output: "{working-dir}/agent-{agent}/inventory.yaml"
           - track-output: "{working-dir}/agent-{agent}/track.yaml"
-    cleanup:
-      this: process
-      with:
-        path: python3
-        args:
-          - modules/allocation/main.py
-          - action: delete
-          - track-output: "{working-dir}/agent-{agent}/track.yaml"
+    #cleanup:
+    #  this: process
+    #  with:
+    #    path: python3
+    #    args:
+    #      - modules/allocation/main.py
+    #      - action: delete
+    #      - track-output: "{working-dir}/agent-{agent}/track.yaml"
     foreach:
       - variable: agents-os
         as: agent

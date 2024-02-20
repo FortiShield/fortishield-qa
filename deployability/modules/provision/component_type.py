@@ -18,6 +18,7 @@ class ComponentType(ABC):
     """
     templates_order: list[str]
     templates_path: str
+    version_mayor_minor: str
 
     def __init__(self, component_info: ComponentInfo) -> None:
         """
@@ -53,9 +54,10 @@ class ComponentType(ABC):
             'component': self.component,
             'version': self.version,
             'live': self.live,
-            'manager_ip': self.manager_ip,
+            'manager_ip': self.manager_ip or None,
             'templates_path': self.templates_path,
-            'templates_order': self.templates_order or None
+            'templates_order': self.templates_order or None,
+            'version_mayor_minor': self.version_mayor_minor or None
         }
 
         return variables

@@ -1,4 +1,10 @@
 
-- name: Download the Wazuh installation assistant
-  shell: "curl -sO {{ "https://packages.wazuh.com/" if live else "https://packages-dev.wazuh.com/" }}{{ version_mayor_minor }}/wazuh-install.sh"
+- name: "Set repository"
+  set_fact:
+    repo: {{ "packages.wazuh.com" if live else "packages-dev.wazuh.com }}
 
+- name: Download the Wazuh installation assistant
+  shell: "curl -sO "https://{{ repo }}/"{{ version_mayor_minor }}/wazuh-install.sh"
+
+- name: Download config.yaml
+  shell: "curl -sO https://{{ repo }}/{{ version_mayor_minor }}/config.yml"

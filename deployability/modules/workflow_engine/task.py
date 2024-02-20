@@ -56,6 +56,7 @@ class ProcessTask(Task):
 
         result = None
         try:
+            logger.info(f"{self.task_parameters['path']}{task_args}")
             result = subprocess.run(
                 [self.task_parameters['path']] + task_args,
                 check=True,

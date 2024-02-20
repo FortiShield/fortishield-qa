@@ -1,10 +1,14 @@
+- name: "Set package version"
+  set_fact:
+    package: {{ component + '=' + version + '-1' if version is defined else component }}
+
 {% if ansible_os_family == 'Debian' %}
 - name: Install the {{ component }}
-  command: "apt-get -y install  {{ component + '=' + version + '-1' if version is defined else component }}"
+  command: "apt-get -y install {{ package }}"
 {% endif %}
 
 {% if ansible_os_family == 'Redhat' %}
 - name: Install the {{ component }}
-  command: "yum -y install  {{ component + '-' + version + '-1' if version is defined else component }}"
+  command: "yum -y install  {{ package }}"
 {% endif %}
 

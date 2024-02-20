@@ -29,6 +29,7 @@ class Provision(ProvisionModule):
             payload (InputPayload): Payload with the provision information.
         """
         self.summary = {}
+        print(payload)
 
         self.action = 'install' if payload.install else 'uninstall'
         self.components = self.get_components(payload)

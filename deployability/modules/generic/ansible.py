@@ -76,6 +76,34 @@ class Ansible:
 
         return yaml.safe_load(rendered)
 
+    def get_os_family(self, host: str) -> str:
+        """
+        Get the os_family of specify host.
+
+        Args:
+            host str: Host to get os_family.
+        """
+
+        ansible_task = [{
+            'name': 'Capture ansible_os_family',
+            'set_fact': {
+                'ansible_os_family': "{{ ansible_facts['distribution_file_variety'] }}",
+                'cacheable': 'yes'
+            }
+        }]
+
+        playbook = {
+            'hosts': host,
+            'become': True,
+            'gather_facts': True,
+            'tasks': ansible_task
+        }
+
+        status = self.run_playbook(playbook)
+
+        return status.get_fact_cache(host=self.ansible.ansible_data.ansible_host)['ansible_os_family']
+
+
     def run_playbook(self, playbook: str | Path = None, extravars: dict = None, verbosity: int = 1, env_vars: dict = {}) -> ansible_runner.Runner:
         """
         Run the playbook with ansible_runner.
@@ -109,7 +137,7 @@ class Ansible:
         Generate the inventory for ansible.
 
         Returns:
-            dict: Inventory for ansible.        
+            dict: Inventory for ansible.
         """
         inventory_data = {
             'all': {

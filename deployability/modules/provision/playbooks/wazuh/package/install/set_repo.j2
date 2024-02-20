@@ -1,29 +1,35 @@
 {% if ansible_os_family == 'Debian' %}
+
+- name: "Set repository"
+  set_fact:
+    repo: {{ "packages.wazuh.com" if live else "packages-dev.wazuh.com }}
+    version: {{ "4.x" if live else "pre-release" }}
+    stable: {{ "stable" if live else "unstable" }}
+
 - name: Install packages
   command: apt-get -y install gnupg apt-transport-https
 
 - name: Install GPG key
-  shell: "curl -s {{ "https://packages.wazuh.com/key/GPG-KEY-WAZUH" if live else "https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH" }} | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg"
+  shell: "curl -s "https://{{ repo }}/key/GPG-KEY-WAZUH" | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg"
 
 - name: Add Wazuh repository
-  shell: "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] {{ "https://packages.wazuh.com/4.x/apt/" if live else "https://packages-dev.wazuh.com/pre-release/apt/" }} unstable main\" | tee -a /etc/apt/sources.list.d/wazuh.list"
-  shell: "curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg"
-
-- name: Add Wazuh repository
-  shell: "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main\" | tee -a /etc/apt/sources.list.d/wazuh.list"
+  shell: "echo \"deb [signed-by=/usr/share/keyrings/wazuh.gpg] "https://{{ repo }}/{{ version }}/apt/" {{ stable }} main\" | tee -a /etc/apt/sources.list.d/wazuh.list"
 
 - name: Update package information
   command: "apt-get update"
 {% endif %}
 
 {% if ansible_os_family == 'RedHat' %}
+- name: "Set repository"
+  set_fact:
+    repo: {{ "packages.wazuh.com" if live else "packages-dev.wazuh.com }}
+    version: {{ "4.x" if live else "pre-release" }}
+    stable: {{ "stable" if live else "unstable" }}
+
 - name: Import the GPG key
-  command: "rpm --import {{ "https://packages.wazuh.com/key/GPG-KEY-WAZUH" if live else "https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH" }}"
+  command: "rpm --import "https://{{ repo }}/key/GPG-KEY-WAZUH" "
 
 - name: Add Wazuh repository
-  shell: "echo -e {{ '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' if live else '[wazuh]\ngpgcheck=1\ngpgkey=https://packages-dev.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages-dev.wazuh.com/pre-release/yum/\nprotect=1' }} | tee /etc/yum.repos.d/wazuh.repo"
-  command: "rpm --import https://packages.wazuh.com/key/GPG-KEY-WAZUH"
+  shell: "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://{{ repo }}/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://{{ repo }}/{{ version }}/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo"
 
-- name: Add Wazuh repository
-  shell: "echo -e '[wazuh]\ngpgcheck=1\ngpgkey=https://packages.wazuh.com/key/GPG-KEY-WAZUH\nenabled=1\nname=EL-$releasever - Wazuh\nbaseurl=https://packages.wazuh.com/4.x/yum/\nprotect=1' | tee /etc/yum.repos.d/wazuh.repo"
 {% endif %}

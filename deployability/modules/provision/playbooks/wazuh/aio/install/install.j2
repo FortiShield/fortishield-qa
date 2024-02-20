@@ -1,4 +1,23 @@
 
+---
+
+- name: Reemplazar <wazuh-manager-ip> con el valor proporcionado
+  replace:
+    path: "config.yml"
+    regexp: '<wazuh-manager-ip>'
+    replace: "{{ ip }}"
+
+- name: Procesar y generar archivo simplificado
+  set_fact:
+    nodes_simplified: "{{ nodes | combine({'server': nodes.server[:1]}) }}"
+
+- name: Crear archivo YAML simplificado
+  template:
+    src: config.yml
+    dest: "config.yml"
+  vars:
+    nodes: "{{ nodes_simplified }}"
+
 - name: Generate certificates
   shell: "bash wazuh-install.sh --generate-config-files"
 
