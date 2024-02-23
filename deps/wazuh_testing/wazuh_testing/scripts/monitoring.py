@@ -317,12 +317,12 @@ def get_database_size(options, monitoring_evidences_directory):
     global STOP_STATISTICS_MONITORING
 
     for database in os.listdir('/var/ossec/queue/db'):
-        if database.startswith("00") and database.endswith(".db"):
+        if (not database.startswith('global')) and database.endswith(".db"):
             create_csv_header(database, monitoring_evidences_directory)
 
     while not STOP_STATISTICS_MONITORING:
         for database in os.listdir('/var/ossec/queue/db'):
-            if database.startswith("00") and database.endswith(".db"):
+            if (not database.startswith('global')) and database.endswith(".db"):
                 file_stats = os.stat(os.path.join('/var/ossec/queue/db', database))
                 size = file_stats.st_size  # Bytes
                 timestamp = datetime.datetime.now()
