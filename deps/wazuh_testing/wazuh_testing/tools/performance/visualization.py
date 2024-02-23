@@ -14,21 +14,16 @@ ANALYSISD_CSV_HEADERS = {
     'decoded_events': {'title': 'Events decoded per queue',
                        'columns': ['total_events_decoded', 'syscheck_events_decoded',
                                    'syscollector_events_decoded', 'rootcheck_events_decoded',
-                                   'sca_events_decoded', 'hostinfo_events_decoded', 'winevt_events_decoded',
-                                   'other_events_decoded', 'dbsync_messages_dispatched'],
+                                   'sca_events_decoded', 'winevt_events_decoded',
+                                   'dbsync_messages_dispatched', 'other_events_decoded'],
                        },
-    'queue_usage': { 'title': 'Queue usage during the test',
+    'queue_usage': {'title': 'Queue usage during the test',
                      'columns': ['syscheck_queue_usage', 'syscollector_queue_usage', 'rootcheck_queue_usage',
                                  'sca_queue_usage', 'hostinfo_queue_usage', 'winevt_queue_usage',
                                  'dbsync_queue_usage', 'upgrade_queue_usage', 'event_queue_usage',
                                  'rule_matching_queue_usage', 'alerts_queue_usage', 'firewall_queue_usage',
                                  'statistical_queue_usage', 'archives_queue_usage'],
                      },
-    'events_decoded_per_second': {'title': 'Events decoded per second',
-                                  'columns': ['syscheck_edps', 'syscollector_edps', 'rootcheck_edps',
-                                              'sca_edps', 'hostinfo_edps', 'winevt_edps',
-                                              'other_events_edps', 'events_edps', 'dbsync_mdps'],
-                                  },
     'alerts_info': {'title': 'Alerts and events info.',
                     'columns': ['events_processed', 'events_received', 'events_dropped', 'alerts_written',
                                 'firewall_written', 'fts_written'],
@@ -36,8 +31,7 @@ ANALYSISD_CSV_HEADERS = {
 }
 REMOTED_CSV_HEADERS = {
     'events_info': {'title': 'Events sent and count',
-                    'columns': ["evt_count", "ctrl_msg_count", "discarded_count", "queued_msgs",
-                                'sent_bytes', 'dequeued_after_close']
+                    'columns': ['evt_count', 'ctrl_msg_count', 'discarded_count', 'sent_bytes', 'dequeued_after_close']
                     },
     'queue_size': {'title': 'Queue status',
                    'columns': ['queue_size', 'total_queue_size']
