@@ -139,9 +139,9 @@ class DataVisualizer:
         """
         statistics = str()
         if calculate_mean:
-            statistics += f"Mean: {round(pd.DataFrame.mean(df), 3)}\n"
+            statistics += f"Mean: {round(df.mean(), 3)}\n"
         if calculate_median:
-            statistics += f"Median: {round(pd.DataFrame.median(df), 3)}\n"
+            statistics += f"Median: {round(df.median(), 3)}\n"
 
         return statistics
 
