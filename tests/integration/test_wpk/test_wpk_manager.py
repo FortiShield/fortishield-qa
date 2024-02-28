@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -43,7 +43,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/agents/remote-upgrading/upgrading-agent.html
+    - https://fortishield.github.io/documentation/current/user-manual/agents/remote-upgrading/upgrading-agent.html
 
 pytest_args:
     - wpk_version: Specify the version to upgrade
@@ -73,7 +73,7 @@ UPGRADE_SOCKET = os.path.join(FORTISHIELD_PATH, 'queue', 'tasks', 'upgrade')
 TASK_SOCKET = os.path.join(FORTISHIELD_PATH, 'queue', 'tasks', 'task')
 SERVER_ADDRESS = 'localhost'
 WPK_REPOSITORY_4x = global_parameters.wpk_package_path[0]
-WPK_REPOSITORY_3x = 'packages.fortishield.github.io/wpk/'
+WPK_REPOSITORY_3x = 'fortishield.github.io/packages/wpk/'
 CRYPTO = "aes"
 CHUNK_SIZE = 16384
 TASK_TIMEOUT = '15m'

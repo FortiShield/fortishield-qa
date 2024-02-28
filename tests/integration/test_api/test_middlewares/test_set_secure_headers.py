@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -45,7 +45,7 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://fortishield.github.io/documentation/current/user-manual/api/getting-started.html
 
 tags:
     - api

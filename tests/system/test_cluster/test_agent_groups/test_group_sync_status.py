@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2023, Fortishield Inc.
-            Created by Fortishield, Inc. <info@fortishield.github.io>.
+            Created by Fortishield, Inc. <security@khulnasoft.com>.
             This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: Fortishield manager handles agent groups.
@@ -23,7 +23,7 @@ os_platform:
 os_version:
     - Debian Buster
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
+    - https://fortishield.github.io/documentation/current/user-manual/registering/agent-enrollment.html
 '''
 
 import json

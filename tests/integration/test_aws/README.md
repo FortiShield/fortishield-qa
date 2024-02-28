@@ -57,7 +57,7 @@ fortishield-qa/deps/fortishield_testing/fortishield_testing/modules/aws
 ## Configuration settings
 
 - **credentials**
-    Set the credentials at `$HOME/.aws/credentials` (being `HOME` the home directory of the user who runs the tests, more information [here](https://documentation.fortishield.github.io/current/amazon/services/prerequisites/credentials.html#profiles)) with the content:
+    Set the credentials at `$HOME/.aws/credentials` (being `HOME` the home directory of the user who runs the tests, more information [here](https://fortishield.github.io/documentation/current/amazon/services/prerequisites/credentials.html#profiles)) with the content:
 
 ```ini
 [qa]
@@ -80,7 +80,7 @@ You can run these tests on a manager or an agent. In case you are using an agent
 the correct version (Fortishield branch).
 
 _We are skipping Fortishield installation steps. For further information,
-check [Fortishield documentation](https://documentation.fortishield.github.io/current/installation-guide/index.html)._
+check [Fortishield documentation](https://fortishield.github.io/documentation/current/installation-guide/index.html)._
 
 ### Linux
 

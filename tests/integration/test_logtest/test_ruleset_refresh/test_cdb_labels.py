@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -39,12 +39,12 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
-    - https://documentation.fortishield.github.io/current/user-manual/ruleset/testing.html?highlight=logtest
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/logtest-configuration.html
-    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
-    - https://documentation.fortishield.github.io/current/user-manual/ruleset/cdb-list.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://fortishield.github.io/documentation/current/user-manual/ruleset/testing.html?highlight=logtest
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/fortishield-logtest/logtest-configuration.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/daemons/fortishield-analysisd.html
+    - https://fortishield.github.io/documentation/current/user-manual/ruleset/cdb-list.html
 
 tags:
     - logtest_configuration

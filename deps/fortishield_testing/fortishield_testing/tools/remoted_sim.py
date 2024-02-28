@@ -1,5 +1,5 @@
 # Copyright (C) 2015-2021, Fortishield Inc.
-# Created by Fortishield, Inc. <info@fortishield.github.io>.
+# Created by Fortishield, Inc. <security@khulnasoft.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import base64
@@ -22,7 +22,7 @@ from fortishield_testing.tools.monitoring import Queue
 
 class Cipher:
     """Algorithm to perform encryption/decryption of manager-agent secure messages:
-    https://documentation.fortishield.github.io/current/development/message-format.html#secure-message-format.
+    https://fortishield.github.io/documentation/current/development/message-format.html#secure-message-format.
     """
 
     def __init__(self, data, key):

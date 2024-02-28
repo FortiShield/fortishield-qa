@@ -1,11 +1,11 @@
 # Copyright (C) 2015-2021, Fortishield Inc.
-# Created by Fortishield, Inc. <info@fortishield.github.io>.
+# Created by Fortishield, Inc. <security@khulnasoft.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 from fortishield_testing.tools import github_checks
 
 
-PROD_BUCKET = 'packages.fortishield.github.io'
-DEV_BUCKET = 'packages-dev.fortishield.github.io'
+PROD_BUCKET = 'fortishield.github.io/packages'
+DEV_BUCKET = 'fortishield.github.io/packages-dev'
 S3_REGION_URL = 's3-us-west-1'
 
 SYSTEMS = {

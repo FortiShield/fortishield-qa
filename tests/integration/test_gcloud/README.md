@@ -88,7 +88,7 @@ You can run these tests on a manager or an agent. In case you are using an agent
 the correct version (Fortishield branch).
 
 _We are skipping Fortishield installation steps. For further information,
-check [Fortishield documentation](https://documentation.fortishield.github.io/3.11/installation-guide/index.html)._
+check [Fortishield documentation](https://fortishield.github.io/documentation/3.11/installation-guide/index.html)._
 
 ### Linux
 

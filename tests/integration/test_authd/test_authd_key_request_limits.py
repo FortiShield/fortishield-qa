@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -43,8 +43,8 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/auth.html
-    - https://documentation.fortishield.github.io/current/user-manual/registering/key-request.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/ossec-conf/auth.html
+    - https://fortishield.github.io/documentation/current/user-manual/registering/key-request.html
 
 tags:
     - key_request

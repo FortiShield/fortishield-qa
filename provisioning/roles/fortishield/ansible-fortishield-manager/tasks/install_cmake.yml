@@ -1,7 +1,7 @@
 ---
 
 # Vars
-# cmake_download_url: http://packages.fortishield.github.io/utils/cmake/cmake-3.18.3.tar.gz
+# cmake_download_url: http://fortishield.github.io/packages/utils/cmake/cmake-3.18.3.tar.gz
 # cmake_version: 3.18.3
 #
   - name: Include CMake install vars 

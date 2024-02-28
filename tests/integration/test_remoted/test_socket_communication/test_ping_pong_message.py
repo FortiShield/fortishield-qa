@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -38,7 +38,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/daemons/fortishield-remoted.html
 
 tags:
     - remoted

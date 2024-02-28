@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -47,8 +47,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#out-format
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/log-data-collection/index.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/ossec-conf/localfile.html#out-format
 
 tags:
     - logcollector_configuration

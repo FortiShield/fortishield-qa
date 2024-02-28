@@ -1,5 +1,5 @@
 # Copyright (C) 2015-2022, Fortishield Inc.
-# Created by Fortishield, Inc. <info@fortishield.github.io>.
+# Created by Fortishield, Inc. <security@khulnasoft.com>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import json
@@ -113,7 +113,7 @@ def compare_config_api_response(configuration, section):
 def get_manager_configuration(section=None, field=None):
     """Get Fortishield manager configuration response from API using GET /manager/configuration
 
-    References: https://documentation.fortishield.github.io/current/user-manual/api/reference.html#operation/
+    References: https://fortishield.github.io/documentation/current/user-manual/api/reference.html#operation/
                 api.controllers.manager_controller.get_configuration
 
     Args:

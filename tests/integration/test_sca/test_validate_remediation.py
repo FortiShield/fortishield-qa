@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2023, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -26,7 +26,7 @@ os_version:
     - CentOS 8
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/sec-config-assessment/index.html
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/sec-config-assessment/index.html
 
 tags:
     - sca

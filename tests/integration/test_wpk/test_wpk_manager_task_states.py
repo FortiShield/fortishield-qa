@@ -1,7 +1,7 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -40,7 +40,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/agents/remote-upgrading/upgrading-agent.html
+    - https://fortishield.github.io/documentation/current/user-manual/agents/remote-upgrading/upgrading-agent.html
 
 pytest_args:
     - wpk_version: Specify the version to upgrade

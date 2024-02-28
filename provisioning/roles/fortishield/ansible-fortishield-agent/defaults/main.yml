@@ -56,7 +56,7 @@ fortishield_winagent_config:
   check_md5: True
   md5: a03806b7302767d0470d65d3f103fabb
 
-fortishield_winagent_config_url: https://packages.fortishield.github.io/4.x/windows/fortishield-agent-4.8.0-1.msi
+fortishield_winagent_config_url: https://fortishield.github.io/packages/4.x/windows/fortishield-agent-4.8.0-1.msi
 fortishield_winagent_package_name: fortishield-agent-4.8.0-1.msi
 fortishield_winagent_package_name_generic: fortishield-agent.msi
 fortishield_dir: "/var/ossec"
@@ -92,7 +92,7 @@ fortishield_managers:
 ## Authentication Method: Enrollment section (4.x)
 
 # For more information see:
-# * https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/client.html#enrollment
+# * https://fortishield.github.io/documentation/current/user-manual/reference/ossec-conf/client.html#enrollment
 
 fortishield_agent_enrollment:
   enabled: 'yes'
@@ -113,7 +113,7 @@ fortishield_agent_enrollment:
 ## Authentication Method: invoking agent-auth
 
 # For more information see:
-# * https://documentation.fortishield.github.io/current/user-manual/registering/password-authorization-registration.html
+# * https://fortishield.github.io/documentation/current/user-manual/registering/password-authorization-registration.html
 
 fortishield_agent_authd:
   registration_address: 127.0.0.1
@@ -129,7 +129,7 @@ fortishield_agent_authd:
 ## Authentication Method: REST API
 
 # For more information see:
-# * https://documentation.fortishield.github.io/current/user-manual/registering/restful-api-registration.html
+# * https://fortishield.github.io/documentation/current/user-manual/registering/restful-api-registration.html
 fortishield_agent_api_validate: yes
 
 ## Client buffer

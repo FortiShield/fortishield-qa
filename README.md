@@ -2,7 +2,7 @@
 
 [![Slack](https://img.shields.io/badge/slack-join-blue.svg)](https://fortishield.github.io/community/join-us-on-slack/)
 [![Email](https://img.shields.io/badge/email-join-blue.svg)](https://groups.google.com/forum/#!forum/fortishield)
-[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://documentation.fortishield.github.io)
+[![Documentation](https://img.shields.io/badge/docs-view-green.svg)](https://fortishield.github.io/documentation)
 [![Documentation](https://img.shields.io/badge/web-view-green.svg)](https://fortishield.github.io)
 [![Twitter](https://img.shields.io/twitter/follow/fortishield?style=social)](https://twitter.com/fortishield)
 [![YouTube](https://img.shields.io/youtube/views/peTSzcAueEc?style=social)](https://www.youtube.com/watch?v=peTSzcAueEc)

@@ -8,7 +8,7 @@ The Fortishield architecture is based on agent, running on the monitored endpoin
 
 The diagram below represents the Fortishield components and data flow.
 
-![fortishield-data-flow](https://documentation.fortishield.github.io/current/_images/data-flow1.png)
+![fortishield-data-flow](https://fortishield.github.io/documentation/current/_images/data-flow1.png)
 
 
 Our E2E tests will verify that, after generating an event, an alert will be triggered and correctly indexed.

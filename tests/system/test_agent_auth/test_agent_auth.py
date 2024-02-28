@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2021, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: The agent-auth program is the client application used along with 'fortishield-authd' to automatically add agents to a
@@ -18,7 +18,7 @@ os_platform:
 os_version:
     - Debian Buster
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent-auth.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/tools/agent-auth.html
 tags:
     - authd
 '''

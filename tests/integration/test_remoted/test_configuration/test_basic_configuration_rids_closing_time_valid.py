@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-20212, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -35,10 +35,10 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
-    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/agent-key-polling.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/daemons/fortishield-remoted.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/ossec-conf/remote.html
+    - https://fortishield.github.io/documentation/current/user-manual/agents/agent-life-cycle.html
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/agent-key-polling.html
 
 tags:
     - remoted

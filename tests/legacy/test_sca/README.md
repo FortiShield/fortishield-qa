@@ -7,13 +7,13 @@ instructions are described below.
 ---------------
 
 A brief knowledge of SCA is recommended, the documentation covers it in detail
-in [How SCA works](https://documentation.fortishield.github.io/4.2/user-manual/capabilities/sec-config-assessment/how_it_works.html)
+in [How SCA works](https://fortishield.github.io/documentation/4.2/user-manual/capabilities/sec-config-assessment/how_it_works.html)
 . Also, there is a blog post
 about [Security Configuration Assessment](https://fortishield.github.io/blog/security-configuration-assessment/).
 
 Basically, the tests inside **data** folder contain different _.yml_ policies that will test the general capabilities
 of **SCA**. It will be necessary to install a Manager and register an agent. There is more information about this part
-of the process in the [Installation Guide](https://documentation.fortishield.github.io/4.0/installation-guide/index.html).
+of the process in the [Installation Guide](https://fortishield.github.io/documentation/4.0/installation-guide/index.html).
 
 ## Directory structure
 ----------------------

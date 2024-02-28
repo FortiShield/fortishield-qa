@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2023, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -30,8 +30,8 @@ os_version:
     - Ubuntu Focal
 
 references:
-    - https://documentation.fortishield.github.io/current/user-manual/capabilities/virustotal-scan/integration.html
-    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-integratord.htm
+    - https://fortishield.github.io/documentation/current/user-manual/capabilities/virustotal-scan/integration.html
+    - https://fortishield.github.io/documentation/current/user-manual/reference/daemons/fortishield-integratord.htm
 
 pytest_args:
     - tier:

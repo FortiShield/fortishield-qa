@@ -16,7 +16,7 @@ This guide will cover the following platforms: [Linux](#linux), [Windows](#windo
 You can run these tests on a manager or an agent. In case you are using an agent, please remember to register it and use the correct version (Fortishield branch).
 
 _We are skipping Fortishield installation steps. For further information,
-check [Fortishield documentation](https://documentation.fortishield.github.io/current/installation-guide/index.html)._
+check [Fortishield documentation](https://fortishield.github.io/documentation/current/installation-guide/index.html)._
 
 ### Linux
 
@@ -422,8 +422,8 @@ python3 -m pytest [options] [file_or_dir] [file_or_dir] [...]
   not specified, the test will run using scheduled, whodata and realtime.
 - `--wpk_version`: Specify the WPK package version used to upgrade on WPK tests. (ex. --wpk_version=v4.2.0). Note: This
   field is required to execute any WPK test and the WPK package must be previously created in
-  the [repository](packages-dev.fortishield.github.io/trash/wpk/).
-- `--wpk_package_path`: Specify the WPK package path used to upgrade on WPK tests. (ex. --wpk_package_path='packages-dev.fortishield.github.io/trash/wpk/').
+  the [repository](fortishield.github.io/packages-dev/trash/wpk/).
+- `--wpk_package_path`: Specify the WPK package path used to upgrade on WPK tests. (ex. --wpk_package_path='fortishield.github.io/packages-dev/trash/wpk/').
    This field is required to execute any WPK test.
 - `--save-file`: Specify the files of execution of the tests that you need to download. (ex. --save-file=archives.json).
    If the file does not exist while the test was executed,  the test will run without problems but not save this file in the report.

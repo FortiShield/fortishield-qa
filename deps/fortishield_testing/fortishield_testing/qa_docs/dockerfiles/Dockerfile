@@ -22,8 +22,8 @@ RUN curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add 
     apt install -y elasticsearch
 
 # install fortishield manager
-RUN curl -s https://packages.fortishield.github.io/key/GPG-KEY-FORTISHIELD | apt-key add - && \
-    echo "deb https://packages.fortishield.github.io/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/fortishield.list && \
+RUN curl -s https://fortishield.github.io/packages/key/GPG-KEY-FORTISHIELD | apt-key add - && \
+    echo "deb https://fortishield.github.io/packages/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/fortishield.list && \
     apt-get update && \
     apt-get install fortishield-manager
 

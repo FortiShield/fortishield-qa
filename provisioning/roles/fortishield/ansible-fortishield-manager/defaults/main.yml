@@ -7,8 +7,8 @@ fortishield_manager_package_state: present
 
 # Custom packages installation
 fortishield_custom_packages_installation_manager_enabled: false
-fortishield_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.fortishield.github.io/"
-fortishield_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.fortishield.github.io/"
+fortishield_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/fortishield.github.io/packages-dev/"
+fortishield_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/fortishield.github.io/packages-dev/"
 
 # Sources installation
 fortishield_manager_sources_installation:

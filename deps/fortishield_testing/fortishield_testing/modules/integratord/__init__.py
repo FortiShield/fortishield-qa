@@ -1,6 +1,6 @@
 '''
 copyright: Copyright (C) 2015-2022, Fortishield Inc.
-           Created by Fortishield, Inc. <info@fortishield.github.io>.
+           Created by Fortishield, Inc. <security@khulnasoft.com>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 '''
 from fortishield_testing.tools import ANALYSISD_DAEMON, DB_DAEMON, INTEGRATOR_DAEMON
