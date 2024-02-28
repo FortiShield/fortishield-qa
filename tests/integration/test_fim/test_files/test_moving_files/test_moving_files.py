@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        when these files are modified. Specifically, these tests will check if FIM detects
        moving files from one directory using the 'whodata' monitoring mode to another using
        the 'realtime' monitoring mode and vice versa.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,8 +45,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -64,11 +64,11 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import (LOG_FILE_PATH, REGULAR, callback_detect_event, create_file)
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import (LOG_FILE_PATH, REGULAR, callback_detect_event, create_file)
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -86,14 +86,14 @@ added = 'added'
 deleted = 'deleted'
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 # Configurations
 
-configurations = load_wazuh_configurations(configurations_path, __name__)
+configurations = load_fortishield_configurations(configurations_path, __name__)
 
 
 # Internal functions
@@ -124,7 +124,7 @@ def check_event(dirsrc, dirdst, filename, mod_del_event, mod_add_event):
     mod_add_event : str
         Mode of added event.
     """
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event).result()
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event).result()
 
     try:
         assert (event['data']['mode'] == mod_del_event and event['data']['type'] == deleted and
@@ -155,14 +155,14 @@ def get_configuration(request):
 def test_moving_file_to_whodata(dirsrc, dirdst, filename, mod_del_event, mod_add_event, get_configuration,
                                 configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects events when moving files from a directory
+    description: Check if the 'fortishield-syscheckd' daemon detects events when moving files from a directory
                  monitored by 'whodata' to another monitored by 'realtime' and vice versa. For this purpose,
                  the test will monitor two folders using both FIM monitoring modes and create a testing file
                  inside each one. Then, it will rename the testing file of the target folder using the name
                  of the one inside the source folder. Finally, the test will verify that the FIM events
                  generated to match the monitoring mode used in the folders.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -201,8 +201,8 @@ def test_moving_file_to_whodata(dirsrc, dirdst, filename, mod_del_event, mod_add
         - Verify that the 'mode' field in FIM 'added' events match with one used
           in the target folder of moved files.
 
-    input_description: A test case (monitoring_realtime) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these are
+    input_description: A test case (monitoring_realtime) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these are
                        combined with the testing directories to be monitored defined in the module.
 
     expected_output:

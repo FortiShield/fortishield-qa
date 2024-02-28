@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: system
@@ -13,8 +13,8 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -36,18 +36,18 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/agent-auth.html
-    - https://documentation.wazuh.com/current/user-manual/registering/command-line-registration.html
-    - https://documentation.wazuh.com/current/user-manual/registering/agent-enrollment.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent-auth.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/command-line-registration.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
 tags:
-    - wazuh-db
+    - fortishield-db
 '''
 import os
 import pytest
 import time
 
-import wazuh_testing as fw
-from wazuh_testing.tools.system import HostManager
+import fortishield_testing as fw
+from fortishield_testing.tools.system import HostManager
 from system import (create_new_agent_group, check_agent_groups, check_agents_status_in_node, restart_cluster,
                     AGENT_STATUS_ACTIVE)
 from system.test_cluster.test_agent_groups.common import register_agent
@@ -56,9 +56,9 @@ from system.test_cluster.test_agent_groups.common import register_agent
 pytestmark = [pytest.mark.cluster, pytest.mark.four_manager_disconnected_node_env]
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
-test_infra_new_nodes = ["wazuh-worker3"]
-test_infra_agents = ["wazuh-agent1", "wazuh-agent2"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
+test_infra_new_nodes = ["fortishield-worker3"]
+test_infra_agents = ["fortishield-agent1", "fortishield-agent2"]
 agent_groups = ["Group1", "Group2"]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -67,17 +67,17 @@ host_manager = HostManager(inventory_path)
 
 
 # Tests
-@pytest.mark.parametrize('target_node', ['wazuh-master', ['wazuh-worker1', 'wazuh-worker2']],
+@pytest.mark.parametrize('target_node', ['fortishield-master', ['fortishield-worker1', 'fortishield-worker2']],
                          ids=['master', 'different_workers'])
 def test_agent_groups_sync_when_add_a_new_cluster_node(target_node, clean_environment):
     '''
     description: Check that having a series of agents assigned with different groups, when an new node is added to
     the cluster, the group data is synchronized to the new node.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering the agents appear as active in all nodes.
         - Verify that after registering and after starting the agent, the indicated group is synchronized.
@@ -88,7 +88,7 @@ def test_agent_groups_sync_when_add_a_new_cluster_node(target_node, clean_enviro
     for group in agent_groups:
         create_new_agent_group(test_infra_managers[0], group, host_manager)
 
-    if target_node == 'wazuh-master':
+    if target_node == 'fortishield-master':
         agent1_data = register_agent(test_infra_agents[0], target_node, host_manager, agent_groups[0])
         agent2_data = register_agent(test_infra_agents[1], target_node, host_manager, agent_groups[1])
     else:

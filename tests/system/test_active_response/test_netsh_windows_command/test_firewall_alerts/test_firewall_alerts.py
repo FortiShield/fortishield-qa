@@ -2,9 +2,9 @@ import os
 import pytest
 from tempfile import gettempdir
 
-import wazuh_testing as fw
-from wazuh_testing.tools import configuration as config
-from wazuh_testing import event_monitor as evm
+import fortishield_testing as fw
+from fortishield_testing.tools import configuration as config
+from fortishield_testing import event_monitor as evm
 
 
 # Test cases data
@@ -28,10 +28,10 @@ def test_firewall_alerts(configure_environment, metadata, generate_events):
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
             - Change status to the Windows firewall.
             - Insert log into a monitorized file
         - test:
@@ -40,17 +40,17 @@ def test_firewall_alerts(configure_environment, metadata, generate_events):
         - teardown:
             - Restore initial configuration, ossec.conf.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
     parameters:
         - configurate_environment:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration playbook.
+            brief: Set the fortishield configuration according to the configuration playbook.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - generate_events:
             type: fixture
             brief: Generate RDP attack to the agent and copy the ossec.log and active-responses.log file to a specific

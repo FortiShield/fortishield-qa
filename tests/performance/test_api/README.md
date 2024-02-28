@@ -1,18 +1,18 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - System quality assurance automation templates
+Fortishield - System quality assurance automation templates
 
 ## Setting up a test environment
 
-To run these tests we need to use a **Linux** machine with direct connection to another machine with Wazuh installed.
+To run these tests we need to use a **Linux** machine with direct connection to another machine with Fortishield installed.
 
 ### Dependencies
 
-In addition, we need the `wazuh-testing` package in addition to the default requirements from this repository.
+In addition, we need the `fortishield-testing` package in addition to the default requirements from this repository.
 
 ## Performance API tests
 
-These tests are designed to work on another machine to test our API endpoints on custom environments, such as a loaded Wazuh cluster.
+These tests are designed to work on another machine to test our API endpoints on custom environments, such as a loaded Fortishield cluster.
 
 #### conftest
 
@@ -51,7 +51,7 @@ test_cases:
 
 **Configuration**
 - **host**: Host IP or name to make the requests to.
-- **port**: Wazuh API port.
+- **port**: Fortishield API port.
 - **restart_delay**: Delay in seconds to apply after endpoints that may restart an agent or manager.
 
 **Test cases**
@@ -70,5 +70,5 @@ These tests will be run with `pytest`. You can apply any of the pytest options, 
 An example would be the following:
 
 ```shell script
-root@wazuh-test-master:/wazuh-qa/tests/performance# python3 -m pytest test_api/test_api.py --self-contained-html --disable-warnings
+root@fortishield-test-master:/fortishield-qa/tests/performance# python3 -m pytest test_api/test_api.py --self-contained-html --disable-warnings
 ```

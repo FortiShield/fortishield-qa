@@ -19,13 +19,13 @@
 - name: Check OS
   import_tasks: check_os.yaml
 
-- name: Check the status of Wazuh components
-  import_tasks: check_wazuh_components.yaml
+- name: Check the status of Fortishield components
+  import_tasks: check_fortishield.github.ioponents.yaml
 
-- name: Check the connection between Filebeat and Wazuh Indexer
+- name: Check the connection between Filebeat and Fortishield Indexer
   import_tasks: check_filebeat_indexer.yaml
 
-- name: Check the connection between Controller node and Wazuh Indexer
+- name: Check the connection between Controller node and Fortishield Indexer
   import_tasks: check_controller_indexer.yaml
 # ----------------------------------------------------------------------------
 

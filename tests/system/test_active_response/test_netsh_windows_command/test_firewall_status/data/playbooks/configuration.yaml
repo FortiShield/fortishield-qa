@@ -29,8 +29,8 @@
 
     - name: Configure the active-response module
       include_role:
-        name: manage_wazuh_configurations
-        tasks_from: write_wazuh_config.yaml
+        name: manage_fortishield_configurations
+        tasks_from: write_fortishield_config.yaml
       vars:
         config_block: |
           <active-response>
@@ -42,10 +42,10 @@
           </active-response>
         os: linux
 
-    - name: Restart wazuh-manager
+    - name: Restart fortishield-manager
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux
 
@@ -66,8 +66,8 @@
 
     - name: Add active-response configuration
       include_role:
-        name: manage_wazuh_configurations
-        tasks_from: write_wazuh_config.yaml
+        name: manage_fortishield_configurations
+        tasks_from: write_fortishield_config.yaml
       vars:
         config_block: |
           Add-Content 'C:\Program Files (x86)\ossec-agent\ossec.conf' "`n<ossec_config>"
@@ -82,9 +82,9 @@
         path: C:\Program Files (x86)\ossec-agent\active-response\active-responses.log
         state: absent
 
-    - name: Restart wazuh-agent
+    - name: Restart fortishield-agent
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: windows

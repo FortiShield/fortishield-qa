@@ -1,14 +1,14 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-analysisd' daemon refreshes the queue socket file every time the configuration test is executed
-       Specifically, this test will check if after running the configuration test of 'wazuh-analysisd' the properties
+brief: The 'fortishield-analysisd' daemon refreshes the queue socket file every time the configuration test is executed
+       Specifically, this test will check if after running the configuration test of 'fortishield-analysisd' the properties
        of the queue socket file are changed.
 
 tier: 0
@@ -20,7 +20,7 @@ components:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -45,7 +45,7 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - analysisd
@@ -54,7 +54,7 @@ import os
 import pytest
 import subprocess
 
-from wazuh_testing.tools import ANALYSISD_BINARY_PATH, ANALYSISD_QUEUE_SOCKET_PATH
+from fortishield_testing.tools import ANALYSISD_BINARY_PATH, ANALYSISD_QUEUE_SOCKET_PATH
 
 
 # Marks
@@ -66,13 +66,13 @@ command_exec = f'{ANALYSISD_BINARY_PATH} -t'
 
 @pytest.fixture(scope="function")
 def socket_file_properties():
-    """Get the inode and modification time values of the 'queue' socket of 'wazuh-analysisd'"""
+    """Get the inode and modification time values of the 'queue' socket of 'fortishield-analysisd'"""
     return os.stat(ANALYSISD_QUEUE_SOCKET_PATH).st_ino, os.path.getmtime(ANALYSISD_QUEUE_SOCKET_PATH)
 
 
 @pytest.fixture(scope="function")
 def run_analysisd_test_config():
-    """Run the daemon configuration test mode of 'wazuh-analysisd'"""
+    """Run the daemon configuration test mode of 'fortishield-analysisd'"""
     run = subprocess.Popen(['/bin/bash', '-c', command_exec])
     run.communicate()
 
@@ -85,10 +85,10 @@ after_socket_properties = socket_file_properties
 def test_queue_socket_properties(restart_analysisd, before_socket_properties, run_analysisd_test_config,
                                  after_socket_properties):
     '''
-    description: Check if after running the configuration test of 'wazuh-analysisd' the properties
+    description: Check if after running the configuration test of 'fortishield-analysisd' the properties
                  of the queue socket file are changed.
 
-    wazuh_min_version: 4.3.0
+    fortishield_min_version: 4.3.0
 
     parameters:
         - restart_analysisd:
@@ -99,19 +99,19 @@ def test_queue_socket_properties(restart_analysisd, before_socket_properties, ru
             brief: Obtain the previous properties of the 'queue' socket.
         - run_analysisd_test_config:
             type: fixture
-            brief: Run the daemon configuration test mode of 'wazuh-analysisd'
+            brief: Run the daemon configuration test mode of 'fortishield-analysisd'
         - after_socket_properties:
             type: fixture
             brief: Obtain the later properties of the 'queue' socket.
 
     assertions:
         - Verify that the Inode value of the socket file does not change its value after running the
-          configuration test of 'wazuh-analysisd'
+          configuration test of 'fortishield-analysisd'
         - Verify that the File time value of the socket file does not change its value after running the
-          configuration test of 'wazuh-analysisd'
+          configuration test of 'fortishield-analysisd'
 
     input_description: The test gets the current properties of the socket file and some parameters
-                       to run the daemon configuration test of 'wazuh-analysisd'.
+                       to run the daemon configuration test of 'fortishield-analysisd'.
 
     expected_output:
         - f"The inode value for the socket  {ANALYSISD_QUEUE_SOCKET_PATH} has changed"

@@ -1,8 +1,8 @@
 - name: bucket_with_logs
   description: Logs inside a custom bucket
   configuration_parameters:
-    SQS_NAME: wazuh-sqs-integration-tests
+    SQS_NAME: fortishield-sqs-integration-tests
   metadata:
-    sqs_name: wazuh-sqs-integration-tests
-    bucket_name: wazuh-sqs-integration-test
+    sqs_name: fortishield-sqs-integration-tests
+    bucket_name: fortishield-sqs-integration-test
     bucket_type: cloudtrail

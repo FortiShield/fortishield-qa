@@ -1,6 +1,6 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - Quality assurance automation templates
+Fortishield - Quality assurance automation templates
 
 ## Setting up a test environment
 
@@ -13,16 +13,16 @@ tests modify the system date and there could be some synchronization issues.
 
 This guide will cover the following platforms: [Linux](#linux), [Windows](#windows) and [MacOS](#macos).
 
-You can run these tests on a manager or an agent. In case you are using an agent, please remember to register it and use the correct version (Wazuh branch).
+You can run these tests on a manager or an agent. In case you are using an agent, please remember to register it and use the correct version (Fortishield branch).
 
-_We are skipping Wazuh installation steps. For further information,
-check [Wazuh documentation](https://documentation.wazuh.com/current/installation-guide/index.html)._
+_We are skipping Fortishield installation steps. For further information,
+check [Fortishield documentation](https://documentation.fortishield.github.io/current/installation-guide/index.html)._
 
 ### Linux
 
 _We are using **CentOS** for this example:_
 
-- Install and start **Wazuh**
+- Install and start **Fortishield**
 
 > [!NOTE]
 > In case you are using an agent, please remember to register to the manager
@@ -49,25 +49,25 @@ sed -i "s:<time-reconnect>60</time-reconnect>:<time-reconnect>99999999999</time-
 
 - Disable log rotation
 ```shell script
-echo 'monitord.rotate_log=0' >> $wazuh_path/etc/local_internal_options.conf
+echo 'monitord.rotate_log=0' >> $fortishield_path/etc/local_internal_options.conf
 ```
 
-- Restart Wazuh
+- Restart Fortishield
 ```shell script
-/var/ossec/bin/wazuh-control restart
+/var/ossec/bin/fortishield-control restart
 ```
 
 - Install integration tests dependencies
 
 ```shell script
-cd wazuh-qa
+cd fortishield-qa
 python -m pip install -r requirements.txt
 ```
 
-- Install wazuh-testing framework
+- Install fortishield-testing framework
 
 ```shell script
-cd deps/wazuh_testing/
+cd deps/fortishield_testing/
 python setup.py install
 ```
 
@@ -80,7 +80,7 @@ python -m pip install . -e
 
 ### Windows
 
-- Install and start **Wazuh**
+- Install and start **Fortishield**
 
 > [!NOTE]
 > In case you are using an agent, please remember to register to the manager
@@ -101,7 +101,7 @@ python -m pip install . -e
 echo 'monitord.rotate_log=0' >> "C:\Program Files (x86)\ossec-agent\local_internal_options.conf"
 ```
 
-- Restart **Wazuh** using the GUI
+- Restart **Fortishield** using the GUI
 
 - Install `jq`:
 
@@ -112,14 +112,14 @@ choco install jq
 - Install integration tests dependencies
 
 ```shell script
-cd wazuh-qa
+cd fortishield-qa
 python -m pip install -r requirements.txt
 ```
 
-- Install wazuh-testing framework
+- Install fortishield-testing framework
 
 ```shell script
-cd deps/wazuh_testing/
+cd deps/fortishield_testing/
 python setup.py install
 ```
 
@@ -131,7 +131,7 @@ python -m pip install . -e
 
 ### MacOS
 
-- Install and start **Wazuh**
+- Install and start **Fortishield**
 
 > [!NOTE]
 > Remember to register the agent to the manager
@@ -151,21 +151,21 @@ gsed -i "s:<time-reconnect>60</time-reconnect>:<time-reconnect>99999999999</time
 # Disable log rotation
 echo 'monitord.rotate_log=0' >> /Library/Ossec/etc/local_internal_options.conf
 
-# Restart Wazuh
-/Library/Ossec/bin/wazuh-control restart
+# Restart Fortishield
+/Library/Ossec/bin/fortishield-control restart
 ```
 
 - Install Python and its dependencies
 
 ```shell script
-cd wazuh-qa
+cd fortishield-qa
 python -m pip install -r requirements.txt
 ```
 
-- Install wazuh-testing framework
+- Install fortishield-testing framework
 
 ```shell script
-cd deps/wazuh_testing/
+cd deps/fortishield_testing/
 python setup.py install
 ```
 
@@ -174,7 +174,7 @@ python setup.py install
 **DISCLAIMER:** this guide assumes you have a proper testing environment. If you do not, please check
 our [testing environment guide](#setting-up-a-test-environment).
 
-Our newest integration tests are located in `wazuh-qa/tests/integration/`. They are organized by capabilities:
+Our newest integration tests are located in `fortishield-qa/tests/integration/`. They are organized by capabilities:
 
 - _test_active_response_
 - _test_agentd_
@@ -190,7 +190,7 @@ Our newest integration tests are located in `wazuh-qa/tests/integration/`. They 
 - _test_rids_
 - _test_rootcheck_
 - _test_vulnerability_detector_
-- _test_wazuh_db_
+- _test_fortishield_db_
 - _test_wpk_
 
 Every group will have the following structure:
@@ -200,14 +200,14 @@ Every group will have the following structure:
 │   ├── conftest.py (optional)
 │   ├── test_<functionality>
 │   │   ├── data
-│   │   │   ├── <wazuh_conf>.yaml
-│   │   │   └── <wazuh_conf>.yaml
+│   │   │   ├── <fortishield_conf>.yaml
+│   │   │   └── <fortishield_conf>.yaml
 │   │   ├── test_<module>.py
 │   │   ├── test_<module>.py
 │   │   └── test_<module>.py
 │   ├── test_<functionality>
 │   │   ├── data
-│   │   │   └── <wazuh_conf>.yaml
+│   │   │   └── <fortishield_conf>.yaml
 │   │   ├── test_<module>.py
 │   │   ├── test_<module>.py
 │   │   ├── <auxiliary_module>.py (optional)
@@ -224,8 +224,8 @@ FIM test structure example:
 .
 │   ├── test_basic_usage
 │   │   ├── data
-│   │   │   ├── wazuh_conf_disabled.yaml
-│   │   │   └── wazuh_conf.yaml
+│   │   │   ├── fortishield_conf_disabled.yaml
+│   │   │   └── fortishield_conf.yaml
 │   │   ├── test_basic_disabled.py
 │   │   ├── test_basic_usage_baseline_generation.py
 │   │   ├── test_basic_usage_changes.py
@@ -245,11 +245,11 @@ FIM test structure example:
 │   │   │   ├── configure_nfs.sh
 │   │   │   ├── proc.py
 │   │   │   ├── remove_nfs.sh
-│   │   │   └── wazuh_conf.yaml
+│   │   │   └── fortishield_conf.yaml
 │   │   └── test_skip.py
 │   ├── test_windows_audit_interval
 │   │   ├── data
-│   │   │   └── wazuh_conf.yaml
+│   │   │   └── fortishield_conf.yaml
 │   │   ├── manage_acl.py
 │   │   └── test_windows_audit_interval.py
 .
@@ -305,21 +305,21 @@ This will be our python module with all the needed code to test everything.
 
 ### Dependencies
 
-It is necessary to install the wazuh testing framework dependencies:
+It is necessary to install the fortishield testing framework dependencies:
 ```shell script
 python -m pip install -r requirements.txt
 ```
 
-### Wazuh-Testing package
+### Fortishield-Testing package
 
-We have a Python package at `wazuh-qa/deps/` with all the tools needed to run these tests. From file monitoring classes
+We have a Python package at `fortishield-qa/deps/` with all the tools needed to run these tests. From file monitoring classes
 to callbacks or functions to create the test environment. Without installing this package, we cannot run these tests. It
 has the following structure:
 
 ```bash
-wazuh_testing
+fortishield_testing
     ├── setup.py
-    └── wazuh_testing
+    └── fortishield_testing
         ├── __init__.py
         ├── analysis.py
         ├── cluster.py
@@ -340,18 +340,18 @@ wazuh_testing
         │   ├── services.py
         │   ├── system.py
         │   └── time.py
-        └── wazuh_db.py
+        └── fortishield_db.py
 ```
 
 #### setup.py
 
 Python module with the needed code to install this package into our Python interpreter.
 
-#### wazuh_testing
+#### fortishield_testing
 
 ##### Python modules
 
-These are _analysis.py_, _fim.py_, _mitre.py_ and _wazuh_db.py_. They have very specific tools needed for each
+These are _analysis.py_, _fim.py_, _mitre.py_ and _fortishield_db.py_. They have very specific tools needed for each
 capability.
 
 ##### data
@@ -370,22 +370,22 @@ Folder with all the general tools that could be used in every test. They are gro
 
 - **Monitoring**: everything related to monitoring a file.
 
-- **Services**: from controlling Wazuh services, daemons and socket to common processes.
+- **Services**: from controlling Fortishield services, daemons and socket to common processes.
 
 - **Time**:  classes and functions to 'travel in time' (needed for scheduled monitoring) and manage dates.
 
 To install it:
 
 ```shell script
-cd wazuh-qa/deps/wazuh_testing
+cd fortishield-qa/deps/fortishield_testing
 ```
 
 _**NOTE:** It is important to reinstall this package every time we modify anything
-from `wazuh-qa/packages/wazuh_testing`_
+from `fortishield-qa/packages/fortishield_testing`_
 
 ```shell script
-cd wazuh-qa/deps/wazuh_testing
-pip3 uninstall -y wazuh_testing && pip3 install .
+cd fortishield-qa/deps/fortishield_testing
+pip3 uninstall -y fortishield_testing && pip3 install .
 ```
 
 ### Pytest
@@ -396,7 +396,7 @@ from the closest one, it will look for the next one (if possible) until reaching
 need to run every test from the following path, where the general _conftest_ is:
 
 ```shell script
-cd wazuh-qa/tests/integration
+cd fortishield-qa/tests/integration
 ```
 
 To run any test, we just need to call `pytest` from `python3` using the following line:
@@ -422,8 +422,8 @@ python3 -m pytest [options] [file_or_dir] [file_or_dir] [...]
   not specified, the test will run using scheduled, whodata and realtime.
 - `--wpk_version`: Specify the WPK package version used to upgrade on WPK tests. (ex. --wpk_version=v4.2.0). Note: This
   field is required to execute any WPK test and the WPK package must be previously created in
-  the [repository](packages-dev.wazuh.com/trash/wpk/).
-- `--wpk_package_path`: Specify the WPK package path used to upgrade on WPK tests. (ex. --wpk_package_path='packages-dev.wazuh.com/trash/wpk/').
+  the [repository](packages-dev.fortishield.github.io/trash/wpk/).
+- `--wpk_package_path`: Specify the WPK package path used to upgrade on WPK tests. (ex. --wpk_package_path='packages-dev.fortishield.github.io/trash/wpk/').
    This field is required to execute any WPK test.
 - `--save-file`: Specify the files of execution of the tests that you need to download. (ex. --save-file=archives.json).
    If the file does not exist while the test was executed,  the test will run without problems but not save this file in the report.
@@ -441,7 +441,7 @@ python3 -m pytest -vvx test_fim/test_basic_usage/test_basic_usage_create_schedul
 ========================================== test session starts ==========================================
 platform linux -- Python 3.6.8, pytest-5.3.4, py-1.8.1, pluggy-0.13.1 -- /bin/python3
 cachedir: .pytest_cache
-rootdir: /vagrant/wazuh-qa/test_wazuh, inifile: pytest.ini
+rootdir: /vagrant/fortishield-qa/test_fortishield, inifile: pytest.ini
 collected 12 items
 
 test_fim/test_basic_usage/test_basic_usage_create_scheduled.py::test_create_file_scheduled[get_configuration0-file-regular-Sample content-checkers0-tags_to_apply0-/testdir1] PASSED [  8%]
@@ -466,7 +466,7 @@ python3 -m pytest test_fim/test_report_changes/
 
 =============================== test session starts ===============================
 platform linux -- Python 3.6.8, pytest-5.3.4, py-1.8.1, pluggy-0.13.1
-rootdir: /vagrant/wazuh-qa/test_wazuh, inifile: pytest.ini
+rootdir: /vagrant/fortishield-qa/test_fortishield, inifile: pytest.ini
 collected 12 items
 
 test_fim/test_report_changes/test_report_changes_and_diff.py ......         [ 50%]

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,7 +9,7 @@ type: integration
 
 brief: Active responses execute a script in response to the triggering of specific alerts
        based on the alert level or rule group. These tests will check if the 'active responses',
-       which are executed by the 'wazuh-execd' daemon via scripts, run correctly.
+       which are executed by the 'fortishield-execd' daemon via scripts, run correctly.
 
 components:
     - active_response
@@ -20,8 +20,8 @@ targets:
     - agent
 
 daemons:
-    - wazuh-analysisd
-    - wazuh-execd
+    - fortishield-analysisd
+    - fortishield-execd
 
 os_platform:
     - linux
@@ -38,7 +38,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/active-response/#active-response
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/active-response/#active-response
 
 tags:
     - ar_execd
@@ -50,20 +50,20 @@ import pytest
 from subprocess import call, Popen, PIPE
 import time
 
-import wazuh_testing.execd as execd
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.services import control_service
+import fortishield_testing.execd as execd
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.services import control_service
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.agent]
 
-CLIENT_KEYS_PATH = os.path.join(WAZUH_PATH, 'etc', 'client.keys')
-SERVER_KEY_PATH = os.path.join(WAZUH_PATH, 'etc', 'manager.key')
-SERVER_CERT_PATH = os.path.join(WAZUH_PATH, 'etc', 'manager.cert')
+CLIENT_KEYS_PATH = os.path.join(FORTISHIELD_PATH, 'etc', 'client.keys')
+SERVER_KEY_PATH = os.path.join(FORTISHIELD_PATH, 'etc', 'manager.key')
+SERVER_CERT_PATH = os.path.join(FORTISHIELD_PATH, 'etc', 'manager.cert')
 CRYPTO = "aes"
 SERVER_ADDRESS = '127.0.0.1'
 PROTOCOL = "tcp"
@@ -97,8 +97,8 @@ params = [
 ]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=test_metadata)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=test_metadata)
 
 remoted_simulator = None
 
@@ -134,7 +134,7 @@ def start_agent(request, get_configuration):
     try:
         control_service('stop')
         agent_auth_pat = 'bin' if platform.system() == 'Linux' else ''
-        call([f'{WAZUH_PATH}/{agent_auth_pat}/agent-auth', '-m', SERVER_ADDRESS])
+        call([f'{FORTISHIELD_PATH}/{agent_auth_pat}/agent-auth', '-m', SERVER_ADDRESS])
         control_service('start')
 
     except Exception:
@@ -155,10 +155,10 @@ def remove_ip_from_iptables(request, get_configuration):
         get_configuration (fixture): Get configurations from the module.
     """
     metadata = get_configuration['metadata']
-    param = '{"version":1,"origin":{"name":"","module":"wazuh-execd"},"command":"delete",' \
+    param = '{"version":1,"origin":{"name":"","module":"fortishield-execd"},"command":"delete",' \
             '"parameters":{"extra_args":[],"alert":{"data":{"srcip":"' + metadata['ip'] + \
             '","dstuser":"Test"}},"program":"/var/ossec/active-response/bin/firewall-drop"}}'
-    firewall_drop_script_path = os.path.join(WAZUH_PATH, 'active-response/bin', 'firewall-drop')
+    firewall_drop_script_path = os.path.join(FORTISHIELD_PATH, 'active-response/bin', 'firewall-drop')
 
     iptables_file = os.popen('iptables -L')
     for iptables_line in iptables_file:
@@ -197,7 +197,7 @@ def build_message(metadata, expected):
         metadata (dict): Components must be: 'command', 'rule_id' and 'ip'
         expected (dict): Only one component called 'success' with boolean value.
     """
-    origin = '"name":"","module":"wazuh-analysisd"'
+    origin = '"name":"","module":"fortishield-analysisd"'
     rules = f'"level":5,"description":"Test.","id":{metadata["rule_id"]}'
 
     if not expected['success']:
@@ -217,20 +217,20 @@ def test_execd_firewall_drop(set_debug_mode, get_configuration, test_version, co
                  is sent to it. This response includes an IP address that must be added
                  and removed from 'iptables', the Linux firewall.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - set_debug_mode:
             type: fixture
-            brief: Set the 'wazuh-execd' daemon in debug mode.
+            brief: Set the 'fortishield-execd' daemon in debug mode.
         - get_configuration:
             type: fixture
             brief: Get configurations from the module.
         - test_version:
             type: fixture
-            brief: Validate the Wazuh version.
+            brief: Validate the Fortishield version.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -239,7 +239,7 @@ def test_execd_firewall_drop(set_debug_mode, get_configuration, test_version, co
             brief: Remove the testing IP address from 'iptables' if it exists.
         - start_agent:
             type: fixture
-            brief: Create 'wazuh-remoted' and 'wazuh-authd' simulators, register agent and start it.
+            brief: Create 'fortishield-remoted' and 'fortishield-authd' simulators, register agent and start it.
         - set_ar_conf_mode:
             type: fixture
             brief: Configure the 'active responses' used in the test.

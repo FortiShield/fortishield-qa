@@ -44,7 +44,7 @@ tasks:
 
 resources:
   setup_phase:
-    wazuh-clusterd:
+    fortishield-clusterd:
       CPU(%):
         master:
           max: 200.1
@@ -73,7 +73,7 @@ resources:
           mean: 116458          # (116 MB)
           reg_cof: 831
   stable_phase:
-    wazuh-clusterd:
+    fortishield-clusterd:
       CPU(%):
         master:
           max: 110

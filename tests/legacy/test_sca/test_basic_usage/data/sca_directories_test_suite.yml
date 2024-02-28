@@ -1,6 +1,6 @@
 # Security Configuration assessment
 # Testing suite for directory checks (v3.9.0)
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2019, Fortishield Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -10,7 +10,7 @@ policy:
   id: directories_test_suite
   file: sca_directories_test_suite.yml
   name: Test suite for directories rules
-  description: This document includes directories rules for testing purposes with the syntax rule of Wazuh v3.10.0
+  description: This document includes directories rules for testing purposes with the syntax rule of Fortishield v3.10.0
 ############### Expected results
 # Passed = 12
 # Failed = 9
@@ -81,7 +81,7 @@ checks:
    title: FAIL -- File does not exist
    condition: any
    rules:
-     - d:/var/ossec -> fakefile -> r:^Wazuh
+     - d:/var/ossec -> fakefile -> r:^Fortishield
 
 ########################################
 # Looking for files in directory rules #

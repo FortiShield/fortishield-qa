@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'gcp-pubsub' module uses it to fetch different kinds of events
+brief: The Fortishield 'gcp-pubsub' module uses it to fetch different kinds of events
        (Data access, Admin activity, System events, DNS queries, etc.) from the
-       Google Cloud infrastructure. Once events are collected, Wazuh processes
+       Google Cloud infrastructure. Once events are collected, Fortishield processes
        them using its threat detection rules. Specifically, these tests
        will check if the 'gcp-pubsub' module gets only the GCP events whose
        logging level matches the one specified in the 'logging' tag.
@@ -24,8 +24,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -42,7 +42,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#logging
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#logging
 
 tags:
     - logging
@@ -52,12 +52,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import generate_params
-from wazuh_testing.gcloud import callback_detect_all_gcp
-from wazuh_testing.tools import LOG_FILE_PATH
-import wazuh_testing.tools.configuration as conf
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import generate_params
+from fortishield_testing.gcloud import callback_detect_all_gcp
+from fortishield_testing.tools import LOG_FILE_PATH
+import fortishield_testing.tools.configuration as conf
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -68,14 +68,14 @@ pytestmark = pytest.mark.tier(level=0)
 interval = '25s'
 pull_on_start = 'yes'
 max_messages = 100
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 force_restart_after_restoring = False
 
 # configurations
 
-daemons_handler_configuration = {'daemons': ['wazuh-modulesd']}
+daemons_handler_configuration = {'daemons': ['fortishield-modulesd']}
 monitoring_modes = ['scheduled']
 conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
                'SUBSCRIPTION_NAME': global_parameters.gcp_subscription_name,
@@ -88,19 +88,19 @@ p, m = generate_params(extra_params=conf_params,
                        apply_to_all=(),
                        modes=monitoring_modes)
 
-configurations = conf.load_wazuh_configurations(configurations_path, __name__,
+configurations = conf.load_fortishield_configurations(configurations_path, __name__,
                                                 params=p, metadata=m)
 
 
 # fixtures
 @pytest.fixture(scope='module', params=[
-    {'wazuh_modules.debug': 0,
+    {'fortishield_modules.debug': 0,
      'monitord.rotate_log': 0, 'monitord.day_wait': 0,
      'monitord.keep_log_days': 0, 'monitord.size_rotate': 0},
-    {'wazuh_modules.debug': 1,
+    {'fortishield_modules.debug': 1,
      'monitord.rotate_log': 0, 'monitord.day_wait': 0,
      'monitord.keep_log_days': 0, 'monitord.size_rotate': 0},
-    {'wazuh_modules.debug': 2,
+    {'fortishield_modules.debug': 2,
      'monitord.rotate_log': 0, 'monitord.day_wait': 0,
      'monitord.keep_log_days': 0, 'monitord.size_rotate': 0}
 ])
@@ -122,8 +122,8 @@ def configure_local_internal_options_module(get_local_internal_options):
     backup_local_internal_options = conf.get_local_internal_options_dict()
 
     conf.set_local_internal_options_dict(local_internal_options)
-    import wazuh_testing.tools.services as services
-    services.restart_wazuh_daemon('wazuh-modulesd')
+    import fortishield_testing.tools.services as services
+    services.restart_fortishield_daemon('fortishield-modulesd')
 
     yield
 
@@ -146,12 +146,12 @@ def test_logging(get_configuration, configure_environment, reset_ossec_log,
                  publish_messages, configure_local_internal_options_module,
                  daemons_handler_module, wait_for_gcp_start):
     '''
-    description: Check if the 'gcp-pubsub' module generates logs according to the debug level set for wazuh_modules.
+    description: Check if the 'gcp-pubsub' module generates logs according to the debug level set for fortishield_modules.
                  For this purpose, the test will use different debug levels (depending on the test case) and
                  gets the GCP events. Finally, the test will verify that the type of all retrieved events matches
                  the one specified in the configuration.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -169,7 +169,7 @@ def test_logging(get_configuration, configure_environment, reset_ossec_log,
             type: fixture
             brief: Fixture to modify the local_internal_options.conf file
                    and restart modulesd.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -180,21 +180,21 @@ def test_logging(get_configuration, configure_environment, reset_ossec_log,
         - Verify that the logging level of retrieved GCP events matches the one specified in the 'logging' tag.
         - Verify that the module outputs messages that correspond to the logging level.
 
-    input_description: A test case (ossec_conf) is contained in an external YAML file (wazuh_conf.yaml)
+    input_description: A test case (ossec_conf) is contained in an external YAML file (fortishield_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. That is
                        combined with the logging levels defined in the module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
 
     expected_output:
-        - r'.*wazuh-modulesd:gcp-pubsub.*'
+        - r'.*fortishield-modulesd:gcp-pubsub.*'
 
     tags:
         - logs
         - scheduled
     '''
     str_interval = get_configuration['sections'][0]['elements'][4]['interval']['value']
-    logging_opt = int([x[-2] for x in conf.get_wazuh_local_internal_options()
-                      if x.startswith('wazuh_modules.debug')][0])
+    logging_opt = int([x[-2] for x in conf.get_fortishield_local_internal_options()
+                      if x.startswith('fortishield_modules.debug')][0])
     time_interval = int(''.join(filter(str.isdigit, str_interval)))
     mandatory_keywords = {}
     if logging_opt == 0:
@@ -208,10 +208,10 @@ def test_logging(get_configuration, configure_environment, reset_ossec_log,
 
     for _ in range(12):
         try:
-            event = wazuh_log_monitor.start(
+            event = fortishield_log_monitor.start(
                 timeout=timeout, callback=callback_detect_all_gcp,
                 accum_results=1, error_message='Did not receive expected '
-                'wazuh-modulesd:gcp-pubsub[]').result()
+                'fortishield-modulesd:gcp-pubsub[]').result()
         except TimeoutError:
             if logging_opt == 0:
                 continue

@@ -2,9 +2,9 @@
 dependencies: []
 
 galaxy_info:
-  author: Wazuh
+  author: Fortishield
   description: Installing and maintaining Filebeat-oss.
-  company: wazuh.com
+  company: fortishield.github.io
   license: license (GPLv3)
   min_ansible_version: 2.0
   platforms:

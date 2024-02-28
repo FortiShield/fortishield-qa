@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -13,7 +13,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        using complex paths and ambiguous configurations, such as keys and subkeys with opposite
        monitoring settings. In particular, it will verify that duplicate events are not generated
        when multiple configurations are used to monitor the same registry key.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -25,7 +25,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -41,8 +41,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -61,14 +61,14 @@ import sys
 from hashlib import sha1
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, registry_value_cud, registry_key_cud, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, registry_value_cud, registry_key_cud, \
     generate_params, CHECK_GROUP, CHECK_TYPE, \
     CHECK_ALL, CHECK_MTIME, CHECK_SIZE, CHECK_SUM, KEY_WOW64_32KEY, \
     KEY_WOW64_64KEY, REQUIRED_REG_KEY_ATTRIBUTES, REQUIRED_REG_VALUE_ATTRIBUTES
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -103,12 +103,12 @@ checkers_key_1 = key_all_attrs - {CHECK_GROUP, CHECK_TYPE}
 checkers_key_2 = REQUIRED_REG_VALUE_ATTRIBUTES[CHECK_SUM].union({CHECK_MTIME, CHECK_TYPE, CHECK_SIZE})
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_duplicated_entries.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_duplicated_entries.yaml')
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -144,13 +144,13 @@ def get_configuration(request):
 def test_duplicate_entries(key, subkey, arch, key_list, value_list, checkers, tags_to_apply,
                            get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon uses the last entry when setting multiple ones with
+    description: Check if the 'fortishield-syscheckd' daemon uses the last entry when setting multiple ones with
                  the same key path in the configuration. For this purpose, the test will monitor a registry
                  key that is duplicated using diferent settings in the configuration, and make key/value
                  operations inside it. Finally, the test will verify that FIM events are only generated from
                  the last entry detected.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -192,8 +192,8 @@ def test_duplicate_entries(key, subkey, arch, key_list, value_list, checkers, ta
     assertions:
         - Verify that FIM events are generated from only one entry of the configuration.
 
-    input_description: Diferent test cases are contained in an external YAML file (wazuh_duplicated_entries.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. These are combined
+    input_description: Diferent test cases are contained in an external YAML file (fortishield_duplicated_entries.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. These are combined
                        with the testing registry keys to be monitored defined in the module.
 
     expected_output:
@@ -207,11 +207,11 @@ def test_duplicate_entries(key, subkey, arch, key_list, value_list, checkers, ta
 
     # Test registry keys.
     if key_list is not None:
-        registry_key_cud(key, subkey, wazuh_log_monitor, arch=arch, key_list=key_list, options=checkers,
+        registry_key_cud(key, subkey, fortishield_log_monitor, arch=arch, key_list=key_list, options=checkers,
                          min_timeout=global_parameters.default_timeout, time_travel=True, triggers_event=True)
 
     if value_list is not None:
-        registry_value_cud(key, subkey, wazuh_log_monitor, arch=arch, value_list=value_list, options=checkers,
+        registry_value_cud(key, subkey, fortishield_log_monitor, arch=arch, value_list=value_list, options=checkers,
                            min_timeout=global_parameters.default_timeout, time_travel=True, triggers_event=True)
 
 
@@ -224,14 +224,14 @@ def test_duplicate_entries(key, subkey, arch, key_list, value_list, checkers, ta
 def test_duplicate_entries_rc(key, subkey, arch, value_list, tags_to_apply, report_changes,
                               get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon uses the last entry when setting multiple ones
+    description: Check if the 'fortishield-syscheckd' daemon uses the last entry when setting multiple ones
                  using the same key path and the 'report_changes' attribute in the configuration.
                  For this purpose, the test will monitor a registry key that is duplicated using a different
                  value for the 'report_changes' attribute in the configuration, and make value operations
                  inside it. Finally, the test will verify that FIM events generated include the value changes
                  when this option is enabled in the last entry of the configuration.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -274,8 +274,8 @@ def test_duplicate_entries_rc(key, subkey, arch, value_list, tags_to_apply, repo
           on the monitored value.
 
     input_description: A test case (duplicate_report_entries) is contained in an external YAML file
-                       (wazuh_duplicated_entries.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon. That is combined with the testing registry keys
+                       (fortishield_duplicated_entries.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon. That is combined with the testing registry keys
                        to be monitored defined in the module.
 
     expected_output:
@@ -295,12 +295,12 @@ def test_duplicate_entries_rc(key, subkey, arch, value_list, tags_to_apply, repo
         for value in value_list:
             folder_str = "{} {}".format("[x32]" if arch == KEY_WOW64_32KEY else "[x64]",
                                         sha1(os.path.join(key, subkey).encode()).hexdigest())
-            diff_file = os.path.join(WAZUH_PATH, 'queue', 'diff', 'registry', folder_str,
+            diff_file = os.path.join(FORTISHIELD_PATH, 'queue', 'diff', 'registry', folder_str,
                                      sha1(value.encode()).hexdigest())
 
             assert os.path.exists(diff_file), '{diff_file} does not exist'
             assert event['data'].get('content_changes') is not None, 'content_changes is empty'
 
-    registry_value_cud(key, subkey, wazuh_log_monitor, arch=arch, value_list=value_list,
+    registry_value_cud(key, subkey, fortishield_log_monitor, arch=arch, value_list=value_list,
                        time_travel=True, min_timeout=global_parameters.default_timeout, triggers_event=True,
                        validators_after_update=[report_changes_validator])

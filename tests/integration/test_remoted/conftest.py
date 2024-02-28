@@ -1,18 +1,18 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 import shutil
 import subprocess as sb
 import os
 import pytest
-from wazuh_testing.remote import callback_detect_remoted_started, new_agent_group, REMOTED_GLOBAL_TIMEOUT, \
+from fortishield_testing.remote import callback_detect_remoted_started, new_agent_group, REMOTED_GLOBAL_TIMEOUT, \
                                  remove_agent_group
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
-DAEMON_NAME = "wazuh-remoted"
+DAEMON_NAME = "fortishield-remoted"
 
 
 @pytest.fixture(scope='module')
@@ -21,7 +21,7 @@ def restart_remoted(get_configuration, request):
     control_service('stop', daemon=DAEMON_NAME)
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
     try:
         control_service('start', daemon=DAEMON_NAME)
     except sb.CalledProcessError:
@@ -43,8 +43,8 @@ def create_agent_group(group_name='testing_group'):
 def remove_shared_files():
     """Temporary removes txt files from default agent group shared files"""
 
-    source_dir = os.path.join(WAZUH_PATH, 'etc', 'shared', 'default')
-    target_dir = os.path.join(WAZUH_PATH, 'etc', 'default.backup')
+    source_dir = os.path.join(FORTISHIELD_PATH, 'etc', 'shared', 'default')
+    target_dir = os.path.join(FORTISHIELD_PATH, 'etc', 'default.backup')
 
     os.mkdir(target_dir)
 

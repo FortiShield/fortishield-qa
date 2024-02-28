@@ -1,40 +1,40 @@
 #jinja2: lstrip_blocks: True
 <!--
-  Wazuh - Manager - Default configuration
-  More info at: https://documentation.wazuh.com
-  Mailing list: https://groups.google.com/forum/#!forum/wazuh
+  Fortishield - Manager - Default configuration
+  More info at: https://documentation.fortishield.github.io
+  Mailing list: https://groups.google.com/forum/#!forum/fortishield
 -->
 
 <ossec_config>
   <global>
-    <jsonout_output>{{ wazuh_manager_config.json_output }}</jsonout_output>
-    <alerts_log>{{ wazuh_manager_config.alerts_log }}</alerts_log>
-    <logall>{{ wazuh_manager_config.logall }}</logall>
-    <logall_json>{{ wazuh_manager_config.logall_json }}</logall_json>
-    <email_notification>{{ wazuh_manager_config.email_notification }}</email_notification>
-    {% for to in wazuh_manager_config.mail_to %}
+    <jsonout_output>{{ fortishield_manager_config.json_output }}</jsonout_output>
+    <alerts_log>{{ fortishield_manager_config.alerts_log }}</alerts_log>
+    <logall>{{ fortishield_manager_config.logall }}</logall>
+    <logall_json>{{ fortishield_manager_config.logall_json }}</logall_json>
+    <email_notification>{{ fortishield_manager_config.email_notification }}</email_notification>
+    {% for to in fortishield_manager_config.mail_to %}
     <email_to>{{ to }}</email_to>
     {% endfor %}
-    <smtp_server>{{ wazuh_manager_config.mail_smtp_server }}</smtp_server>
-    <email_from>{{ wazuh_manager_config.mail_from }}</email_from>
-    <email_maxperhour>{{ wazuh_manager_config.mail_maxperhour }}</email_maxperhour>
-    <email_log_source>{{ wazuh_manager_config.email_log_source }}</email_log_source>
-    <agents_disconnection_time>{{ wazuh_manager_config.agents_disconnection_time }}</agents_disconnection_time>
-    <agents_disconnection_alert_time>{{ wazuh_manager_config.agents_disconnection_alert_time }}</agents_disconnection_alert_time>
+    <smtp_server>{{ fortishield_manager_config.mail_smtp_server }}</smtp_server>
+    <email_from>{{ fortishield_manager_config.mail_from }}</email_from>
+    <email_maxperhour>{{ fortishield_manager_config.mail_maxperhour }}</email_maxperhour>
+    <email_log_source>{{ fortishield_manager_config.email_log_source }}</email_log_source>
+    <agents_disconnection_time>{{ fortishield_manager_config.agents_disconnection_time }}</agents_disconnection_time>
+    <agents_disconnection_alert_time>{{ fortishield_manager_config.agents_disconnection_alert_time }}</agents_disconnection_alert_time>
   </global>
 
   <alerts>
-    <log_alert_level>{{ wazuh_manager_config.log_level }}</log_alert_level>
-    <email_alert_level>{{ wazuh_manager_config.email_level }}</email_alert_level>
+    <log_alert_level>{{ fortishield_manager_config.log_level }}</log_alert_level>
+    <email_alert_level>{{ fortishield_manager_config.email_level }}</email_alert_level>
   </alerts>
 
   <!-- Choose between "plain", "json", or "plain,json" for the format of internal logs -->
   <logging>
-    <log_format>{{ wazuh_manager_config.log_format }}</log_format>
+    <log_format>{{ fortishield_manager_config.log_format }}</log_format>
   </logging>
 
-{% if wazuh_manager_config.extra_emails is defined %}
-{% for mail in wazuh_manager_config.extra_emails %}
+{% if fortishield_manager_config.extra_emails is defined %}
+{% for mail in fortishield_manager_config.extra_emails %}
 {% if mail.enable == true %}
   <email_alerts>
     <email_to>{{ mail.mail_to }}</email_to>
@@ -66,7 +66,7 @@
 
 
 
-{% for connection in wazuh_manager_config.connection %}
+{% for connection in fortishield_manager_config.connection %}
   <remote>
     <connection>{{ connection.type }}</connection>
     {% if connection.port is defined %}
@@ -97,8 +97,8 @@
   </remote>
 {% endfor %}
 
-{% if wazuh_manager_config.reports is defined %}
-{% for report in wazuh_manager_config.reports %}
+{% if fortishield_manager_config.reports is defined %}
+{% for report in fortishield_manager_config.reports %}
 {% if report.enable == true %}
   <reports>
     <category>{{ report.category }}</category>
@@ -128,20 +128,20 @@
     <check_if>yes</check_if>
 
     <!-- Frequency that rootcheck is executed - every 12 hours -->
-    <frequency>{{ wazuh_manager_config.rootcheck.frequency }}</frequency>
+    <frequency>{{ fortishield_manager_config.rootcheck.frequency }}</frequency>
 
-    <rootkit_files>{{ wazuh_dir }}/etc/rootcheck/rootkit_files.txt</rootkit_files>
-    <rootkit_trojans>{{ wazuh_dir }}/etc/rootcheck/rootkit_trojans.txt</rootkit_trojans>
+    <rootkit_files>{{ fortishield_dir }}/etc/rootcheck/rootkit_files.txt</rootkit_files>
+    <rootkit_trojans>{{ fortishield_dir }}/etc/rootcheck/rootkit_trojans.txt</rootkit_trojans>
 
     <skip_nfs>yes</skip_nfs>
   </rootcheck>
 
-    {% if ansible_system == "Linux" and wazuh_manager_config.openscap.disable == 'no' %}
+    {% if ansible_system == "Linux" and fortishield_manager_config.openscap.disable == 'no' %}
   <wodle name="open-scap">
     <disabled>no</disabled>
-    <timeout>{{ wazuh_manager_config.openscap.timeout }}</timeout>
-    <interval>{{ wazuh_manager_config.openscap.interval }}</interval>
-    <scan-on-start>{{ wazuh_manager_config.openscap.scan_on_start }}</scan-on-start>
+    <timeout>{{ fortishield_manager_config.openscap.timeout }}</timeout>
+    <interval>{{ fortishield_manager_config.openscap.interval }}</interval>
+    <scan-on-start>{{ fortishield_manager_config.openscap.scan_on_start }}</scan-on-start>
     {% if ansible_distribution == 'Ubuntu' and ansible_distribution_release == 'xenial' %}
     <content type="xccdf" path="ssg-ubuntu-1604-ds.xml">
       <profile>xccdf_org.ssgproject.content_profile_common</profile>
@@ -200,154 +200,154 @@
   {% endif %}
 
   <wodle name="cis-cat">
-    <disabled>{{ wazuh_manager_config.cis_cat.disable}}</disabled>
-    <timeout>{{ wazuh_manager_config.cis_cat.timeout }}</timeout>
-    <interval>{{ wazuh_manager_config.cis_cat.interval }}</interval>
-    <scan-on-start>{{ wazuh_manager_config.cis_cat.scan_on_start }}</scan-on-start>
-    {% if wazuh_manager_config.cis_cat.install_java == 'yes' %}
+    <disabled>{{ fortishield_manager_config.cis_cat.disable}}</disabled>
+    <timeout>{{ fortishield_manager_config.cis_cat.timeout }}</timeout>
+    <interval>{{ fortishield_manager_config.cis_cat.interval }}</interval>
+    <scan-on-start>{{ fortishield_manager_config.cis_cat.scan_on_start }}</scan-on-start>
+    {% if fortishield_manager_config.cis_cat.install_java == 'yes' %}
     <java_path>wodles/java</java_path>
     {% else %}
-    <java_path>{{ wazuh_manager_config.cis_cat.java_path }}</java_path>
+    <java_path>{{ fortishield_manager_config.cis_cat.java_path }}</java_path>
     {% endif %}
-    <ciscat_path>{{ wazuh_manager_config.cis_cat.ciscat_path }}</ciscat_path>
+    <ciscat_path>{{ fortishield_manager_config.cis_cat.ciscat_path }}</ciscat_path>
   </wodle>
 
   <!-- Osquery integration -->
   <wodle name="osquery">
-    <disabled>{{ wazuh_manager_config.osquery.disable }}</disabled>
-    <run_daemon>{{ wazuh_manager_config.osquery.run_daemon }}</run_daemon>
-    <log_path>{{ wazuh_manager_config.osquery.log_path }}</log_path>
-    <config_path>{{ wazuh_manager_config.osquery.config_path }}</config_path>
-    <add_labels>{{ wazuh_manager_config.osquery.ad_labels }}</add_labels>
+    <disabled>{{ fortishield_manager_config.osquery.disable }}</disabled>
+    <run_daemon>{{ fortishield_manager_config.osquery.run_daemon }}</run_daemon>
+    <log_path>{{ fortishield_manager_config.osquery.log_path }}</log_path>
+    <config_path>{{ fortishield_manager_config.osquery.config_path }}</config_path>
+    <add_labels>{{ fortishield_manager_config.osquery.ad_labels }}</add_labels>
   </wodle>
 
   <!-- System inventory -->
   <wodle name="syscollector">
-    <disabled>{{ wazuh_manager_config.syscollector.disable }}</disabled>
-    <interval>{{ wazuh_manager_config.syscollector.interval }}</interval>
-    <scan_on_start>{{ wazuh_manager_config.syscollector.scan_on_start }}</scan_on_start>
-    <hardware>{{ wazuh_manager_config.syscollector.hardware }}</hardware>
-    <os>{{ wazuh_manager_config.syscollector.os }}</os>
-    <network>{{ wazuh_manager_config.syscollector.network }}</network>
-    <packages>{{ wazuh_manager_config.syscollector.packages }}</packages>
-    <ports all="no">{{ wazuh_manager_config.syscollector.ports_no }}</ports>
-    <processes>{{ wazuh_manager_config.syscollector.processes }}</processes>
+    <disabled>{{ fortishield_manager_config.syscollector.disable }}</disabled>
+    <interval>{{ fortishield_manager_config.syscollector.interval }}</interval>
+    <scan_on_start>{{ fortishield_manager_config.syscollector.scan_on_start }}</scan_on_start>
+    <hardware>{{ fortishield_manager_config.syscollector.hardware }}</hardware>
+    <os>{{ fortishield_manager_config.syscollector.os }}</os>
+    <network>{{ fortishield_manager_config.syscollector.network }}</network>
+    <packages>{{ fortishield_manager_config.syscollector.packages }}</packages>
+    <ports all="no">{{ fortishield_manager_config.syscollector.ports_no }}</ports>
+    <processes>{{ fortishield_manager_config.syscollector.processes }}</processes>
   </wodle>
 
   <sca>
-  {% if wazuh_manager_config.sca.enabled | length > 0 %}
-    <enabled>{{ wazuh_manager_config.sca.enabled }}</enabled>
+  {% if fortishield_manager_config.sca.enabled | length > 0 %}
+    <enabled>{{ fortishield_manager_config.sca.enabled }}</enabled>
   {% endif %}
-  {% if wazuh_manager_config.sca.scan_on_start | length > 0 %}
-    <scan_on_start>{{ wazuh_manager_config.sca.scan_on_start }}</scan_on_start>
+  {% if fortishield_manager_config.sca.scan_on_start | length > 0 %}
+    <scan_on_start>{{ fortishield_manager_config.sca.scan_on_start }}</scan_on_start>
   {% endif %}
-  {% if wazuh_manager_config.sca.interval | length > 0 %}
-    <interval>{{ wazuh_manager_config.sca.interval }}</interval>
+  {% if fortishield_manager_config.sca.interval | length > 0 %}
+    <interval>{{ fortishield_manager_config.sca.interval }}</interval>
   {% endif %}
-  {% if wazuh_manager_config.sca.skip_nfs | length > 0 %}
+  {% if fortishield_manager_config.sca.skip_nfs | length > 0 %}
     <skip_nfs>yes</skip_nfs>
   {% endif %}
-  {% if wazuh_manager_config.sca.day | length > 0 %}
-    <day>{{ wazuh_manager_config.sca.day }}</day>
+  {% if fortishield_manager_config.sca.day | length > 0 %}
+    <day>{{ fortishield_manager_config.sca.day }}</day>
   {% endif %}
-  {% if wazuh_manager_config.sca.wday | length > 0 %}
-    <wday>{{ wazuh_manager_config.sca.wday }}</wday>
+  {% if fortishield_manager_config.sca.wday | length > 0 %}
+    <wday>{{ fortishield_manager_config.sca.wday }}</wday>
   {% endif %}
-  {% if wazuh_manager_config.sca.time | length > 0 %}
-    <time>{{ wazuh_manager_config.sca.time }}</time>
+  {% if fortishield_manager_config.sca.time | length > 0 %}
+    <time>{{ fortishield_manager_config.sca.time }}</time>
   {% endif %}
   </sca>
 
   <vulnerability-detection>
-  {% if wazuh_manager_config.vulnerability_detector.enabled is defined %}
-    <enabled>{{ wazuh_manager_config.vulnerability_detector.enabled }}</enabled>
+  {% if fortishield_manager_config.vulnerability_detector.enabled is defined %}
+    <enabled>{{ fortishield_manager_config.vulnerability_detector.enabled }}</enabled>
   {% endif %}
-  {% if wazuh_manager_config.vulnerability_detector.index_status is defined %}
-    <index-status>{{ wazuh_manager_config.vulnerability_detector.index_status }}</index-status>
+  {% if fortishield_manager_config.vulnerability_detector.index_status is defined %}
+    <index-status>{{ fortishield_manager_config.vulnerability_detector.index_status }}</index-status>
   {% endif %}
-  {% if wazuh_manager_config.vulnerability_detector.feed_update_interval is defined %}
-    <feed-update-interval>{{ wazuh_manager_config.vulnerability_detector.feed_update_interval }}</feed-update-interval>
+  {% if fortishield_manager_config.vulnerability_detector.feed_update_interval is defined %}
+    <feed-update-interval>{{ fortishield_manager_config.vulnerability_detector.feed_update_interval }}</feed-update-interval>
   {% endif %}
   </vulnerability-detection>
 
   <indexer>
-  {% if wazuh_manager_config.indexer.enabled is defined %}
-    <enabled>{{ wazuh_manager_config.indexer.enabled }}</enabled>
+  {% if fortishield_manager_config.indexer.enabled is defined %}
+    <enabled>{{ fortishield_manager_config.indexer.enabled }}</enabled>
   {% endif %}
   </indexer>
 
   <!-- File integrity monitoring -->
   <syscheck>
-    <disabled>{{ wazuh_manager_config.syscheck.disable }}</disabled>
-    <frequency>{{ wazuh_manager_config.syscheck.frequency }}</frequency>
-    <scan_on_start>{{ wazuh_manager_config.syscheck.scan_on_start }}</scan_on_start>
+    <disabled>{{ fortishield_manager_config.syscheck.disable }}</disabled>
+    <frequency>{{ fortishield_manager_config.syscheck.frequency }}</frequency>
+    <scan_on_start>{{ fortishield_manager_config.syscheck.scan_on_start }}</scan_on_start>
 
     <!-- Do not ignore files that change more than 'frequency' times -->
-    {% if wazuh_manager_config.syscheck.auto_ignore_frequency is defined %}
-    <auto_ignore {{ wazuh_manager_config.syscheck.auto_ignore_frequency.frequency }} {{ wazuh_manager_config.syscheck.auto_ignore_frequency.timeframe }}>{{wazuh_manager_config.syscheck.auto_ignore_frequency.value }}</auto_ignore>
+    {% if fortishield_manager_config.syscheck.auto_ignore_frequency is defined %}
+    <auto_ignore {{ fortishield_manager_config.syscheck.auto_ignore_frequency.frequency }} {{ fortishield_manager_config.syscheck.auto_ignore_frequency.timeframe }}>{{fortishield_manager_config.syscheck.auto_ignore_frequency.value }}</auto_ignore>
     {% endif %}
 
     <!-- Directories to check  (perform all possible verifications) -->
-    {% if wazuh_manager_config.syscheck.directories is defined %}
-    {% for directory in wazuh_manager_config.syscheck.directories %}
+    {% if fortishield_manager_config.syscheck.directories is defined %}
+    {% for directory in fortishield_manager_config.syscheck.directories %}
     <directories {{ directory.checks }}>{{ directory.dirs }}</directories>
     {% endfor %}
     {% endif %}
 
     <!-- Files/directories to ignore -->
-    {% if wazuh_manager_config.syscheck.ignore is defined %}
-    {% for ignore in wazuh_manager_config.syscheck.ignore %}
+    {% if fortishield_manager_config.syscheck.ignore is defined %}
+    {% for ignore in fortishield_manager_config.syscheck.ignore %}
     <ignore>{{ ignore }}</ignore>
     {% endfor %}
     {% endif %}
 
     <!-- File types to ignore -->
-    {% if wazuh_manager_config.syscheck.ignore_linux_type is defined %}
-    {% for ignore in wazuh_manager_config.syscheck.ignore_linux_type %}
+    {% if fortishield_manager_config.syscheck.ignore_linux_type is defined %}
+    {% for ignore in fortishield_manager_config.syscheck.ignore_linux_type %}
     <ignore type="sregex">{{ ignore }}</ignore>
     {% endfor %}
     {% endif %}
 
 
     <!-- Files no diff -->
-    {% for no_diff in wazuh_manager_config.syscheck.no_diff %}
+    {% for no_diff in fortishield_manager_config.syscheck.no_diff %}
     <nodiff>{{ no_diff }}</nodiff>
     {% endfor %}
-    {% if wazuh_manager_config.syscheck.skip_nfs is defined %}
-    <skip_nfs>{{ wazuh_manager_config.syscheck.skip_nfs }}</skip_nfs>
+    {% if fortishield_manager_config.syscheck.skip_nfs is defined %}
+    <skip_nfs>{{ fortishield_manager_config.syscheck.skip_nfs }}</skip_nfs>
     {% endif %}
-    {% if wazuh_manager_config.syscheck.skip_dev is defined %}
-    <skip_dev>{{ wazuh_manager_config.syscheck.skip_dev }}</skip_dev>
+    {% if fortishield_manager_config.syscheck.skip_dev is defined %}
+    <skip_dev>{{ fortishield_manager_config.syscheck.skip_dev }}</skip_dev>
     {% endif %}
-    {% if wazuh_manager_config.syscheck.skip_proc is defined %}
-    <skip_proc>{{ wazuh_manager_config.syscheck.skip_proc }}</skip_proc>
+    {% if fortishield_manager_config.syscheck.skip_proc is defined %}
+    <skip_proc>{{ fortishield_manager_config.syscheck.skip_proc }}</skip_proc>
     {% endif %}
-    {% if wazuh_manager_config.syscheck.skip_sys is defined %}
-    <skip_sys>{{ wazuh_manager_config.syscheck.skip_sys }}</skip_sys>
+    {% if fortishield_manager_config.syscheck.skip_sys is defined %}
+    <skip_sys>{{ fortishield_manager_config.syscheck.skip_sys }}</skip_sys>
     {% endif %}
 
     <!-- Nice value for Syscheck module -->
-    <process_priority>{{ wazuh_manager_config.syscheck.process_priority }}</process_priority>
+    <process_priority>{{ fortishield_manager_config.syscheck.process_priority }}</process_priority>
 
     <!-- Maximum output throughput -->
-    <max_eps>{{ wazuh_manager_config.syscheck.max_eps }}</max_eps>
+    <max_eps>{{ fortishield_manager_config.syscheck.max_eps }}</max_eps>
 
     <!-- Database synchronization settings -->
     <synchronization>
-      <enabled>{{ wazuh_manager_config.syscheck.sync_enabled }}</enabled>
-      <interval>{{ wazuh_manager_config.syscheck.sync_interval }}</interval>
-      <max_interval>{{ wazuh_manager_config.syscheck.sync_max_interval }}</max_interval>
-      <max_eps>{{ wazuh_manager_config.syscheck.sync_max_eps }}</max_eps>
+      <enabled>{{ fortishield_manager_config.syscheck.sync_enabled }}</enabled>
+      <interval>{{ fortishield_manager_config.syscheck.sync_interval }}</interval>
+      <max_interval>{{ fortishield_manager_config.syscheck.sync_max_interval }}</max_interval>
+      <max_eps>{{ fortishield_manager_config.syscheck.sync_max_eps }}</max_eps>
     </synchronization>
   </syscheck>
 
   <global>
-{% for white_list in wazuh_manager_config.globals %}
+{% for white_list in fortishield_manager_config.globals %}
     <white_list>{{ white_list }}</white_list>
 {% endfor %}
   </global>
 
-{% for command in wazuh_manager_config.commands %}
+{% for command in fortishield_manager_config.commands %}
 
   <command>
     <name>{{ command.name }}</name>
@@ -372,8 +372,8 @@
 {% endfor %}
 {% endif -%}
 
-{% if wazuh_manager_config.active_responses is defined %}
-  {% for response in wazuh_manager_config.active_responses %}
+{% if fortishield_manager_config.active_responses is defined %}
+  {% for response in fortishield_manager_config.active_responses %}
     <active-response>
       <disabled>{% if response.disabled is defined %}{{ response.disabled }}{% else %}no{% endif %}</disabled>
       {%if response.command is defined %}<command>{{ response.command }}</command>{% endif %}
@@ -389,7 +389,7 @@
 {% endif -%}
 
   <!-- Files to monitor (localfiles) -->
-{% for localfile in wazuh_manager_config.localfiles.common %}
+{% for localfile in fortishield_manager_config.localfiles.common %}
 
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
@@ -427,7 +427,7 @@
 {% endfor %}
 
 {% if ansible_os_family == "Debian" %}
-{% for localfile in wazuh_manager_config.localfiles.debian %}
+{% for localfile in fortishield_manager_config.localfiles.debian %}
 
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
@@ -466,7 +466,7 @@
 {% endif -%}
 
 {% if ansible_os_family == "RedHat" %}
-{% for localfile in wazuh_manager_config.localfiles.centos %}
+{% for localfile in fortishield_manager_config.localfiles.centos %}
 
   <localfile>
      <log_format>{{ localfile.format }}</log_format>
@@ -504,8 +504,8 @@
 {% endfor %}
 {% endif -%}
 
-{% if wazuh_manager_config.syslog_outputs is defined %}
-{% for syslog_output in wazuh_manager_config.syslog_outputs %}
+{% if fortishield_manager_config.syslog_outputs is defined %}
+{% for syslog_output in fortishield_manager_config.syslog_outputs %}
 {% if syslog_output.server is not none  %}
   <syslog_output>
     <server>{{ syslog_output.server }}</server>
@@ -516,8 +516,8 @@
 {% endfor %}
 {% endif %}
 
-{% if wazuh_manager_config.integrations is defined %}
-{% for integration in wazuh_manager_config.integrations %}
+{% if fortishield_manager_config.integrations is defined %}
+{% for integration in fortishield_manager_config.integrations %}
 {% if integration.name is not none %}
   <!-- Integration with {{ integration.name }} -->
   <integration>
@@ -565,9 +565,9 @@
   </wodle>
 {% endif %}
 
-{% if wazuh_manager_config.labels.enable == true %}
+{% if fortishield_manager_config.labels.enable == true %}
   <labels>
-  {% for label in wazuh_manager_config.labels.list %}
+  {% for label in fortishield_manager_config.labels.list %}
     <label key="{{ label.key }}"{% if label.hidden is defined %} hidden="{{ label.hidden }}"{% endif %}>{{ label.value }}</label>
   {% endfor %}
   </labels>
@@ -578,13 +578,13 @@
   <!-- Default ruleset -->
   <decoder_dir>ruleset/decoders</decoder_dir>
   <rule_dir>ruleset/rules</rule_dir>
-  {% if wazuh_manager_config.rule_exclude is defined %}
-  {% for rule in wazuh_manager_config.rule_exclude %}
+  {% if fortishield_manager_config.rule_exclude is defined %}
+  {% for rule in fortishield_manager_config.rule_exclude %}
   <rule_exclude>{{ rule }}</rule_exclude>
   {% endfor %}
   {% endif %}
-  {% if wazuh_manager_config.ruleset.cdb_lists is defined %}
-  {% for list in wazuh_manager_config.ruleset.cdb_lists %}
+  {% if fortishield_manager_config.ruleset.cdb_lists is defined %}
+  {% for list in fortishield_manager_config.ruleset.cdb_lists %}
   <list>etc/lists/{{ list }}</list>
   {% endfor %}
   {% endif %}
@@ -594,82 +594,82 @@
   <rule_dir>etc/rules</rule_dir>
   </ruleset>
 
-{% if wazuh_manager_config.authd.enable == true %}
+{% if fortishield_manager_config.authd.enable == true %}
   <auth>
     <disabled>no</disabled>
-    {% if wazuh_manager_config.authd.port is not none %}
-    <port>{{wazuh_manager_config.authd.port}}</port>
+    {% if fortishield_manager_config.authd.port is not none %}
+    <port>{{fortishield_manager_config.authd.port}}</port>
     {% else %}
     <port>1515</port>
     {% endif %}
-    {% if wazuh_manager_config.authd.use_source_ip is not none %}
-    <use_source_ip>{{wazuh_manager_config.authd.use_source_ip}}</use_source_ip>
+    {% if fortishield_manager_config.authd.use_source_ip is not none %}
+    <use_source_ip>{{fortishield_manager_config.authd.use_source_ip}}</use_source_ip>
     {% endif %}
     <force>
-      {% if wazuh_manager_config.authd.force.enabled is not none %}
-      <enabled>{{wazuh_manager_config.authd.force.enabled}}</enabled>
+      {% if fortishield_manager_config.authd.force.enabled is not none %}
+      <enabled>{{fortishield_manager_config.authd.force.enabled}}</enabled>
       {% else %}
       <enabledport>yes</enabled>
       {% endif %}
-      {% if wazuh_manager_config.authd.force.key_mismatch is not none %}
-      <key_mismatch>{{wazuh_manager_config.authd.force.key_mismatch}}</key_mismatch>
+      {% if fortishield_manager_config.authd.force.key_mismatch is not none %}
+      <key_mismatch>{{fortishield_manager_config.authd.force.key_mismatch}}</key_mismatch>
       {% else %}
       <key_mismatch>yes</key_mismatch>
       {% endif %}
-      {% if wazuh_manager_config.authd.force.disconnected_time is not none %}
-      <disconnected_time enabled="yes">{{wazuh_manager_config.authd.force.disconnected_time}}</disconnected_time>
+      {% if fortishield_manager_config.authd.force.disconnected_time is not none %}
+      <disconnected_time enabled="yes">{{fortishield_manager_config.authd.force.disconnected_time}}</disconnected_time>
       {% else %}
       <disconnected_time enabled="yes">1h</disconnected_time>
       {% endif %}
-      {% if wazuh_manager_config.authd.force.after_registration_time is not none %}
-      <after_registration_time>{{wazuh_manager_config.authd.force.after_registration_time}}</after_registration_time>
+      {% if fortishield_manager_config.authd.force.after_registration_time is not none %}
+      <after_registration_time>{{fortishield_manager_config.authd.force.after_registration_time}}</after_registration_time>
       {% else %}
       <after_registration_time>1h</after_registration_time>
       {% endif %}
     </force>
-    {% if wazuh_manager_config.authd.purge is not none %}
-    <purge>{{wazuh_manager_config.authd.purge}}</purge>
+    {% if fortishield_manager_config.authd.purge is not none %}
+    <purge>{{fortishield_manager_config.authd.purge}}</purge>
     {% endif %}
-    {% if wazuh_manager_config.authd.use_password is not none %}
-    <use_password>{{wazuh_manager_config.authd.use_password}}</use_password>
+    {% if fortishield_manager_config.authd.use_password is not none %}
+    <use_password>{{fortishield_manager_config.authd.use_password}}</use_password>
     {% endif %}
-    {% if wazuh_manager_config.authd.ciphers is not none %}
-    <ciphers>{{wazuh_manager_config.authd.ciphers}}</ciphers>
+    {% if fortishield_manager_config.authd.ciphers is not none %}
+    <ciphers>{{fortishield_manager_config.authd.ciphers}}</ciphers>
     {% endif %}
-    {% if wazuh_manager_config.authd.ssl_agent_ca is not none %}
-    <ssl_agent_ca>{{ wazuh_dir }}/etc/{{wazuh_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
+    {% if fortishield_manager_config.authd.ssl_agent_ca is not none %}
+    <ssl_agent_ca>{{ fortishield_dir }}/etc/{{fortishield_manager_config.authd.ssl_agent_ca | basename}}</ssl_agent_ca>
     {% endif %}
-    {% if wazuh_manager_config.authd.ssl_verify_host is not none %}
-    <ssl_verify_host>{{wazuh_manager_config.authd.ssl_verify_host}}</ssl_verify_host>
+    {% if fortishield_manager_config.authd.ssl_verify_host is not none %}
+    <ssl_verify_host>{{fortishield_manager_config.authd.ssl_verify_host}}</ssl_verify_host>
     {% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_cert is not none %}
-    <ssl_manager_cert>{{ wazuh_dir }}/etc/{{wazuh_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>
+    {% if fortishield_manager_config.authd.ssl_manager_cert is not none %}
+    <ssl_manager_cert>{{ fortishield_dir }}/etc/{{fortishield_manager_config.authd.ssl_manager_cert | basename}}</ssl_manager_cert>
     {% endif %}
-    {% if wazuh_manager_config.authd.ssl_manager_key is not none %}
-    <ssl_manager_key>{{ wazuh_dir }}/etc/{{wazuh_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>
+    {% if fortishield_manager_config.authd.ssl_manager_key is not none %}
+    <ssl_manager_key>{{ fortishield_dir }}/etc/{{fortishield_manager_config.authd.ssl_manager_key | basename}}</ssl_manager_key>
     {% endif %}
-    {% if wazuh_manager_config.authd.ssl_auto_negotiate is not none %}
-    <ssl_auto_negotiate>{{wazuh_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>
+    {% if fortishield_manager_config.authd.ssl_auto_negotiate is not none %}
+    <ssl_auto_negotiate>{{fortishield_manager_config.authd.ssl_auto_negotiate}}</ssl_auto_negotiate>
     {% endif %}
   </auth>
 {% endif %}
 
   <cluster>
-    <disabled>{{ wazuh_manager_config.cluster.disable }}</disabled>
-    <name>{{ wazuh_manager_config.cluster.name }}</name>
-    <node_name>{{ wazuh_manager_config.cluster.node_name }}</node_name>
-    <node_type>{{ wazuh_manager_config.cluster.node_type }}</node_type>
-    <key>{{ wazuh_manager_config.cluster.key }}</key>
-    {% if wazuh_manager_config.cluster.interval is defined %}
-    <interval>{{ wazuh_manager_config.cluster.interval }}</interval>
+    <disabled>{{ fortishield_manager_config.cluster.disable }}</disabled>
+    <name>{{ fortishield_manager_config.cluster.name }}</name>
+    <node_name>{{ fortishield_manager_config.cluster.node_name }}</node_name>
+    <node_type>{{ fortishield_manager_config.cluster.node_type }}</node_type>
+    <key>{{ fortishield_manager_config.cluster.key }}</key>
+    {% if fortishield_manager_config.cluster.interval is defined %}
+    <interval>{{ fortishield_manager_config.cluster.interval }}</interval>
     {% endif %}
-    <port>{{ wazuh_manager_config.cluster.port }}</port>
-    <bind_addr>{{ wazuh_manager_config.cluster.bind_addr }}</bind_addr>
+    <port>{{ fortishield_manager_config.cluster.port }}</port>
+    <bind_addr>{{ fortishield_manager_config.cluster.bind_addr }}</bind_addr>
     <nodes>
-    {% for node in wazuh_manager_config.cluster.nodes %}
+    {% for node in fortishield_manager_config.cluster.nodes %}
       <node>{{ node }}</node>
     {% endfor %}
     </nodes>
-    <hidden>{{ wazuh_manager_config.cluster.hidden }}</hidden>
+    <hidden>{{ fortishield_manager_config.cluster.hidden }}</hidden>
   </cluster>
 </ossec_config>

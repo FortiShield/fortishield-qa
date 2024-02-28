@@ -1,10 +1,10 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: This tests check that when a cluster has a series of agents with groups assigned, when an agent has it's
-        group changed by a Wazuh-DB command, the cluster updates it's information.
+        group changed by a Fortishield-DB command, the cluster updates it's information.
 tier: 2
 modules:
     - cluster
@@ -12,8 +12,8 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -35,18 +35,18 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/agent-auth.html
-    - https://documentation.wazuh.com/current/user-manual/registering/command-line-registration.html
-    - https://documentation.wazuh.com/current/user-manual/registering/agent-enrollment.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent-auth.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/command-line-registration.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
 tags:
-    - wazuh-db
+    - fortishield-db
 '''
 import os
 import time
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.system import HostManager
 from system import create_new_agent_group, check_agent_groups
 from system.test_cluster.test_agent_groups.common import register_agent
 
@@ -54,12 +54,12 @@ from system.test_cluster.test_agent_groups.common import register_agent
 pytestmark = [pytest.mark.cluster, pytest.mark.big_cluster_40_agents_env]
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
 agents_in_cluster = 40
 test_infra_agents = []
 agent_groups = []
 for x in range(agents_in_cluster):
-    test_infra_agents.append("wazuh-agent" + str(x+1))
+    test_infra_agents.append("fortishield-agent" + str(x+1))
     agent_groups.append("Group" + str(x+1))
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -77,14 +77,14 @@ def test_agent_groups_sync_time(agent_host, clean_environment):
     description: Check that after a long time when the manager has been unable to synchronize de databases, because
     new agents are being continually added, database synchronization is forced and the expected information is in
     all nodes after the expected sync time.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - agent_host:
             type: List
             brief: Name of the host where the agent will register en each case.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering and after starting the agent, the indicated group is synchronized.
     expected_output:
@@ -106,7 +106,7 @@ def test_agent_groups_sync_time(agent_host, clean_environment):
     active_agent = 0
     while time.time() < end_time:
         if active_agent < agents_in_cluster:
-            host_manager.run_command(test_infra_agents[active_agent], f'{WAZUH_PATH}/bin/wazuh-control start')
+            host_manager.run_command(test_infra_agents[active_agent], f'{FORTISHIELD_PATH}/bin/fortishield-control start')
             active_agent = active_agent + 1
 
     assert active_agent == agents_in_cluster, f"Unable to restart all agents in the expected time. \

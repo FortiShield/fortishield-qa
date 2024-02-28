@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, these tests will check the agent-manager communication with different protocols.
        Two threads are using, one for sending the message and other for monitoring the queue socket.
 
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -35,8 +35,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html
 
 tags:
     - remoted
@@ -45,12 +45,12 @@ import pytest
 import os
 
 from time import sleep
-from wazuh_testing.tools.thread_executor import ThreadExecutor
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools import file
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing import remote as rd
+from fortishield_testing.tools.thread_executor import ThreadExecutor
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools import file
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing import remote as rd
 
 # Marks
 pytestmark = pytest.mark.tier(level=0)
@@ -58,9 +58,9 @@ pytestmark = pytest.mark.tier(level=0)
 # Variables
 current_test_path = os.path.dirname(os.path.realpath(__file__))
 test_data_path = os.path.join(current_test_path, 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_protocols_communication.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_protocols_communication.yaml')
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # Set configuration
 parameters = [
@@ -95,7 +95,7 @@ agent_info = {
 configuration_ids = [f"{item['PROTOCOL'].upper()}_{item['PORT']}" for item in parameters]
 
 # Configuration data
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 def validate_agent_manager_protocol_communication(protocol, manager_port):
@@ -115,7 +115,7 @@ def validate_agent_manager_protocol_communication(protocol, manager_port):
 
     socket_monitor_thread = ThreadExecutor(rd.check_queue_socket_event)
 
-    send_message_thread = ThreadExecutor(rd.send_agent_event, {'wazuh_log_monitor': wazuh_log_monitor,
+    send_message_thread = ThreadExecutor(rd.send_agent_event, {'fortishield_log_monitor': fortishield_log_monitor,
                                                                'protocol': protocol, 'manager_port': manager_port})
     # Start log monitoring
     socket_monitor_thread.start()
@@ -147,7 +147,7 @@ def test_protocols_communication(get_configuration, configure_environment, resta
                  For this purpose, the test will log and send the message to check if the communication works fine.
                  Then, after the sender ends, the socket connection is closed.
     
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -157,7 +157,7 @@ def test_protocols_communication(get_configuration, configure_environment, resta
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - restart_remoted:
             type: fixture
             brief: Clear the 'ossec.log' file and start a new monitor.
@@ -166,8 +166,8 @@ def test_protocols_communication(get_configuration, configure_environment, resta
         - Verify that the agent sends correctly a message to the manager using a specific protocol and port.
     
     input_description: A configuration template (test_protocols_communication) is contained in an external YAML file,
-                       (wazuh_protocols_communication.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-remoted' daemon and agents
+                       (fortishield_protocols_communication.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-remoted' daemon and agents
                        info.
                         
     expected_output:

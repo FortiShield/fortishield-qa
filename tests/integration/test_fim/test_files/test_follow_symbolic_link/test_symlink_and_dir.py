@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will verify that FIM does not trigger
        events for existing files when a 'symbolic link' is changed to a non-empty directory.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -46,8 +46,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -64,15 +64,15 @@ tags:
 import os
 
 import pytest
-import wazuh_testing.fim as fim
+import fortishield_testing.fim as fim
 
 from test_fim.test_files.test_follow_symbolic_link.common import wait_for_symlink_check, \
     symlink_interval, \
     modify_symlink
-from wazuh_testing import global_parameters, logger
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters, logger
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -85,13 +85,13 @@ testdir = test_directories[0]
 testdir_link = os.path.join(PREFIX, 'testdir_link')
 testdir_target = test_directories[1]
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-wazuh_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+fortishield_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
 
 # Configurations
 
 conf_params, conf_metadata = fim.generate_params(extra_params={'FOLLOW_MODE': 'yes'})
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 # Fixtures
@@ -126,13 +126,13 @@ def extra_configuration_after_yield():
 def test_symlink_dir_inside_monitored_dir(tags_to_apply, get_configuration, configure_environment, restart_syscheckd,
                                           wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects events from existing files in a new target
+    description: Check if the 'fortishield-syscheckd' daemon detects events from existing files in a new target
                  of a monitored symlink. For this purpose, the test will create a 'symbolic link' to a
                  file/directory. Then, it will change the target to a non-empty directory, checking that
                  no FIM events are triggered for the files already in the directory. Finally, the test
                  will make file operatons and verify that FIM events are generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -157,8 +157,8 @@ def test_symlink_dir_inside_monitored_dir(tags_to_apply, get_configuration, conf
         - Verify that no FIM events are generated for existing files when a 'symbolic link'
           is changed to a non-empty directory.
 
-    input_description: A test case (symlink_and_dir) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: A test case (symlink_and_dir) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the testing directories to be monitored defined in the module.
 
     expected_output:
@@ -176,21 +176,21 @@ def test_symlink_dir_inside_monitored_dir(tags_to_apply, get_configuration, conf
     modify_symlink(testdir_target, testdir_link)
 
     # Wait for both audit and the symlink check to run
-    wait_for_symlink_check(wazuh_log_monitor)
-    fim.wait_for_audit(whodata, wazuh_log_monitor)
+    wait_for_symlink_check(fortishield_log_monitor)
+    fim.wait_for_audit(whodata, fortishield_log_monitor)
 
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event)
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event)
         logger.error(f'Unexpected event {event.result()}')
         raise AttributeError(f'Unexpected event {event.result()}')
 
     # Create a file in the pointed folder and expect events
     fim.create_file(fim.REGULAR, testdir_link, 'regular2')
 
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                             error_message='Did not receive expected '
                                           '"Sending FIM event: ..." event')

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check if when a monitored folder is deleted,
        the files inside it generate FIM events of the type 'deleted'.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -65,12 +65,12 @@ import shutil
 from collections import Counter
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params, create_file, REGULAR, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params, create_file, REGULAR, \
     callback_detect_event, check_time_travel, validate_event
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -78,21 +78,21 @@ pytestmark = pytest.mark.tier(level=0)
 
 # variables
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_directories = [os.path.join(PREFIX, 'testdir1'), os.path.join(PREFIX, 'testdir2')]
 directory_str = ','.join(test_directories)
 for direc in list(test_directories):
     test_directories.append(os.path.join(direc, 'subdir'))
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1, testdir2 = test_directories[2:]
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 # configurations
 
 conf_params = {'TEST_DIRECTORIES': directory_str, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params)
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -114,7 +114,7 @@ def test_delete_folder(folder, file_list, filetype, tags_to_apply,
                        get_configuration, configure_environment,
                        restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects 'deleted' events from the files contained
+    description: Check if the 'fortishield-syscheckd' daemon detects 'deleted' events from the files contained
                  in a folder that is being deleted. For example, the folder '/testdir' is monitored, and
                  the files 'r1', 'r2' and 'r3' are inside '/testdir'. If '/testdir' is deleted, three
                  events of type 'deleted' must be generated, one for each of the regular files.
@@ -123,7 +123,7 @@ def test_delete_folder(folder, file_list, filetype, tags_to_apply,
                  scheduled scan. Then, remove the monitored folder, and finally, the test
                  verifies that the 'deleted' events have been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -157,8 +157,8 @@ def test_delete_folder(folder, file_list, filetype, tags_to_apply,
         - Verify that when a monitored folder is deleted, the files inside it
           generate FIM events of the type 'deleted'.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directories to be monitored defined in this module.
 
     expected_output:
@@ -176,8 +176,8 @@ def test_delete_folder(folder, file_list, filetype, tags_to_apply,
     for file in file_list:
         create_file(filetype, folder, file, content='')
 
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    events = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    events = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
                                      accum_results=len(file_list),
                                      error_message='Did not receive expected "Sending FIM event: ..." event').result()
     for ev in events:
@@ -185,10 +185,10 @@ def test_delete_folder(folder, file_list, filetype, tags_to_apply,
 
     # Remove folder
     shutil.rmtree(folder, ignore_errors=True)
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
     # Expect deleted events
-    event_list = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
+    event_list = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
                                          error_message='Did not receive expected '
                                                        '"Sending FIM event: ..." event',
                                          accum_results=len(file_list)).result()

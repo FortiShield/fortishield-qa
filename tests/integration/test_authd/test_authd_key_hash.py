@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: This module verifies the correct behavior of the enrollment daemon 'wazuh-authd' under different messages.
+brief: This module verifies the correct behavior of the enrollment daemon 'fortishield-authd' under different messages.
 
 components:
     - authd
@@ -16,9 +16,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -43,9 +43,9 @@ import subprocess
 import time
 
 import pytest
-from wazuh_testing.tools import WAZUH_DB_SOCKET_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
+from fortishield_testing.tools import FORTISHIELD_DB_SOCKET_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
 
 
 # Marks
@@ -55,14 +55,14 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 # Configurations
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 message_tests = read_yaml(os.path.join(test_data_path, 'authd_key_hash.yaml'))
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=None, metadata=None)
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=None, metadata=None)
 
 
 # Variables
 log_monitor_paths = []
-receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2'), (WAZUH_DB_SOCKET_PATH, 'AF_UNIX', 'TCP')]
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2'), (FORTISHIELD_DB_SOCKET_PATH, 'AF_UNIX', 'TCP')]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 test_case_ids = [f"{test_case['name'].lower().replace(' ', '-')}" for test_case in message_tests]
 
@@ -103,13 +103,13 @@ def set_up_groups(get_current_test_case, request):
 
 def test_ossec_auth_messages_with_key_hash(configure_environment, configure_sockets_environment,
                                            connect_to_sockets_function, set_up_groups, insert_pre_existent_agents,
-                                           restart_wazuh_daemon_function, wait_for_authd_startup_function,
+                                           restart_fortishield_daemon_function, wait_for_authd_startup_function,
                                            get_current_test_case, tear_down):
     '''
     description:
         Checks that every input message in authd port generates the adequate output.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -130,9 +130,9 @@ def test_ossec_auth_messages_with_key_hash(configure_environment, configure_sock
         - insert_pre_existent_agents:
             type: fixture
             brief: adds the required agents to the client.keys and global.db
-        - restart_wazuh_daemon_function:
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restarts wazuh or a specific daemon passed.
+            brief: Restarts fortishield or a specific daemon passed.
         - wait_for_authd_startup_function:
             type: fixture
             brief: Waits until Authd is accepting connections.

@@ -1,5 +1,5 @@
 ---
-wazuh-agent2:
+fortishield-agent2:
   - regex: '\\\\x27\\\\x24token\\\\x27: \\\\x60132\\\\x60\\\\x21'
     path: '/var/ossec/logs/active-responses.log'
     timeout: 60

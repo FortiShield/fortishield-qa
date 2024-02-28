@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-agentd' program is the client-side daemon that communicates with the server.
+brief: The 'fortishield-agentd' program is the client-side daemon that communicates with the server.
        The objective is to check that, with different states in the 'clients.keys' file,
-       the agent successfully enrolls after losing connection with the 'wazuh-remoted' daemon.
-       The wazuh-remoted program is the server side daemon that communicates with the agents.
+       the agent successfully enrolls after losing connection with the 'fortishield-remoted' daemon.
+       The fortishield-remoted program is the server side daemon that communicates with the agents.
 
 components:
     - agentd
@@ -19,9 +19,9 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agentd
-    - wazuh-authd
-    - wazuh-remoted
+    - fortishield-agentd
+    - fortishield-authd
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -42,7 +42,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/index.html
 
 tags:
     - enrollment
@@ -53,21 +53,21 @@ from time import sleep
 
 import pytest
 from datetime import datetime, timedelta
-from wazuh_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import QueueMonitor, FileMonitor
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import QueueMonitor, FileMonitor
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.services import control_service
 
 # Marks
 
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), pytest.mark.agent]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 
 params = [
     {
@@ -88,7 +88,7 @@ metadata = [
 
 config_ids = ['tcp', 'udp']
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 log_monitor_paths = []
 
@@ -115,10 +115,10 @@ def teardown():
 def set_debug_mode():
     """Set debug2 for agentd in local internal options file."""
     if platform.system() == 'win32' or platform.system() == 'Windows':
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'local_internal_options.conf')
         debug_line = 'windows.debug=2\nagent.recv_timeout=5\n'
     else:
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'etc', 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'etc', 'local_internal_options.conf')
         debug_line = 'agent.debug=2\nagent.recv_timeout=5\n'
 
     with open(local_int_conf_path, 'r') as local_file_read:
@@ -232,18 +232,18 @@ def test_agentd_reconection_enrollment_with_keys(configure_authd_server, configu
                                                  get_configuration, teardown):
     '''
     description: Check how the agent behaves when losing communication with
-                 the 'wazuh-remoted' daemon and a new enrollment is sent to
-                 the 'wazuh-authd' daemon.
+                 the 'fortishield-remoted' daemon and a new enrollment is sent to
+                 the 'fortishield-authd' daemon.
                  In this case, the agent starts with keys.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated wazuh-authd connection.
+            brief: Initializes a simulated fortishield-authd connection.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -257,7 +257,7 @@ def test_agentd_reconection_enrollment_with_keys(configure_authd_server, configu
     assertions:
         - Verify that the agent enrollment is successful.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Two test cases are found in the test module and include parameters
                        for the environment setup using the TCP and UDP protocols.
 
@@ -321,18 +321,18 @@ def test_agentd_reconection_enrollment_no_keys_file(configure_authd_server, conf
                                                     teardown):
     '''
     description: Check how the agent behaves when losing communication with
-                 the 'wazuh-remoted' daemon and a new enrollment is sent to
-                 the 'wazuh-authd' daemon.
+                 the 'fortishield-remoted' daemon and a new enrollment is sent to
+                 the 'fortishield-authd' daemon.
                  In this case, the agent doesn't have the 'client.keys' file.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -346,7 +346,7 @@ def test_agentd_reconection_enrollment_no_keys_file(configure_authd_server, conf
     assertions:
         - Verify that the agent enrollment is successful.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Two test cases are found in the test module and include parameters
                        for the environment setup using the TCP and UDP protocols.
 
@@ -413,18 +413,18 @@ def test_agentd_reconection_enrollment_no_keys(configure_authd_server, configure
                                                teardown):
     '''
     description: Check how the agent behaves when losing communication with
-                 the 'wazuh-remoted' daemon and a new enrollment is sent to
-                 the 'wazuh-authd' daemon.
+                 the 'fortishield-remoted' daemon and a new enrollment is sent to
+                 the 'fortishield-authd' daemon.
                  In this case, the agent has its 'client.keys' file empty.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -438,7 +438,7 @@ def test_agentd_reconection_enrollment_no_keys(configure_authd_server, configure
     assertions:
         - Verify that the agent enrollment is successful.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Two test cases are found in the test module and include parameters
                        for the environment setup using the TCP and UDP protocols.
 
@@ -506,17 +506,17 @@ def test_agentd_initial_enrollment_retries(configure_authd_server, configure_env
     '''
     description: Check how the agent behaves when it makes multiple enrollment attempts
                  before getting its key. For this, the agent starts without keys and
-                 performs multiple enrollment requests to the 'wazuh-authd' daemon before
-                 getting the new key to communicate with the 'wazuh-remoted' daemon.
+                 performs multiple enrollment requests to the 'fortishield-authd' daemon before
+                 getting the new key to communicate with the 'fortishield-remoted' daemon.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -530,7 +530,7 @@ def test_agentd_initial_enrollment_retries(configure_authd_server, configure_env
     assertions:
         - Verify that the agent enrollment is successful.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Two test cases are found in the test module and include parameters
                        for the environment setup using the 'TCP' and 'UDP' protocols.
 
@@ -585,12 +585,12 @@ def test_agentd_initial_enrollment_retries(configure_authd_server, configure_env
     # Wait until Agent is notifying Manager
     log_monitor.start(timeout=120, callback=wait_notify, error_message="Notify message from agent was never sent!")
 
-    # Check if no Wazuh module stopped due to Agentd Initialization
+    # Check if no Fortishield module stopped due to Agentd Initialization
     with open(LOG_FILE_PATH) as log_file:
         log_lines = log_file.read().splitlines()
         for line in log_lines:
             if "Unable to access queue:" in line:
-                raise AssertionError("A Wazuh module stopped because of Agentd initialization!")
+                raise AssertionError("A Fortishield module stopped because of Agentd initialization!")
 
 
 """
@@ -602,19 +602,19 @@ and multiple connection retries are required prior to requesting a new enrollmen
 def test_agentd_connection_retries_pre_enrollment(configure_authd_server, configure_environment, get_configuration,
                                                   teardown):
     '''
-    description: Check how the agent behaves when the 'wazuh-remoted' daemon is not available
+    description: Check how the agent behaves when the 'fortishield-remoted' daemon is not available
                  and performs multiple connection attempts to it. For this, the agent starts
-                 with keys but the 'wazuh-remoted' daemon is not available for several seconds,
+                 with keys but the 'fortishield-remoted' daemon is not available for several seconds,
                  then the agent performs multiple connection retries before requesting a new enrollment.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -628,7 +628,7 @@ def test_agentd_connection_retries_pre_enrollment(configure_authd_server, config
     assertions:
         - Verify that the agent enrollment is successful.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Two test cases are found in the test module and include parameters
                        for the environment setup using the TCP and UDP protocols.
 

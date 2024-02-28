@@ -1,9 +1,9 @@
 cluster_key: "00000000000000000000000000000000"
 
-master_hostname: "wazuh-master"
+master_hostname: "fortishield-master"
 
-worker1_hostname: "wazuh-worker1"
-worker2_hostname: "wazuh-worker2"
+worker1_hostname: "fortishield-worker1"
+worker2_hostname: "fortishield-worker2"
 
 docker_network: "agentless_cluster_net"
 

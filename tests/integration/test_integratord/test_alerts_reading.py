@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Integratord manages Wazuh integrations with other applications such as Yara or Slack, by feeding
+brief: Integratord manages Fortishield integrations with other applications such as Yara or Slack, by feeding
 the integrated aplications with the alerts located in alerts.json file. This test module aims to validate that
 given a specific alert, the expected response is recieved, depending if it is a valid/invalid json alert, an
 overlong alert (64kb+) or what happens when it cannot read the file because it is missing.
@@ -19,7 +19,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-integratord
+    - fortishield-integratord
 
 os_platform:
     - Linux
@@ -29,8 +29,8 @@ os_version:
     - Ubuntu Focal
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/manager/manual-integration.html#slack
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-integratord.html
+    - https://documentation.fortishield.github.io/current/user-manual/manager/manual-integration.html#slack
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-integratord.html
 
 pytest_args:
     - tier:
@@ -45,14 +45,14 @@ import os
 import time
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH, ALERT_FILE_PATH
-from wazuh_testing.tools.file import remove_file, copy
-from wazuh_testing.tools.local_actions import run_local_command_returning_output
-from wazuh_testing.modules import integratord as integrator
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.integratord import event_monitor as evm
+from fortishield_testing import global_parameters
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH, ALERT_FILE_PATH
+from fortishield_testing.tools.file import remove_file, copy
+from fortishield_testing.tools.local_actions import run_local_command_returning_output
+from fortishield_testing.modules import integratord as integrator
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.integratord import event_monitor as evm
 
 
 def replace_webhook_url(ids, configurations):
@@ -100,7 +100,7 @@ t2_config = load_configuration_template(configurations_template, t2_config_param
 t3_config = load_configuration_template(configurations_template, t3_config_params, t3_metadata)
 
 # Variables
-TEMP_FILE_PATH = os.path.join(WAZUH_PATH, 'logs/alerts/alerts.json.tmp')
+TEMP_FILE_PATH = os.path.join(FORTISHIELD_PATH, 'logs/alerts/alerts.json.tmp')
 daemons_handler_configuration = {'daemons': integrator.REQUIRED_DAEMONS}
 local_internal_options = {'integrator.debug': '2', 'analysisd.debug': '1', 'monitord.rotate_log': '0'}
 
@@ -108,17 +108,17 @@ local_internal_options = {'integrator.debug': '2', 'analysisd.debug': '1', 'moni
 # Tests
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t1_config, t1_metadata), ids=t1_cases_ids)
-def test_integratord_change_json_inode(configuration, metadata, set_wazuh_configuration, truncate_monitored_files,
+def test_integratord_change_json_inode(configuration, metadata, set_fortishield_configuration, truncate_monitored_files,
                                        configure_local_internal_options_module, daemons_handler_function,
                                        wait_for_start_module):
     '''
-    description: Check that wazuh-integratord detects a change in the inode of the alerts.json and continues reading
+    description: Check that fortishield-integratord detects a change in the inode of the alerts.json and continues reading
                  alerts.
 
     test_phases:
         - setup:
             - Apply ossec.conf configuration changes according to the configuration template and use case.
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Configure internal options.
             - Restart the daemons defined in `daemons_handler_configuration`.
             - Wait for the restarted modules to start correctly.
@@ -126,17 +126,17 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
             - Wait until integratord is ready to read alerts.
             - Insert an alert in the `alerts.json` file.
             - Check if the alert was received by Slack.
-            - Replace the `alerts.json` file while wazuh-integratord is reading it.
-            - Wait for the inode change to be detected by wazuh-integratord.
-            - Check if wazuh-integratord detects that the file's inode has changed.
+            - Replace the `alerts.json` file while fortishield-integratord is reading it.
+            - Wait for the inode change to be detected by fortishield-integratord.
+            - Check if fortishield-integratord detects that the file's inode has changed.
             - Insert an alert in the `alerts.json` file.
             - Check if the alert is processed.
             - Check alert was received by Slack.
         - teardown:
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Restore initial configuration, both `ossec.conf` and `local_internal_options.conf`.
 
-    wazuh_min_version: 4.3.5
+    fortishield_min_version: 4.3.5
 
     tier: 1
 
@@ -147,9 +147,9 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
@@ -158,7 +158,7 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
             brief: Configure the local internal options file.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons.
+            brief: Handler of Fortishield daemons.
         - wait_for_start_module:
             type: fixture
             brief: Detect the start of the Integratord module in the ossec.log
@@ -171,11 +171,11 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
         - The `cases_integratord_read_json_alerts` file provides the test cases.
 
     expected_output:
-        - r'.+wazuh-integratord.*DEBUG: jqueue_next.*Alert file inode changed.*'
-        - r'.+wazuh-integratord.*Processing alert.*'
-        - r'.+wazuh-integratord.*<Response [200]>'
+        - r'.+fortishield-integratord.*DEBUG: jqueue_next.*Alert file inode changed.*'
+        - r'.+fortishield-integratord.*Processing alert.*'
+        - r'.+fortishield-integratord.*<Response [200]>'
     '''
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
     command = f"echo '{metadata['alert_sample']}' >> {ALERT_FILE_PATH}"
 
     # Wait until integratord is ready to read alerts
@@ -184,7 +184,7 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
     # Insert a new alert
     run_local_command_returning_output(command)
 
-    evm.check_third_party_response(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+    evm.check_third_party_response(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)
 
     # Change file to change inode
     copy(ALERT_FILE_PATH, TEMP_FILE_PATH)
@@ -196,18 +196,18 @@ def test_integratord_change_json_inode(configuration, metadata, set_wazuh_config
     # until the file is reloaded.
     time.sleep(integrator.TIME_TO_DETECT_FILE)
 
-    evm.check_file_inode_changed(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+    evm.check_file_inode_changed(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)
 
     # Insert a new alert
     run_local_command_returning_output(command)
 
     # Check if the alert was correctly sent to Slack
-    evm.check_third_party_response(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+    evm.check_third_party_response(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)
 
 
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t2_config, t2_metadata), ids=t2_cases_ids)
-def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_configuration, truncate_monitored_files,
+def test_integratord_read_valid_alerts(configuration, metadata, set_fortishield_configuration, truncate_monitored_files,
                                        configure_local_internal_options_module, daemons_handler_function,
                                        wait_for_start_module):
     '''
@@ -217,7 +217,7 @@ def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_config
     test_phases:
         - setup:
             - Apply ossec.conf configuration changes according to the configuration template and use case.
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Configure internal options.
             - Restart the daemons defined in `daemons_handler_configuration`.
             - Wait for the restarted modules to start correctly.
@@ -225,10 +225,10 @@ def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_config
             - Insert a valid alert in the alerts.json file.
             - Check if the alert was received by Slack correctly (HTTP response status code: 200)
         - teardown:
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Restore initial configuration, both `ossec.conf` and `local_internal_options.conf`.
 
-    wazuh_min_version: 4.3.7
+    fortishield_min_version: 4.3.7
 
     tier: 1
 
@@ -239,9 +239,9 @@ def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_config
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
@@ -250,7 +250,7 @@ def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_config
             brief: Configure the local internal options file.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons.
+            brief: Handler of Fortishield daemons.
         - wait_for_start_module:
             type: fixture
             brief: Detect the start of the Integratord module in the ossec.log
@@ -263,20 +263,20 @@ def test_integratord_read_valid_alerts(configuration, metadata, set_wazuh_config
         - The `cases_integratord_read_valid_json_alerts` file provides the test cases.
 
     expected_output:
-        - r'.+wazuh-integratord.*alert_id.*\"integration\": \"slack\".*'
+        - r'.+fortishield-integratord.*alert_id.*\"integration\": \"slack\".*'
     '''
     sample = metadata['alert_sample']
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
 
     run_local_command_returning_output(f"echo '{sample}' >> {ALERT_FILE_PATH}")
 
     # Read Response in ossec.log
-    evm.check_third_party_response(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+    evm.check_third_party_response(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)
 
 
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t3_config, t3_metadata), ids=t3_cases_ids)
-def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_configuration, truncate_monitored_files,
+def test_integratord_read_invalid_alerts(configuration, metadata, set_fortishield_configuration, truncate_monitored_files,
                                          configure_local_internal_options_module, daemons_handler_function,
                                          wait_for_start_module):
     '''
@@ -286,18 +286,18 @@ def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_conf
     test_phases:
         - setup:
             - Apply ossec.conf configuration changes according to the configuration template and use case.
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Configure internal options.
             - Restart the daemons defined in `daemons_handler_configuration`.
             - Wait for the restarted modules to start correctly.
         - test:
             - Insert an invalid alert in the alerts.json file.
-            - Check if wazuh-integratord process the alert and report an error.
+            - Check if fortishield-integratord process the alert and report an error.
         - teardown:
-            - Truncate Wazuh's logs.
+            - Truncate Fortishield's logs.
             - Restore initial configuration, both `ossec.conf` and `local_internal_options.conf`.
 
-    wazuh_min_version: 4.3.7
+    fortishield_min_version: 4.3.7
 
     tier: 1
 
@@ -308,9 +308,9 @@ def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_conf
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
@@ -319,7 +319,7 @@ def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_conf
             brief: Configure the local internal options file.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons.
+            brief: Handler of Fortishield daemons.
         - wait_for_start_module:
             type: fixture
             brief: Detect the start of the Integratord module in the ossec.log
@@ -332,12 +332,12 @@ def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_conf
         - The `cases_integratord_read_invalid_json_alerts` file provides the test cases.
 
     expected_output:
-        - r'.+wazuh-integratord.*WARNING: Invalid JSON alert read.*'
-        - r'.+wazuh-integratord.*WARNING: Overlong JSON alert read.*'
+        - r'.+fortishield-integratord.*WARNING: Invalid JSON alert read.*'
+        - r'.+fortishield-integratord.*WARNING: Overlong JSON alert read.*'
 
     '''
     sample = metadata['alert_sample']
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
 
     if metadata['alert_type'] == 'invalid':
         callback = integrator.CB_INVALID_ALERT_READ
@@ -350,6 +350,6 @@ def test_integratord_read_invalid_alerts(configuration, metadata, set_wazuh_conf
     run_local_command_returning_output(f"echo '{sample}' >> {ALERT_FILE_PATH}")
 
     # Read Response in ossec.log
-    evm.check_invalid_alert_read(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout,
+    evm.check_invalid_alert_read(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout,
                                  callback=callback,
                                  error_message=f"Did not recieve the expected '{callback}' event")

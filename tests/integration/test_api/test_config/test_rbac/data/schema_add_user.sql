@@ -1,7 +1,7 @@
 /*
  * SQL Schema rbac tests
- * Copyright (C) 2015-2021, Wazuh Inc.
- * Created by Wazuh, Inc. <info@wazuh.com>.
+ * Copyright (C) 2015-2021, Fortishield Inc.
+ * Created by Fortishield, Inc. <info@fortishield.github.io>.
  * This program is a free software, you can redistribute it and/or modify it under the terms of GPLv2.
  */
 

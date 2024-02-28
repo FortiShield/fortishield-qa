@@ -1,5 +1,5 @@
-# Copyright (C) 2015, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 from os import listdir
@@ -8,8 +8,8 @@ from os.path import join, dirname, realpath
 import pytest
 from yaml import safe_load
 
-from wazuh_testing.tools.performance.csv_parser import ClusterCSVTasksParser, ClusterCSVResourcesParser, ClusterEnvInfo
-from wazuh_testing.tools.utils import get_datetime_diff
+from fortishield_testing.tools.performance.csv_parser import ClusterCSVTasksParser, ClusterCSVResourcesParser, ClusterEnvInfo
+from fortishield_testing.tools.utils import get_datetime_diff
 
 test_data_path = join(dirname(realpath(__file__)), 'data')
 configurations = {file.replace('_thresholds.yaml', ''): safe_load(open(join(test_data_path, file))) for file in

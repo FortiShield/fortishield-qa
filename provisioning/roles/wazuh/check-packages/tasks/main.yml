@@ -1,7 +1,7 @@
 ---
   - name: Check packages
     shell: |
-      ./check_packages.sh {{ wazuh_version }}
+      ./check_packages.sh {{ fortishield_version }}
     args:
       warn: false
       executable: /bin/bash

@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: These tests will check if the 'SSL' (Secure Socket Layer) protocol-related settings of
-       the 'wazuh-authd' daemon are working correctly. The 'wazuh-authd' daemon can
-       automatically add a Wazuh agent to a Wazuh manager and provide the key
+       the 'fortishield-authd' daemon are working correctly. The 'fortishield-authd' daemon can
+       automatically add a Fortishield agent to a Fortishield manager and provide the key
        to the agent. It is used along with the 'agent-auth' application.
 
 components:
@@ -19,9 +19,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -38,8 +38,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-authd.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/auth.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-authd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/auth.html
 
 tags:
     - enrollment
@@ -50,13 +50,13 @@ import time
 
 import pytest
 import yaml
-from wazuh_testing.fim import generate_params
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.configuration import set_section_wazuh_conf, write_wazuh_conf
-from wazuh_testing.tools.file import truncate_file, read_yaml
-from wazuh_testing.tools.monitoring import SocketController, FileMonitor
-from wazuh_testing.tools.services import control_service, check_daemon_status
+from fortishield_testing.fim import generate_params
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.configuration import set_section_fortishield_conf, write_fortishield_conf
+from fortishield_testing.tools.file import truncate_file, read_yaml
+from fortishield_testing.tools.monitoring import SocketController, FileMonitor
+from fortishield_testing.tools.services import control_service, check_daemon_status
 
 # Marks
 
@@ -66,7 +66,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 # Configurations
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
 ssl_configuration_tests = read_yaml(os.path.join(test_data_path, 'enroll_ssl_options_tests.yaml'))
 
 # Ossec.conf configurations
@@ -79,7 +79,7 @@ for case in ssl_configuration_tests:
     conf_params['SSL_AUTO_NEGOTIATE'].append(case.get('SSL_AUTO_NEGOTIATE', DEFAULT_AUTO_NEGOTIATE))
 
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'] * len(ssl_configuration_tests))
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 # Certifcates configurations
 
@@ -89,7 +89,7 @@ log_monitor_paths = []
 
 receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2')]
 
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 # fixtures
@@ -113,24 +113,24 @@ def get_configuration(request):
     return request.param
 
 
-def override_wazuh_conf(configuration):
+def override_fortishield_conf(configuration):
     """
-    Write a particular Wazuh configuration for the test case.
+    Write a particular Fortishield configuration for the test case.
     """
-    # Stop Wazuh
-    control_service('stop', daemon='wazuh-authd')
+    # Stop Fortishield
+    control_service('stop', daemon='fortishield-authd')
     time.sleep(1)
-    check_daemon_status(running_condition=False, target_daemon='wazuh-authd')
+    check_daemon_status(running_condition=False, target_daemon='fortishield-authd')
     truncate_file(LOG_FILE_PATH)
 
     # Configuration for testing
-    test_config = set_section_wazuh_conf(configuration.get('sections'))
+    test_config = set_section_fortishield_conf(configuration.get('sections'))
     # Set new configuration
-    write_wazuh_conf(test_config)
+    write_fortishield_conf(test_config)
 
     time.sleep(1)
-    # Start Wazuh
-    control_service('start', daemon='wazuh-authd')
+    # Start Fortishield
+    control_service('start', daemon='fortishield-authd')
 
     """Wait until authd has begun"""
 
@@ -146,12 +146,12 @@ def override_wazuh_conf(configuration):
 def test_ossec_auth_configurations(get_configuration, configure_environment, configure_sockets_environment):
     '''
     description:
-        Checks if the 'SSL' settings of the 'wazuh-authd' daemon work correctly by enrolling agents
+        Checks if the 'SSL' settings of the 'fortishield-authd' daemon work correctly by enrolling agents
         that use different values for these settings. Different types of encryption and secure
         connection protocols are tested, in addition to the 'ssl_auto_negotiate' option
         that automatically chooses the protocol to be used.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -190,7 +190,7 @@ def test_ossec_auth_configurations(get_configuration, configure_environment, con
     if protocol == 'ssl_tlsv1_1':
         pytest.skip('TLS 1.1 is deprecated and not working on several pyOpenSSL versions.')
 
-    override_wazuh_conf(get_configuration)
+    override_fortishield_conf(get_configuration)
 
     address, family, connection_protocol = receiver_sockets_params[0]
     SSL_socket = SocketController(address, family=family, connection_protocol=connection_protocol,

@@ -1,6 +1,6 @@
 """
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: Check that when an agent registered inthe manager and assigned to group is removed, performs a
@@ -13,8 +13,8 @@ components:
     - agent
 path: /tests/system/test_cluster/test_agent_groups/test_assign_groups_guess.py
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -36,7 +36,7 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://github.com/wazuh/wazuh-qa/issues/2513
+    - https://github.com/fortishield/fortishield-qa/issues/2513
 tags:
     - cluster
 """
@@ -48,17 +48,17 @@ from system.test_cluster.test_agent_groups.common import register_agent
 from system import (ERR_MSG_CLIENT_KEYS_IN_MASTER_NOT_FOUND, check_agent_groups, check_keys_file,
                     create_new_agent_group, delete_agent_group, remove_cluster_agents,
                     assign_agent_to_new_group, restart_cluster)
-from wazuh_testing.tools.system import HostManager
-from wazuh_testing.tools.file import replace_regex_in_file
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools import WAZUH_PATH, WAZUH_LOCAL_INTERNAL_OPTIONS
+from fortishield_testing.tools.system import HostManager
+from fortishield_testing.tools.file import replace_regex_in_file
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools import FORTISHIELD_PATH, FORTISHIELD_LOCAL_INTERNAL_OPTIONS
 
 
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
 # Hosts
-test_infra_managers = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-test_infra_agents = ['wazuh-agent1', 'wazuh-agent2']
+test_infra_managers = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+test_infra_agents = ['fortishield-agent1', 'fortishield-agent2']
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
                               'provisioning', 'enrollment_cluster', 'inventory.yml')
@@ -84,15 +84,15 @@ def modify_local_internal_options(status_guess_agent_group):
 
     It uses the variable local_internal_options. This should be
     a dictionary wich keys and values corresponds to the internal option configuration and host to apply, For example:
-    local_internal_options = {'wazuh-master': [{'name': 'remoted.guess_agent_group', 'value': '0'}],
-                              'wazuh-worker1': [{'name': 'remoted.debug', 'value': '2'}, {'name': 'authd.debug',
+    local_internal_options = {'fortishield-master': [{'name': 'remoted.guess_agent_group', 'value': '0'}],
+                              'fortishield-worker1': [{'name': 'remoted.debug', 'value': '2'}, {'name': 'authd.debug',
                                                                                           'value': '2'}]}
     """
     local_internal_options = {test_infra_managers[0]: [{'name': 'remoted.guess_agent_group', 'value':
                                                         f"{status_guess_agent_group}"}]}
 
     # Get previous local internal options
-    backup_local_internal_options = host_manager.get_file_content(test_infra_managers[0], WAZUH_LOCAL_INTERNAL_OPTIONS)
+    backup_local_internal_options = host_manager.get_file_content(test_infra_managers[0], FORTISHIELD_LOCAL_INTERNAL_OPTIONS)
 
     # Add local internal options
     host_manager.configure_local_internal_options(local_internal_options)
@@ -100,18 +100,18 @@ def modify_local_internal_options(status_guess_agent_group):
     yield
 
     # Restore local internal options
-    host_manager.modify_file_content(test_infra_managers[0], WAZUH_LOCAL_INTERNAL_OPTIONS,
+    host_manager.modify_file_content(test_infra_managers[0], FORTISHIELD_LOCAL_INTERNAL_OPTIONS,
                                      backup_local_internal_options)
 
 
 # Tests
 @pytest.mark.parametrize('status_guess_agent_group', ['0', '1'])
-@pytest.mark.parametrize('target_node', ['wazuh-master', 'wazuh-worker1'])
+@pytest.mark.parametrize('target_node', ['fortishield-master', 'fortishield-worker1'])
 def test_guess_single_group(target_node, status_guess_agent_group, clean_environment, modify_local_internal_options):
     '''
     description: Check that when an agent registered in the manager and assigned to group is removed, performs a
                  guessing operation and determinates the groups to with the agent was assigned.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - target_node:
             type: String
@@ -121,7 +121,7 @@ def test_guess_single_group(target_node, status_guess_agent_group, clean_environ
             brief: Determine if the group guessing mechanism is enabled or disabled.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
         - modify_internal_options:
             type: Fixture
             brief: Add internal options in local_internal_options.conf
@@ -179,7 +179,7 @@ def test_guess_single_group(target_node, status_guess_agent_group, clean_environ
         expected_group = 'default' if int(status_guess_agent_group) == 0 else group_id
 
         # Run the callback checks for the ossec.log
-        messages_path = master_messages_path if target_node == 'wazuh-master' else worker_messages_path
+        messages_path = master_messages_path if target_node == 'fortishield-master' else worker_messages_path
         replace_regex_in_file(['AGENT_ID', 'GROUP_ID'], [agent_id, expected_group], messages_path)
         HostMonitor(inventory_path=inventory_path,
                     messages_path=messages_path,
@@ -195,13 +195,13 @@ def test_guess_single_group(target_node, status_guess_agent_group, clean_environ
 
 @pytest.mark.parametrize('n_agents', [1, 2])
 @pytest.mark.parametrize('status_guess_agent_group', ['0', '1'])
-@pytest.mark.parametrize('target_node', ['wazuh-master', 'wazuh-worker1'])
+@pytest.mark.parametrize('target_node', ['fortishield-master', 'fortishield-worker1'])
 def test_guess_multigroups(n_agents, target_node, status_guess_agent_group, clean_environment,
                            modify_local_internal_options):
     '''
     description: Check that when an agent registered in the manager and assigned to group is removed, performs a
                  guessing operation and determinates the groups to with the agent was assigned.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - n_agents:
             type: Int
@@ -214,7 +214,7 @@ def test_guess_multigroups(n_agents, target_node, status_guess_agent_group, clea
             brief: Determine if the group guessing mechanism is enabled or disabled.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
         - modify_internal_options:
             type: Fixture
             brief: Add internal options in local_internal_options.conf
@@ -274,7 +274,7 @@ def test_guess_multigroups(n_agents, target_node, status_guess_agent_group, clea
         expected_group = 'default' if int(status_guess_agent_group) == 0 or n_agents == 1 else multigroups_id
 
         # Run the callback checks for the ossec.log
-        messages_path = master_messages_path if target_node == 'wazuh-master' else worker_messages_path
+        messages_path = master_messages_path if target_node == 'fortishield-master' else worker_messages_path
         replace_regex_in_file(['AGENT_ID', 'GROUP_ID'], [agent1_id, expected_group], messages_path)
         HostMonitor(inventory_path=inventory_path,
                     messages_path=messages_path,

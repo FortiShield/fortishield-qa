@@ -1,7 +1,7 @@
-Ansible Playbook - Wazuh manager
+Ansible Playbook - Fortishield manager
 ================================
 
-This role will install the Wazuh manager on a host.
+This role will install the Fortishield manager on a host.
 
 Requirements
 ------------
@@ -18,8 +18,8 @@ Role Variables
 
 This role has some variables which you can or need to override.
 ```
-wazuh_manager_fqdn: ~
-wazuh_manager_config: []
+fortishield_manager_fqdn: ~
+fortishield_manager_config: []
 shared_agent_config: []
 ```
 
@@ -39,11 +39,11 @@ This file has the agenless credentials.
    passwd: qwerty
 ```
 
-### vars/wazuh_api_creds.yml
+### vars/fortishield_api_creds.yml
 This file has user and password created in httpasswd format.
 ```
 ---
-wazuh_api_user:
+fortishield_api_user:
   - "foo:$apr1$/axqZYWQ$Xo/nz/IG3PdwV82EnfYKh/"
 ```
 
@@ -60,9 +60,9 @@ Default config
 ### defaults/main.yml
 ```
 ---
-wazuh_manager_fqdn: "wazuh-server"
+fortishield_manager_fqdn: "fortishield-server"
 
-wazuh_manager_config:
+fortishield_manager_config:
   json_output: 'yes'
   alerts_log: 'yes'
   logall: 'no'
@@ -72,7 +72,7 @@ wazuh_manager_config:
   mail_to:
     - admin@example.net
   mail_smtp_server: localhost
-  mail_from: wazuh-server@example.com
+  mail_from: fortishield-server@example.com
   syscheck:
     frequency: 43200
     scan_on_start: 'yes'
@@ -192,9 +192,9 @@ You can create a YAML file and change the default variables for this role, to la
 
 ```
 ---
-wazuh_manager_fqdn: "wazuh-server"
+fortishield_manager_fqdn: "fortishield-server"
 
-wazuh_manager_config:
+fortishield_manager_config:
   email_notification: yes
   mail_to:
     - myadmin@mydomain.com
@@ -211,19 +211,19 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: wazuh-server.example.com
+    - hosts: fortishield-server.example.com
       roles:
-         - { role: ansible-wazuh-server }
+         - { role: ansible-fortishield-server }
 
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2016, Wazuh Inc. (License GPLv3)
+FORTISHIELD Copyright (C) 2016, Fortishield Inc. (License GPLv3)
 
 ### Based on previous work from dj-wasabi
 
  - https://github.com/dj-wasabi/ansible-ossec-server
 
-### Modified by Wazuh
+### Modified by Fortishield
 
-The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+The playbooks have been modified by Fortishield, including some specific requirements, templates and configuration to improve integration with Fortishield ecosystem.

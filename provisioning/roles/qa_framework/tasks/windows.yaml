@@ -3,7 +3,7 @@
     path: "{{ build_dir }}"
     state: absent
 
-- name: Clone Wazuh-QA repo | Windows
+- name: Clone Fortishield-QA repo | Windows
   win_command: powershell.exe -
   args:
     stdin: >

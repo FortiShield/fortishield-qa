@@ -1,26 +1,26 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh persistent information, exposing a socket
-       to receive requests and provide information. The Wazuh core uses list-based databases to store information
+brief: Fortishield-db is the daemon in charge of the databases with all the Fortishield persistent information, exposing a socket
+       to receive requests and provide information. The Fortishield core uses list-based databases to store information
        related to agent keys, and FIM/Rootcheck event data.
-       Wazuh-db confirms that is able to save, update and erase the necessary information into the corresponding
+       Fortishield-db confirms that is able to save, update and erase the necessary information into the corresponding
        databases, using the proper commands and response strings.
 
 components:
-    - wazuh_db
+    - fortishield_db
 
 targets:
     - manager
 
 daemons:
-    - wazuh-db
+    - fortishield-db
 
 os_platform:
     - linux
@@ -37,10 +37,10 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-db.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-db.html
 
 tags:
-    - wazuh_db
+    - fortishield_db
 '''
 import os
 import re
@@ -49,11 +49,11 @@ import pytest
 import yaml
 import json
 import random
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.monitoring import make_callback, WAZUH_DB_PREFIX
-from wazuh_testing.tools.services import control_service, delete_dbs
-from wazuh_testing.tools.wazuh_manager import remove_all_agents
-from wazuh_testing.tools.file import get_list_of_content_yml
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.monitoring import make_callback, FORTISHIELD_DB_PREFIX
+from fortishield_testing.tools.services import control_service, delete_dbs
+from fortishield_testing.tools.fortishield_manager import remove_all_agents
+from fortishield_testing.tools.file import get_list_of_content_yml
 
 
 # Marks
@@ -74,18 +74,18 @@ for file in os.listdir(agent_message_files):
 
 # Variables
 log_monitor_paths = []
-wdb_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
+wdb_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'wdb'))
 receiver_sockets_params = [(wdb_path, 'AF_UNIX', 'TCP')]
-WAZUH_DB_CHECKSUM_CALCULUS_TIMEOUT = 20
+FORTISHIELD_DB_CHECKSUM_CALCULUS_TIMEOUT = 20
 
 # mitm_analysisd = ManInTheMiddle(address=analysis_path, family='AF_UNIX', connection_protocol='UDP')
 # monitored_sockets_params is a List of daemons to start with optional ManInTheMiddle to monitor
-# List items -> (wazuh_daemon: str,(
+# List items -> (fortishield_daemon: str,(
 #                mitm: ManInTheMiddle
 #                daemon_first: bool))
-# Example1 -> ('wazuh-clusterd', None)              Only start wazuh-clusterd with no MITM
-# Example2 -> ('wazuh-clusterd', (my_mitm, True))   Start MITM and then wazuh-clusterd
-monitored_sockets_params = [('wazuh-db', None, True)]
+# Example1 -> ('fortishield-clusterd', None)              Only start fortishield-clusterd with no MITM
+# Example2 -> ('fortishield-clusterd', (my_mitm, True))   Start MITM and then fortishield-clusterd
+monitored_sockets_params = [('fortishield-db', None, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
@@ -105,7 +105,7 @@ def regex_match(regex, string):
 
 @pytest.fixture(scope='module')
 def clean_registered_agents():
-    remove_all_agents('wazuhdb')
+    remove_all_agents('fortishielddb')
     time.sleep(5)
 
 
@@ -147,9 +147,9 @@ def prepare_range_checksum_data():
                    'checksum': 'f65b9f66c5ef257a7566b98e862732640d502b6f'}}
 
     payload['path'] = '/home/test/file1'
-    execute_wazuh_db_query(command+json.dumps(payload))
+    execute_fortishield_db_query(command+json.dumps(payload))
     payload['path'] = '/home/test/file2'
-    execute_wazuh_db_query(command+json.dumps(payload))
+    execute_fortishield_db_query(command+json.dumps(payload))
 
     yield
 
@@ -184,7 +184,7 @@ def insert_agents_test():
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh(request):
+def restart_fortishield(request):
     control_service('restart')
 
     yield
@@ -193,8 +193,8 @@ def restart_wazuh(request):
     control_service('stop')
 
 
-def execute_wazuh_db_query(command, single_response=True):
-    """Function to send a command to the wazuh-db socket.
+def execute_fortishield_db_query(command, single_response=True):
+    """Function to send a command to the fortishield-db socket.
 
     Args:
         command(str): Message to send to the socket.
@@ -218,8 +218,8 @@ def execute_wazuh_db_query(command, single_response=True):
         return response_array[0] if len(response_array) == 1 else response_array
 
 
-def validate_wazuh_db_response(expected_output, response):
-    """ Method to validate the Wazuh-DB response.
+def validate_fortishield_db_response(expected_output, response):
+    """ Method to validate the Fortishield-DB response.
 
     Args:
         expected_output(str/list): the desired response from the test case
@@ -262,11 +262,11 @@ def insert_agent(agent_id, agent_name='TestName'):
                               })
 
     command = f"global insert-agent {insert_data}"
-    data = execute_wazuh_db_query(command).split()
+    data = execute_fortishield_db_query(command).split()
     assert data[0] == 'ok', f"Unable to add agent {agent_id} - {data[1]}"
 
     command = f"global update-keepalive {update_data}"
-    data = execute_wazuh_db_query(command).split()
+    data = execute_fortishield_db_query(command).split()
     assert data[0] == 'ok', f"Unable to update agent {agent_id} - {data[1]}"
 
 
@@ -276,7 +276,7 @@ def remove_agent(agent_id):
     Args:
         agent_id(int): Unique identifier of an agent
     """
-    data = execute_wazuh_db_query(f"global delete-agent {agent_id}").split()
+    data = execute_fortishield_db_query(f"global delete-agent {agent_id}").split()
     assert data[0] == 'ok', f"Unable to remove agent {agent_id} - {data[1]}"
 
 
@@ -302,7 +302,7 @@ def pre_insert_packages():
         (scan_id,scan_time,format,name,priority,section,size,vendor,install_time,version,\
         architecture,multiarch,source,description,location,cpe,msu_name,checksum,item_id)\
         VALUES(0,'2021/04/07 22:00:00','deb','test_package_{pkg_n}','optional','utils',{random.randint(200,1000)},\
-        'Wazuh wazuh@wazuh.com',NULL,'{random.randint(1,10)}.0.0','all',NULL,NULL,'Test package {pkg_n}',\
+        'Fortishield fortishield@fortishield.github.io',NULL,'{random.randint(1,10)}.0.0','all',NULL,NULL,'Test package {pkg_n}',\
         NULL,NULL,NULL,'{random.getrandbits(128)}','{random.getrandbits(128)}')"
         receiver_sockets[0].send(command, size=True)
         response = receiver_sockets[0].receive(size=True).decode()
@@ -316,25 +316,25 @@ def pre_insert_packages():
                               for module_data, module_name in agent_module_tests
                               for case in module_data]
                          )
-def test_wazuh_db_messages_agent(restart_wazuh, clean_registered_agents, configure_sockets_environment,
+def test_fortishield_db_messages_agent(restart_fortishield, clean_registered_agents, configure_sockets_environment,
                                  connect_to_sockets_module, insert_agents_test, test_case):
     '''
-    description: Check that every input agent message in wazuh-db socket generates the proper output to wazuh-db
+    description: Check that every input agent message in fortishield-db socket generates the proper output to fortishield-db
                  socket. To do this, it performs a query to the socket with a command taken from the input list of
                  stages (test_case, input field) and compare the result with the input list of stages (test_case,
                  output field).
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - clean_registered_agents:
             type: fixture
-            brief: Remove all agents of wazuhdb.
+            brief: Remove all agents of fortishielddb.
         - configure_sockets_environment:
             type: fixture
             brief: Configure environment for sockets and MITM.
@@ -363,7 +363,7 @@ def test_wazuh_db_messages_agent(restart_wazuh, clean_registered_agents, configu
         - 'Unable to upgrade agent'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     for index, stage in enumerate(test_case):
@@ -373,12 +373,12 @@ def test_wazuh_db_messages_agent(restart_wazuh, clean_registered_agents, configu
         command = stage['input']
         expected_output = stage['output']
 
-        response = execute_wazuh_db_query(command, False)
+        response = execute_fortishield_db_query(command, False)
 
         if 'use_regex' in stage and stage['use_regex'] == 'yes':
             match = True if regex_match(expected_output, response) else False
         else:
-            match = validate_wazuh_db_response(expected_output, response)
+            match = validate_fortishield_db_response(expected_output, response)
         assert match, 'Failed test case stage {}: {}. Expected: "{}". Response: "{}".' \
             .format(index + 1, stage['stage'], expected_output, response)
 
@@ -389,19 +389,19 @@ def test_wazuh_db_messages_agent(restart_wazuh, clean_registered_agents, configu
                               for module_data, module_name in global_module_tests
                               for case in module_data]
                          )
-def test_wazuh_db_messages_global(connect_to_sockets_module, restart_wazuh, test_case):
+def test_fortishield_db_messages_global(connect_to_sockets_module, restart_fortishield, test_case):
     '''
-    description: Check that every global input message in wazuh-db socket generates the proper output to wazuh-db
+    description: Check that every global input message in fortishield-db socket generates the proper output to fortishield-db
                  socket. To do this, it performs a query to the socket with a command taken from the input list of
                  stages (test_case, input field) and compare the result with the input list of stages (test_case,
                  output field).
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - connect_to_sockets_module:
@@ -424,7 +424,7 @@ def test_wazuh_db_messages_global(connect_to_sockets_module, restart_wazuh, test
         - r'Error when executing * in daemon'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     for index, stage in enumerate(test_case):
@@ -434,29 +434,29 @@ def test_wazuh_db_messages_global(connect_to_sockets_module, restart_wazuh, test
         command = stage['input']
         expected_output = stage['output']
 
-        response = execute_wazuh_db_query(command, False)
+        response = execute_fortishield_db_query(command, False)
 
         if 'use_regex' in stage and stage['use_regex'] == 'yes':
             match = True if regex_match(expected_output, response) else False
         else:
-            match = validate_wazuh_db_response(expected_output, response)
+            match = validate_fortishield_db_response(expected_output, response)
         assert match, 'Failed test case stage {}: {}. Expected: {}. Response: {}' \
             .format(index + 1, stage['stage'], expected_output, response)
 
 
 @pytest.mark.skip(reason="It will be blocked by #2217, when it is solved we can enable again this test")
-def test_wazuh_db_chunks(restart_wazuh, configure_sockets_environment, clean_registered_agents,
+def test_fortishield_db_chunks(restart_fortishield, configure_sockets_environment, clean_registered_agents,
                          connect_to_sockets_module, pre_insert_agents):
     '''
     description: Check that commands by chunks work properly when the agents' amount exceeds the response maximum size.
-                 To do this, it sends a command to the wazuh-db socket and checks the response from the socket.
+                 To do this, it sends a command to the fortishield-db socket and checks the response from the socket.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - configure_sockets_environment:
@@ -464,7 +464,7 @@ def test_wazuh_db_chunks(restart_wazuh, configure_sockets_environment, clean_reg
             brief: Configure environment for sockets and MITM.
         - clean_registered_agents:
             type: fixture
-            brief: Remove all agents of wazuhdb.
+            brief: Remove all agents of fortishielddb.
         - connect_to_sockets_module:
             type: fixture
             brief: Module scope version of 'connect_to_sockets' fixture.
@@ -484,11 +484,11 @@ def test_wazuh_db_chunks(restart_wazuh, configure_sockets_environment, clean_reg
         - r'Failed chunks check on .*'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     def send_chunk_command(command):
-        response = execute_wazuh_db_query(command)
+        response = execute_fortishield_db_query(command)
         status = response.split()[0]
 
         assert status == 'due', 'Failed chunks check on < {} >. Expected: {}. Response: {}' \
@@ -504,19 +504,19 @@ def test_wazuh_db_chunks(restart_wazuh, configure_sockets_environment, clean_reg
     send_chunk_command('global disconnect-agents 0 {} syncreq'.format(str(int(time.time()) + 1)))
 
 
-def test_wazuh_db_range_checksum(restart_wazuh, configure_sockets_environment, connect_to_sockets_module,
+def test_fortishield_db_range_checksum(restart_fortishield, configure_sockets_environment, connect_to_sockets_module,
                                  prepare_range_checksum_data, file_monitoring, request):
     '''
     description: Calculates the checksum range during the synchronization of the DBs the first time and avoids the
                  checksum range the next time. To do this, it performs a query to the database with the command that
                  contains agent checksum information and calculates the checksum range.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - configure_sockets_environment:
@@ -549,38 +549,38 @@ def test_wazuh_db_range_checksum(restart_wazuh, configure_sockets_environment, c
         - 'Checksum Range wasn´t avoided the second time'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     command = """agent 1 syscheck integrity_check_global {\"begin\":\"/home/test/file1\",\"end\":\"/home/test/file2\",
                  \"checksum\":\"2a41be94762b4dc57d98e8262e85f0b90917d6be\",\"id\":1}"""
     log_monitor = request.module.log_monitor
     # Checksum Range calculus expected the first time
-    execute_wazuh_db_query(command)
-    log_monitor.start(timeout=WAZUH_DB_CHECKSUM_CALCULUS_TIMEOUT,
-                      callback=make_callback('range checksum: Time: ', prefix=WAZUH_DB_PREFIX,
+    execute_fortishield_db_query(command)
+    log_monitor.start(timeout=FORTISHIELD_DB_CHECKSUM_CALCULUS_TIMEOUT,
+                      callback=make_callback('range checksum: Time: ', prefix=FORTISHIELD_DB_PREFIX,
                                              escape=True),
                       error_message='Checksum Range wasn´t calculated the first time')
 
     # Checksum Range avoid expected the next times
-    execute_wazuh_db_query(command)
-    log_monitor.start(timeout=WAZUH_DB_CHECKSUM_CALCULUS_TIMEOUT,
-                      callback=make_callback('range checksum avoided', prefix=WAZUH_DB_PREFIX,
+    execute_fortishield_db_query(command)
+    log_monitor.start(timeout=FORTISHIELD_DB_CHECKSUM_CALCULUS_TIMEOUT,
+                      callback=make_callback('range checksum avoided', prefix=FORTISHIELD_DB_PREFIX,
                                              escape=True),
                       error_message='Checksum Range wasn´t avoided the second time')
 
 
-def test_wazuh_db_timeout(configure_sockets_environment,
+def test_fortishield_db_timeout(configure_sockets_environment,
                           connect_to_sockets_module,
                           pre_insert_packages,
                           pre_set_sync_info):
     """Check that effectively the socket is closed after timeout is reached"""
-    wazuh_db_send_sleep = 2
+    fortishield_db_send_sleep = 2
     command = 'agent 000 package get'
     receiver_sockets[0].send(command, size=True)
 
-    # Waiting Wazuh-DB to process command
-    time.sleep(wazuh_db_send_sleep)
+    # Waiting Fortishield-DB to process command
+    time.sleep(fortishield_db_send_sleep)
 
     socket_closed = False
     cmd_counter = 0

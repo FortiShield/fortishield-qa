@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-agentd' program is the client-side daemon that communicates with the server.
+brief: The 'fortishield-agentd' program is the client-side daemon that communicates with the server.
        This tests will check if the server address specified in the configuration is a valid
        address or not.
 
@@ -20,7 +20,7 @@ components:
     - agent
 
 daemons:
-    - wazuh-agentd
+    - fortishield-agentd
 
 os_platform:
     - linux
@@ -54,7 +54,7 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client.html#address
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/client.html#address
 
 tags:
     - agentd
@@ -63,13 +63,13 @@ import os
 import sys
 import pytest
 
-from wazuh_testing.agent import callback_connected_to_manager_ip, callback_invalid_server_address, \
+from fortishield_testing.agent import callback_connected_to_manager_ip, callback_invalid_server_address, \
                                 callback_could_not_resolve_hostname, CLIENT_KEYS_PATH
-from wazuh_testing.tools import HOSTS_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import DEFAULT_WAIT_FILE_TIMEOUT
-from wazuh_testing.tools.utils import format_ipv6_long
+from fortishield_testing.tools import HOSTS_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import DEFAULT_WAIT_FILE_TIMEOUT
+from fortishield_testing.tools.utils import format_ipv6_long
 
 
 # Marks
@@ -78,7 +78,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), p
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 configurations_path = os.path.join(test_data_path, 'server_address_configuration.yaml')
-daemons_handler_configuration = {'daemons': ['wazuh-agentd'], 'ignore_errors': True}
+daemons_handler_configuration = {'daemons': ['fortishield-agentd'], 'ignore_errors': True}
 local_internal_options = {'windows.debug': '2'} if sys.platform == 'win32' else {'agent.debug': '2'}
 monitored_sockets_params = []
 log_monitor_paths = []
@@ -90,8 +90,8 @@ parameters = [
     {'SERVER_ADDRESS': '::1'},                        # Server address ipv6
     {'SERVER_ADDRESS': '172.28.128.hello'},           # Could not resolve hostname
     {'SERVER_ADDRESS': '::ffff:ac1c::::::::800c'},    # Invalid IP, unable to connect (IPv6 compressed)
-    {'SERVER_ADDRESS': 'wazuh-manager-ipv4'},         # Resolve hostname, valid IP, unable to connect (IPv4)
-    {'SERVER_ADDRESS': 'wazuh-manager-ipv6'},         # Resolve hostname, valid IP, unable to connect (IPv6 compressed)
+    {'SERVER_ADDRESS': 'fortishield-manager-ipv4'},         # Resolve hostname, valid IP, unable to connect (IPv4)
+    {'SERVER_ADDRESS': 'fortishield-manager-ipv6'},         # Resolve hostname, valid IP, unable to connect (IPv6 compressed)
 ]
 
 metadata = [
@@ -100,12 +100,12 @@ metadata = [
     {'server_address': '::1', 'valid_ip': True, 'expected_connection': True, 'ipv6': True},
     {'server_address': '172.28.128.hello'},
     {'server_address': '::ffff:ac1c::::::::800c'},
-    {'server_address': 'wazuh-manager-ipv4', 'host_ip': '127.0.0.1', 'expected_connection': True},
-    {'server_address': 'wazuh-manager-ipv6', 'host_ip': '::1', 'expected_connection': True, 'ipv6': True}
+    {'server_address': 'fortishield-manager-ipv4', 'host_ip': '127.0.0.1', 'expected_connection': True},
+    {'server_address': 'fortishield-manager-ipv6', 'host_ip': '::1', 'expected_connection': True, 'ipv6': True}
 ]
 
 # Configuration data
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"{x['SERVER_ADDRESS']}" for x in parameters]
 
 
@@ -151,7 +151,7 @@ def test_agentd_server_address_configuration(configure_local_internal_options_mo
     description: Check the messages produced by the agent when introducing
                  a valid and invalid server address, with IPv4 and IPv6
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - get_configuration:

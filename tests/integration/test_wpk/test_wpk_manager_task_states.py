@@ -1,14 +1,14 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: Agents can be upgraded remotely. This upgrade is performed by the manager which
-        sends each registered agent a WPK (Wazuh signed package) file that contains the files
+        sends each registered agent a WPK (Fortishield signed package) file that contains the files
         needed to upgrade the agent to the new version. These tests ensure, the behaviour of
         the WPK upgrade on the manager side, in case of the manager stopped before finishing
         the upgrade.
@@ -20,10 +20,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-remoted
-    - wazuh-modulesd
-    - wazuh-db
+    - fortishield-monitord
+    - fortishield-remoted
+    - fortishield-modulesd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -40,7 +40,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/agents/remote-upgrading/upgrading-agent.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/remote-upgrading/upgrading-agent.html
 
 pytest_args:
     - wpk_version: Specify the version to upgrade
@@ -56,16 +56,16 @@ import struct
 import time
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.agent_simulator import Sender, Injector
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
-from wazuh_testing import global_parameters
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.agent_simulator import Sender, Injector
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
+from fortishield_testing import global_parameters
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
-UPGRADE_SOCKET = os.path.join(WAZUH_PATH, 'queue', 'tasks', 'upgrade')
-TASK_SOCKET = os.path.join(WAZUH_PATH, 'queue', 'tasks', 'task')
+UPGRADE_SOCKET = os.path.join(FORTISHIELD_PATH, 'queue', 'tasks', 'upgrade')
+TASK_SOCKET = os.path.join(FORTISHIELD_PATH, 'queue', 'tasks', 'task')
 SERVER_ADDRESS = 'localhost'
 WPK_REPOSITORY_4x = global_parameters.wpk_package_path[0]
 CRYPTO = "aes"
@@ -199,8 +199,8 @@ metadata = [case['metadata'] for case in cases]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                               'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_manager_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations_path = os.path.join(test_data_path, 'fortishield_manager_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=params, metadata=metadata)
 
 # List where the agents objects will be stored
@@ -233,7 +233,7 @@ def send_message(data_object, socket_path):
 def overwrite_node_name(value):
     new_content = ''
 
-    ossec_conf = os.path.join(WAZUH_PATH, 'etc', 'ossec.conf')
+    ossec_conf = os.path.join(FORTISHIELD_PATH, 'etc', 'ossec.conf')
 
     with open(ossec_conf, 'r') as f:
         lines = f.readlines()
@@ -248,17 +248,17 @@ def overwrite_node_name(value):
         f.write(new_content)
 
 
-@pytest.mark.skip(reason="Blocked by issue wazuh-qa#2203, when is fixed we can enable this test again")
+@pytest.mark.skip(reason="Blocked by issue fortishield-qa#2203, when is fixed we can enable this test again")
 def test_wpk_manager_task_states(get_configuration, configure_environment,
                                  restart_service, configure_agents):
     '''
     description: Agents can be upgraded remotely. This upgrade is performed by the manager which
-                  sends each registered agent a WPK (Wazuh signed package) file that contains the files
+                  sends each registered agent a WPK (Fortishield signed package) file that contains the files
                   needed to upgrade the agent to the new version. These tests ensure, the behaviour of
                   the WPK upgrade on the manager side, in case of the manager stopped before finishing
                   the upgrade.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -271,7 +271,7 @@ def test_wpk_manager_task_states(get_configuration, configure_environment,
             brief: Configure a custom environment for testing.
         - restart_service:
             type: fixture
-            brief: Restart Wazuh manager.
+            brief: Restart Fortishield manager.
         - configure_agents:
             type: fixture
             brief: Configure all simulated agents.

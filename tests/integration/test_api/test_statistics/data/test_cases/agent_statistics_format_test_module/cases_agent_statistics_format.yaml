@@ -1,13 +1,13 @@
 - name: remoted_endpoint
   description: remoted statistics endpoint
   configuration_parameters:
-    ENDPOINT: wazuh-remoted
+    ENDPOINT: fortishield-remoted
   metadata:
-    endpoint: wazuh-remoted
+    endpoint: fortishield-remoted
 
 - name: analysisd_endpoint
   description: analysisd statistics endpoint
   configuration_parameters:
-    ENDPOINT: wazuh-analysisd
+    ENDPOINT: fortishield-analysisd
   metadata:
-    endpoint: wazuh-analysisd
+    endpoint: fortishield-analysisd

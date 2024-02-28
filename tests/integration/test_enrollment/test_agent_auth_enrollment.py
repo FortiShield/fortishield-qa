@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -15,7 +15,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-authd
+    - fortishield-authd
 os_platform:
     - linux
     - windows
@@ -42,22 +42,22 @@ import pytest
 import os
 import sys
 
-from wazuh_testing.tools import get_version
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.file import read_yaml
-from wazuh_testing.tools.monitoring import QueueMonitor, make_callback
-from wazuh_testing.tools.utils import get_host_name
+from fortishield_testing.tools import get_version
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.file import read_yaml
+from fortishield_testing.tools.monitoring import QueueMonitor, make_callback
+from fortishield_testing.tools.utils import get_host_name
 from enrollment import AGENT_AUTH_ENROLLMENT_REQUEST_TIMEOUT, launch_agent_auth
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), pytest.mark.agent]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-tests_path = os.path.join(test_data_path, 'wazuh_enrollment_tests.yaml')
-configurations_path = os.path.join(test_data_path, 'wazuh_enrollment_conf.yaml')
+tests_path = os.path.join(test_data_path, 'fortishield_enrollment_tests.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_enrollment_conf.yaml')
 tests = read_yaml(tests_path)
-configurations = load_wazuh_configurations(configurations_path, __name__)
+configurations = load_fortishield_configurations(configurations_path, __name__)
 configuration_ids = ['agent_auth_enrollment']
 test_case_ids = [f"{test_case['name']}" for test_case in tests]
 
@@ -81,7 +81,7 @@ def shutdown_agentd():
     """
     Shutdown agentd to avoid interferences with agent-auth test
     """
-    control_service('stop', daemon='wazuh-agentd')
+    control_service('stop', daemon='fortishield-agentd')
 
 
 def test_agent_auth_enrollment(configure_environment, shutdown_agentd, get_current_test_case, create_certificates,
@@ -92,7 +92,7 @@ def test_agent_auth_enrollment(configure_environment, shutdown_agentd, get_curre
         error log. Agent-auth will be executed using the different parameters and with different keys and password
         files scenarios as described in the test cases."
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
@@ -103,9 +103,9 @@ def test_agent_auth_enrollment(configure_environment, shutdown_agentd, get_curre
         - shutdown_agentd:
             type: fixture
             brief: Shutdown agentd to avoid interferences with agent-auth test
-        - override_wazuh_conf:
+        - override_fortishield_conf:
             type: fixture
-            brief: Write a particular Wazuh configuration for the test case.
+            brief: Write a particular Fortishield configuration for the test case.
         - get_current_test_case:
             type: fixture
             brief: Get the current test case.
@@ -134,7 +134,7 @@ def test_agent_auth_enrollment(configure_environment, shutdown_agentd, get_curre
         - The error log is generated as expected when the configuration is invalid.
 
     input_description:
-        Different test cases are contained in an external YAML file (wazuh_enrollment_tests.yaml) which includes the
+        Different test cases are contained in an external YAML file (fortishield_enrollment_tests.yaml) which includes the
         different available enrollment-related configurations.
 
     expected_output:

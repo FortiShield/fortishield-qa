@@ -1,16 +1,16 @@
 ---
 - block:
 
-  - name: RedHat/CentOS/Fedora | Add Wazuh dashboard repo
+  - name: RedHat/CentOS/Fedora | Add Fortishield dashboard repo
     yum_repository:
-      file: wazuh
-      name: wazuh_repo
-      description: Wazuh yum repository
-      baseurl: "{{ wazuh_repo.yum }}"
-      gpgkey: "{{ wazuh_repo.gpg }}"
+      file: fortishield
+      name: fortishield_repo
+      description: Fortishield yum repository
+      baseurl: "{{ fortishield_repo.yum }}"
+      gpgkey: "{{ fortishield_repo.gpg }}"
       gpgcheck: true
 
-  - name: Install Wazuh dashboard dependencies
+  - name: Install Fortishield dashboard dependencies
     yum:
       name: [
         'libnss3.so', 'xorg-x11-fonts-100dpi', 'xorg-x11-fonts-75dpi', 'xorg-x11-utils', 'xorg-x11-fonts-cyrillic', 'xorg-x11-fonts-Type1', 'xorg-x11-fonts-misc', 'fontconfig', 'freetype'
@@ -18,17 +18,17 @@
       state: present
     ignore_errors: yes
 
-  - name: Install Wazuh dashboard
+  - name: Install Fortishield dashboard
     package:
-      name: "wazuh-dashboard-{{ dashboard_version }}"
+      name: "fortishield-dashboard-{{ dashboard_version }}"
       state: present
       update_cache: yes
     register: install
 
   tags:
     - install
-  when: not wazuh_custom_packages_installation_dashboard_enabled
+  when: not fortishield_custom_packages_installation_dashboard_enabled
 
 - include_tasks: "install_from_custom_package.yml"
   when:
-    - wazuh_custom_packages_installation_dashboard_enabled
+    - fortishield_custom_packages_installation_dashboard_enabled

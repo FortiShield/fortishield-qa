@@ -18,7 +18,7 @@
 
     - name: Restart agent
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: windows

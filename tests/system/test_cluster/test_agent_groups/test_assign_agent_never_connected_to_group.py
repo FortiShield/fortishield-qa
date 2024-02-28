@@ -1,6 +1,6 @@
 """
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: Check that when an agent with status never_connected, pointing to a master/worker node is
@@ -13,8 +13,8 @@ components:
     - agent
 path: /tests/system/test_cluster/test_agent_groups/test_assign_agent_never_connected_to_group.py
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -36,7 +36,7 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://github.com/wazuh/wazuh-qa/issues/2508
+    - https://github.com/fortishield/fortishield-qa/issues/2508
 tags:
     - cluster
 """
@@ -46,14 +46,14 @@ import pytest
 from system.test_cluster.test_agent_groups.common import register_agent
 from system import (check_agent_groups, check_agent_status, check_keys_file, delete_agent_group,
                     AGENT_STATUS_NEVER_CONNECTED, ERR_MSG_CLIENT_KEYS_IN_MASTER_NOT_FOUND)
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
-test_infra_agents = ["wazuh-agent1"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
+test_infra_agents = ["fortishield-agent1"]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
                               'provisioning', 'enrollment_cluster', 'inventory.yml')
@@ -64,19 +64,19 @@ id_group = 'group_test'
 
 
 # Tests
-@pytest.mark.parametrize("agent_target", ['wazuh-master', 'wazuh-worker1'])
+@pytest.mark.parametrize("agent_target", ['fortishield-master', 'fortishield-worker1'])
 def test_assign_agent_to_a_group(agent_target, clean_environment):
     '''
     description: Check that when an agent with status never_connected, pointing to a master/worker node is
                  registered using agent-auth with a group the change is sync with the cluster.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - agent_target:
             type: String
             brief: Name of the host where the agent will register.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering the agent key file exists in all nodes.
         - Verify that after registering the agent appears as never_connected in all nodes.
@@ -105,4 +105,4 @@ def test_assign_agent_to_a_group(agent_target, clean_environment):
 
     finally:
         # Delete group of agent
-        delete_agent_group('wazuh-master', id_group, host_manager)
+        delete_agent_group('fortishield-master', id_group, host_manager)

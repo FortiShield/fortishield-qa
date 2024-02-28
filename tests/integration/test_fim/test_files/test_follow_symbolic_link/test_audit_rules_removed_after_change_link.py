@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these files
        are modified. Specifically, these tests will check if FIM automatically removes the 'audit' rule
        from the target of a monitored 'symbolic link' when the target of that link is replaced.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,8 +40,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#whodata
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#whodata
     - https://man7.org/linux/man-pages/man8/auditd.8.html
 
 pytest_args:
@@ -61,12 +61,12 @@ import os
 import subprocess
 
 import pytest
-import wazuh_testing.fim as fim
+import fortishield_testing.fim as fim
 
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing import global_parameters
-from wazuh_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.tools import PREFIX
 
 from test_fim.test_files.test_follow_symbolic_link.common import configurations_path, testdir1, testdir_not_target, \
                                                                  wait_for_symlink_check, modify_symlink
@@ -75,7 +75,7 @@ from test_fim.test_files.test_follow_symbolic_link.common import test_directorie
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=1)]
 
-wazuh_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
 
 # Variables
 
@@ -93,7 +93,7 @@ param_dir = {
 # Configurations
 
 conf_params, conf_metadata = fim.generate_params(extra_params=param_dir, modes=['whodata'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 # Functions
 
@@ -134,7 +134,7 @@ def test_audit_rules_removed_after_change_link(replaced_target, new_target, file
                                                get_configuration, configure_environment,
                                                restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon removes the 'audit' rules when the target of
+    description: Check if the 'fortishield-syscheckd' daemon removes the 'audit' rules when the target of
                  a monitored symlink is changed. For this purpose, the test will monitor a 'symbolic link'
                  pointing to a directory using the 'whodata' monitoring mode. Once FIM starts, it will create
                  and expect events inside the pointed folder. After the events are processed, the test
@@ -143,7 +143,7 @@ def test_audit_rules_removed_after_change_link(replaced_target, new_target, file
                  the new target and verify that the audit rule of the previous target folder has been
                  removed (via 'auditctl -l').
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -178,8 +178,8 @@ def test_audit_rules_removed_after_change_link(replaced_target, new_target, file
         - Verify that FIM automatically removes the 'audit' rule from the target of a monitored 'symbolic link'
           when the target of that link is replaced.
 
-    input_description: A test case (check_audit_removed_rules) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it is
+    input_description: A test case (check_audit_removed_rules) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it is
                        combined with the testing directory to be monitored defined in the 'common.py' module.
 
     expected_output:
@@ -192,7 +192,7 @@ def test_audit_rules_removed_after_change_link(replaced_target, new_target, file
     '''
     check_apply_test(tags_to_apply, get_configuration['tags'])
     fim.create_file(fim.REGULAR, replaced_target, file_name)
-    ev = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+    ev = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                                  error_message='Did not receive expected "Sending FIM event: ..." event').result()
 
     assert ev['data']['type'] == 'added' and ev['data']['path'] == os.path.join(replaced_target, file_name)
@@ -200,12 +200,12 @@ def test_audit_rules_removed_after_change_link(replaced_target, new_target, file
     # Change the target of the symlink and expect events while there's no syscheck scan
 
     modify_symlink(new_target, symlink_path)
-    wait_for_symlink_check(wazuh_log_monitor)
-    fim.wait_for_audit(True, wazuh_log_monitor)
+    wait_for_symlink_check(fortishield_log_monitor)
+    fim.wait_for_audit(True, fortishield_log_monitor)
 
     rules_paths = str(subprocess.check_output(['auditctl', '-l']))
     fim.create_file(fim.REGULAR, new_target, file_name)
-    ev = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+    ev = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                                  error_message='Did not receive expected "Sending FIM event: ..." event').result()
 
     assert ev['data']['type'] == 'added' and ev['data']['path'] == os.path.join(new_target, file_name)

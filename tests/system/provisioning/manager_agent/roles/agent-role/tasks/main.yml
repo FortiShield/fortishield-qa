@@ -28,12 +28,12 @@
 - name: "Download package"
   get_url:
     url: "{{agent_package}}"
-    dest: /tmp/wazuh-agent.deb
+    dest: /tmp/fortishield-agent.deb
     mode: "0664"
 
 - name: Install agent
   apt:
-    deb: /tmp/wazuh-agent.deb
+    deb: /tmp/fortishield-agent.deb
 
 - name: Copy ossec.conf file
   copy:
@@ -61,12 +61,12 @@
     mode: "0664"
     create: yes
 
-- name: Set Wazuh Manager IP
+- name: Set Fortishield Manager IP
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: '<address>(.*)</address>'
     line: "<address>{{ manager_hostname }}</address>"
     backrefs: yes
 
-- name: Restart Wazuh
+- name: Restart Fortishield
   command: "{{restart_command}}"

@@ -1,12 +1,12 @@
 ---
-- name: restart wazuh-manager
+- name: restart fortishield-manager
   service:
-    name: wazuh-manager
+    name: fortishield-manager
     state: restarted
     enabled: true
 
-- name: restart wazuh-api
+- name: restart fortishield-api
   service:
-    name: wazuh-api
+    name: fortishield-api
     state: restarted
     enabled: true

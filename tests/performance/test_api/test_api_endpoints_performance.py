@@ -9,16 +9,16 @@ from yaml import safe_load
 
 restart_delay = safe_load(open(join(dirname(realpath(__file__)), 'data', 'configuration.yaml'))
                           )['configuration']['restart_delay']
-test_data = safe_load(open(join(dirname(realpath(__file__)), 'data', 'wazuh_api_endpoints_performance.yaml')))
+test_data = safe_load(open(join(dirname(realpath(__file__)), 'data', 'fortishield_api_endpoints_performance.yaml')))
 case_ids = [f"{case['method']}_{case['endpoint']}" for case in test_data['test_cases']]
 api_details = dict()
 
 xfailed_items = {
     '/active-response': {'message': 'Agent simulator not handling active-response messages: '
-                                    'https://github.com/wazuh/wazuh-qa/issues/1266',
+                                    'https://github.com/fortishield/fortishield-qa/issues/1266',
                          'method': 'put'},
     '/agents/group': {'message': 'Investigate performance issues with PUT /agents/group API endpoint: '
-                                 'https://github.com/wazuh/wazuh/issues/13872',
+                                 'https://github.com/fortishield/fortishield/issues/13872',
                       'method': 'put'},
 }
 

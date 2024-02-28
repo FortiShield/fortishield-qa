@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,8 +9,8 @@ type: integration
 
 brief: These tests will check if the 'rbac_mode' (Role-Based Access Control) setting of the API
        is working properly. This setting allows you to specify the operating mode between
-       'whitelist mode' and 'blacklist mode'. The Wazuh API is an open source 'RESTful' API
-       that allows for interaction with the Wazuh manager from a web browser, command line tool
+       'whitelist mode' and 'blacklist mode'. The Fortishield API is an open source 'RESTful' API
+       that allows for interaction with the Fortishield manager from a web browser, command line tool
        like 'cURL' or any script or program that can make web requests.
 
 components:
@@ -22,10 +22,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -42,8 +42,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/configuration.html#rbac-mode
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/configuration.html#rbac-mode
     - https://en.wikipedia.org/wiki/Role-based_access_control
 
 tags:
@@ -54,9 +54,9 @@ import sqlite3
 
 import pytest
 import requests
-from wazuh_testing.fim import WAZUH_PATH
-from wazuh_testing.tools.configuration import check_apply_test
-from wazuh_testing.tools.configuration import get_api_conf
+from fortishield_testing.fim import FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import check_apply_test
+from fortishield_testing.tools.configuration import get_api_conf
 
 # Marks
 
@@ -65,7 +65,7 @@ pytestmark = pytest.mark.server
 # Variables
 
 path = os.path.dirname(os.path.abspath(__file__))
-rbac_sql_path = os.path.join(WAZUH_PATH, 'api', 'configuration', 'security', 'rbac.db')
+rbac_sql_path = os.path.join(FORTISHIELD_PATH, 'api', 'configuration', 'security', 'rbac.db')
 
 # Configurations
 
@@ -118,7 +118,7 @@ def test_rbac_mode(tags_to_apply, get_configuration, configure_api_environment, 
                  must be 403 ('forbidden'). On the other hand, when it is in 'black mode',
                  there is no endpoint that has it denied, so the status code must be 200 ('ok').
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -162,7 +162,7 @@ def test_rbac_mode(tags_to_apply, get_configuration, configure_api_environment, 
     '''
     check_apply_test(tags_to_apply, get_configuration['tags'])
     rbac_white = get_configuration['security_config']['rbac_mode'] == 'white'
-    api_details = get_api_details(user='test_user', password='wazuh')
+    api_details = get_api_details(user='test_user', password='fortishield')
     api_details['base_url'] += '/manager/info'
 
     # Request manager info.

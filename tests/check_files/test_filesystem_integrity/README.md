@@ -1,5 +1,5 @@
 # Filesystem integrity test
-Wazuh - Quality Assurance system test that checks the filesystem integrity after a Wazuh installation/uninstallation/update.
+Fortishield - Quality Assurance system test that checks the filesystem integrity after a Fortishield installation/uninstallation/update.
 
 The test is run using `qa-ctl` via the `launcher.py` located in the module directory. This launcher creates the `qa-ctl`
 configuration, generates the playbooks that perform the actions, and calls `qa-ctl` itself. Finally, a test is launched
@@ -7,31 +7,31 @@ using pytest, to verify that the check-files obtained have no differences betwee
 
 # How to install
 
-You can follow the `qa-ctl` [installation guide](https://github.com/wazuh/wazuh-qa/wiki/QACTL-tool-installation-guide)
+You can follow the `qa-ctl` [installation guide](https://github.com/fortishield/fortishield-qa/wiki/QACTL-tool-installation-guide)
 because it is used to launch the test, and the framework is installed as well.
 
 # How to use
 
-After installing the `wazuh-qa` framework(you can follow the [installation guide](#how-to-install)), you will be able to run the test.
+After installing the `fortishield-qa` framework(you can follow the [installation guide](#how-to-install)), you will be able to run the test.
 
 ## Parameters
 
-- `--action`, `-a`: Select the Wazuh action to be carried out to check the check-files from `install`, `upgrade`, `uninstall`.
+- `--action`, `-a`: Select the Fortishield action to be carried out to check the check-files from `install`, `upgrade`, `uninstall`.
     By default it performs an installation.
 
 - `--os`, `-o`: Select the OS where the filesystem integrity will be tested from `centos_7`, `centos_8`, `ubuntu`.
     By default it is performed in Ubuntu Focal.
 
-- `--version`, `-v`: Print the Wazuh installation and tests version.
+- `--version`, `-v`: Print the Fortishield installation and tests version.
 
 - `--debug`, `-d`: Run in debug mode. You can increase the debug level with more [-d+].
 
 - `--persistent`, `-p`: Persistent instance mode. Do not destroy the instances, check-files and qa-ctl configuration
     once the process has finished.
 
-- `--qa-branch`: Set a custom wazuh-qa branch to download and run the tests files, `master` by default.
+- `--qa-branch`: Set a custom fortishield-qa branch to download and run the tests files, `master` by default.
 
-- `--target`, `-t`: The Wazuh test target. Could be `manager` or `agent`, with `manager` as default.
+- `--target`, `-t`: The Fortishield test target. Could be `manager` or `agent`, with `manager` as default.
 
 - `--no-validation`: Disable the script parameters validation.
 
@@ -43,7 +43,7 @@ After installing the `wazuh-qa` framework(you can follow the [installation guide
 ## Run examples
 
 <details>
-<summary>Run the test in CentOS 8 when upgrading Wazuh with custom output path.</summary>
+<summary>Run the test in CentOS 8 when upgrading Fortishield with custom output path.</summary>
 
 ```bash
 python3 launcher.py -o centos_8 -a upgrade --output-file-path /tmp/syscheck/ubuntu/uninstall 
@@ -64,7 +64,7 @@ python3 launcher.py -p
 <summary>Specify the deployment information.</summary>
 
 ```bash
-python3 launcher.py --deployment-info /tmp/wazuh_check_files/check_files_config_1641812606_893604.yaml
+python3 launcher.py --deployment-info /tmp/fortishield_check_files/check_files_config_1641812606_893604.yaml
 ```
 
 </details>

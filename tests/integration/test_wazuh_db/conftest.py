@@ -1,6 +1,6 @@
 import pytest
 
-from wazuh_testing.tools.wazuh_manager import create_group, delete_group
+from fortishield_testing.tools.fortishield_manager import create_group, delete_group
 
 
 @pytest.fixture(scope='function')

@@ -3,4 +3,4 @@
   configuration_parameters:
   metadata:
     service_type: cloudwatchlogs
-    log_group_name: wazuh-cloudwatchlogs-integration-tests
+    log_group_name: fortishield-cloudwatchlogs-integration-tests

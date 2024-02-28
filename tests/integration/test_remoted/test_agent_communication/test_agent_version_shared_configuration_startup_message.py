@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, these tests will check if the agent status appears as 'disconnected' after
        just sending the 'start-up' event, sent by several agents using different protocols.
        Agent's status should change from 'disconnected' to 'active' status after the manager
@@ -20,7 +20,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -37,8 +37,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html?highlight=status#agent-status
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html?highlight=status#agent-status
 
 tags:
     - remoted
@@ -47,18 +47,18 @@ import os
 from time import sleep
 
 import pytest
-import wazuh_testing.tools.agent_simulator as ag
-from wazuh_testing import UDP, TCP, TCP_UDP, remote
-from wazuh_testing.remote import check_push_shared_config, REMOTED_GLOBAL_TIMEOUT
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+import fortishield_testing.tools.agent_simulator as ag
+from fortishield_testing import UDP, TCP, TCP_UDP, remote
+from fortishield_testing.remote import check_push_shared_config, REMOTED_GLOBAL_TIMEOUT
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 pytestmark = pytest.mark.tier(level=2)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_agent_version_shared_configuration_startup_message.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_agent_version_shared_configuration_startup_message.yaml')
 agent_conf_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'agent.conf')
 
 parameters = [
@@ -88,7 +88,7 @@ agent_info = {
     }
 }
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 config_ids = [x['PROTOCOL'] for x in parameters]
 
 
@@ -106,7 +106,7 @@ def test_agent_remote_configuration(agent_name, get_configuration, configure_env
     description: Check if the manager sends the shared configuration to agents through remote,
                  ensuring the agent version is correct.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -119,7 +119,7 @@ def test_agent_remote_configuration(agent_name, get_configuration, configure_env
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - remove_shared_files:
             type: fixture
             brief: Temporary removes txt files from default agent group shared files.
@@ -131,13 +131,13 @@ def test_agent_remote_configuration(agent_name, get_configuration, configure_env
             brief: Temporary creates a new agent group for testing purpose, must be run only on Managers.
 
     assertions:
-        - Verify that the shared configuration was sent, checking the agent version retrieved by 'wazuh_bd'
+        - Verify that the shared configuration was sent, checking the agent version retrieved by 'fortishield_bd'
         - Verify the startup message was received.
 
     input_description: A configuration template (test_agent_version_shared_configuration_startup_message) is contained
-                       in an external YAML file (wazuh_agent_version_shared_configuration_startup_message.yaml).
+                       in an external YAML file (fortishield_agent_version_shared_configuration_startup_message.yaml).
                        That template is combined with different test cases defined in the module. Those include
-                       configuration settings for the 'wazuh-remoted' daemon and agents info.
+                       configuration settings for the 'fortishield-remoted' daemon and agents info.
 
     expected_output:
         - fr"DEBUG: Agent <agent_name> sent HC_STARTUP from 127.0.0.1"
@@ -145,7 +145,7 @@ def test_agent_remote_configuration(agent_name, get_configuration, configure_env
 
     tags:
         - simulator
-        - wazuh_db
+        - fortishield_db
         - remoted
     '''
     protocols = get_configuration['metadata']['protocol']
@@ -160,5 +160,5 @@ def test_agent_remote_configuration(agent_name, get_configuration, configure_env
 
         check_push_shared_config(agent, sender)
 
-        wazuh_db_agent_version = agent.get_agent_version()
-        assert wazuh_db_agent_version == fr"Wazuh {agent_info[agent_name]['version']}"
+        fortishield_db_agent_version = agent.get_agent_version()
+        assert fortishield_db_agent_version == fr"Fortishield {agent_info[agent_name]['version']}"

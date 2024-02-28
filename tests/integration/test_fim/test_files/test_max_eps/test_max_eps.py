@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts
        when these files are modified. Specifically, these tests will verify that FIM limits
        the maximum events per second that it generates, set in the 'max_eps' tag.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -65,26 +65,26 @@ import pytest
 import time
 
 from collections import Counter
-from wazuh_testing import logger, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.tools.file import write_file
-from wazuh_testing.modules.fim import TEST_DIR_1, REALTIME_MODE, WHODATA_MODE
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import (ERR_MSG_MULTIPLE_FILES_CREATION, callback_integrity_message,
+from fortishield_testing import logger, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.tools.file import write_file
+from fortishield_testing.modules.fim import TEST_DIR_1, REALTIME_MODE, WHODATA_MODE
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import (ERR_MSG_MULTIPLE_FILES_CREATION, callback_integrity_message,
                                                      CB_PATH_MONITORED_REALTIME, ERR_MSG_MONITORING_PATH,
                                                      CB_PATH_MONITORED_WHODATA, CB_PATH_MONITORED_WHODATA_WINDOWS)
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim.utils import generate_params
 
 
 # Marks
 pytestmark = pytest.mark.tier(level=1)
 
 # Variables
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 test_directories = [os.path.join(PREFIX, TEST_DIR_1)]
 TIMEOUT = 180
 
@@ -95,7 +95,7 @@ eps_values = ['50', '10']
 
 p, m = generate_params(extra_params=conf_params, apply_to_all=({'MAX_EPS': eps_value} for eps_value in eps_values),
                        modes=[REALTIME_MODE, WHODATA_MODE])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -120,16 +120,16 @@ def create_multiple_files(get_configuration):
 
 
 @pytest.mark.skip("This test is affected by Issue #15844, when it is fixed it should be enabled again.")
-def test_max_eps(configure_local_internal_options_module, get_configuration, configure_environment, restart_wazuh):
+def test_max_eps(configure_local_internal_options_module, get_configuration, configure_environment, restart_fortishield):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon applies the limit set in the 'max_eps' tag when
+    description: Check if the 'fortishield-syscheckd' daemon applies the limit set in the 'max_eps' tag when
                  a lot of 'syscheck' events are generated. For this purpose, the test will monitor a folder,
                  and once FIM is started, it will create multiple testing files in it. Then, the test
                  will collect FIM 'added' events generated and check if the number of events matches
                  the testing files created. Finally, it will verify the limit of events per second (eps)
                  is not exceeded by checking the creation time of the testing files.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -151,8 +151,8 @@ def test_max_eps(configure_local_internal_options_module, get_configuration, con
         - Verify that FIM events are generated for each testing file created.
         - Verify that the eps limit set in the 'max_eps' tag has not been exceeded at generating FIM events.
 
-    input_description: A test case (max_eps) is contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, these are
+    input_description: A test case (max_eps) is contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, these are
                        combined with the testing directory to be monitored defined in the module.
 
     expected_output:
@@ -168,13 +168,13 @@ def test_max_eps(configure_local_internal_options_module, get_configuration, con
     else:
         monitoring_regex = CB_PATH_MONITORED_REALTIME if mode == 'realtime' else CB_PATH_MONITORED_WHODATA
 
-    result = wazuh_log_monitor.start(timeout=TIMEOUT,
+    result = fortishield_log_monitor.start(timeout=TIMEOUT,
                                      callback=generate_monitoring_callback(monitoring_regex),
                                      error_message=ERR_MSG_MONITORING_PATH).result()
     create_multiple_files(get_configuration)
     # Create files to read max_eps files with added events
     n_results = max_eps * 3
-    result = wazuh_log_monitor.start(timeout=TIMEOUT,
+    result = fortishield_log_monitor.start(timeout=TIMEOUT,
                                      accum_results=n_results,
                                      callback=callback_integrity_message,
                                      error_message=f'Received less results than expected ({n_results})').result()

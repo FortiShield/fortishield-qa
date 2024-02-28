@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,7 +9,7 @@ type: integration
 
 brief: Active responses perform various countermeasures to address active threats, such as blocking access
        to an agent from the threat source when certain criteria are met. These tests will check if
-       the 'wazuh-analysisd' daemon processes 'active response' messages correctly.
+       the 'fortishield-analysisd' daemon processes 'active response' messages correctly.
 
 components:
     - active_response
@@ -20,7 +20,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -37,7 +37,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/active-response/#active-response
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/active-response/#active-response
 
 tags:
     - ar_analysisd
@@ -47,17 +47,17 @@ import os
 import pytest
 import socket
 import time
-import wazuh_testing.tools.agent_simulator as ag
+import fortishield_testing.tools.agent_simulator as ag
 
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
-ANALYSISD_SOCKET = os.path.join(WAZUH_PATH, 'queue', 'sockets', 'queue')
+ANALYSISD_SOCKET = os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'queue')
 
 SERVER_ADDRESS = 'localhost'
 SERVER_NAME = 'vm-test'
@@ -200,8 +200,8 @@ params = [case['params'] for case in cases]
 metadata = [case['metadata'] for case in cases]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 # List where the agents objects will be stored
 agents = []
@@ -212,7 +212,7 @@ def set_debug_mode():
     """
     Set remoted daemon in debug mode
     """
-    local_int_conf_path = os.path.join(WAZUH_PATH, 'etc', 'local_internal_options.conf')
+    local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'etc', 'local_internal_options.conf')
     debug_line = 'remoted.debug=2\n'
     with open(local_int_conf_path, 'r') as local_file_read:
         lines = local_file_read.readlines()
@@ -231,7 +231,7 @@ def get_configuration(request):
 
 @pytest.fixture(scope="function")
 def restart_service():
-    """Restart the Wazuh manager and clean the ossec.log file."""
+    """Restart the Fortishield manager and clean the ossec.log file."""
     control_service('stop')
     clean_logs()
     control_service('start')
@@ -336,7 +336,7 @@ def validate_new_ar_message(agent_id, message, extra_args, timeout, all_agents):
     assert json_alert['version'] == 1, 'Invalid version in JSON message'
     assert json_alert['origin'], 'Missing origin in JSON message'
     assert json_alert['origin']['module'], 'Missing module in JSON message'
-    assert json_alert['origin']['module'] == 'wazuh-analysisd', 'Invalid module in JSON message'
+    assert json_alert['origin']['module'] == 'fortishield-analysisd', 'Invalid module in JSON message'
     assert json_alert['command'], 'Missing command in JSON message'
 
     if timeout == 'yes':
@@ -394,10 +394,10 @@ def test_os_exec(set_debug_mode, get_configuration, configure_environment, resta
     description: Check if 'active response' messages are sent in the correct format
                  depending on the agent version used. For this purpose, simulated agents
                  with different properties are created, and messages in two formats
-                 (string and JSON) are sent to the socket of the 'wazuh-analisysd' daemon,
+                 (string and JSON) are sent to the socket of the 'fortishield-analisysd' daemon,
                  which should process them correctly.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -413,7 +413,7 @@ def test_os_exec(set_debug_mode, get_configuration, configure_environment, resta
             brief: Configure a custom environment for testing.
         - restart_service:
             type: fixture
-            brief: Restart the Wazuh manager and clean the 'ossec.log' file.
+            brief: Restart the Fortishield manager and clean the 'ossec.log' file.
         - configure_agents:
             type: fixture
             brief: Create simulated agents for testing.
@@ -428,9 +428,9 @@ def test_os_exec(set_debug_mode, get_configuration, configure_environment, resta
     expected_output:
         - r'Active response request received'
         - Active response message with the structure defined in the
-          validate_new_ar_message function (for Wazuh versions >= 4.2).
+          validate_new_ar_message function (for Fortishield versions >= 4.2).
         - Active response message with the structure defined in the
-          validate_old_ar_message function (for Wazuh versions < 4.2).
+          validate_old_ar_message function (for Fortishield versions < 4.2).
 
     tags:
         - simulator

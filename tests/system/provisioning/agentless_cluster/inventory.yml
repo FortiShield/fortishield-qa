@@ -1,35 +1,35 @@
 all:
   hosts:
-    wazuh-master:
+    fortishield-master:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-worker1:
+    fortishield-worker1:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-worker2:
+    fortishield-worker2:
       ansible_connection: docker
       ansible_python_interpreter: python
 managers:
   hosts:
-    wazuh-master:
+    fortishield-master:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-worker1:
+    fortishield-worker1:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-worker2:
+    fortishield-worker2:
       ansible_connection: docker
       ansible_python_interpreter: python
 master:
   hosts:
-    wazuh-master:
+    fortishield-master:
       ansible_connection: docker
       ansible_python_interpreter: python
 workers:
   hosts:
-    wazuh-worker1:
+    fortishield-worker1:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-worker2:
+    fortishield-worker2:
       ansible_connection: docker
       ansible_python_interpreter: python

@@ -3,7 +3,7 @@
 #
 # GENERIC:
 #  - (String) os: Target operating system
-#  - (String) config_block: Wazuh configuration block
+#  - (String) config_block: Fortishield configuration block
 
 - name: Configure ossec.conf linux
   become: true

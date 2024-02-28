@@ -1,6 +1,6 @@
 import pytest
 
-from wazuh_testing.tools.agent_simulator import create_agents
+from fortishield_testing.tools.agent_simulator import create_agents
 
 
 @pytest.fixture(scope="function")

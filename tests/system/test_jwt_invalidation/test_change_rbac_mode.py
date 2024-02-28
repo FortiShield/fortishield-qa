@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
@@ -7,13 +7,13 @@ import time
 
 import pytest
 import yaml
-from wazuh_testing.tools import WAZUH_SECURITY_CONF
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools import FORTISHIELD_SECURITY_CONF
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.agentless_cluster_env]
 
-test_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
+test_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                               'provisioning', 'agentless_cluster', 'inventory.yml')
 default_api_conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'api_configurations', 'default.yaml')
@@ -26,8 +26,8 @@ opposite_rbac_mode = {'white': 'black', 'black': 'white'}
 def restore_default_security_settings():
     yield
 
-    token = host_manager.get_api_token('wazuh-master')
-    response = host_manager.make_api_call('wazuh-master', method='DELETE', endpoint='/security/config', token=token)
+    token = host_manager.get_api_token('fortishield-master')
+    response = host_manager.make_api_call('fortishield-master', method='DELETE', endpoint='/security/config', token=token)
     assert response['status'] == 200, f'Failed to restore default security settings: {response}'
 
 
@@ -35,7 +35,7 @@ def restore_default_security_settings():
     # User-roles based login
     {},
     # Auth context login
-    {'user': 'wazuh-wui', 'password': 'wazuh-wui', 'auth_context': {"username": "elastic"}}
+    {'user': 'fortishield-wui', 'password': 'fortishield-wui', 'auth_context': {"username": "elastic"}}
 ])
 def test_change_rbac_mode_with_endpoint(login_endpoint, set_default_api_conf, restore_default_security_settings):
     """Check that all tokens are revoked when changing RBAC mode with the security endpoint."""
@@ -62,7 +62,7 @@ def test_change_rbac_mode_with_endpoint(login_endpoint, set_default_api_conf, re
     # Normal admin
     {},
     # Auth context login
-    {'user': 'wazuh-wui', 'password': 'wazuh-wui', 'auth_context': {"username": "elastic"}}
+    {'user': 'fortishield-wui', 'password': 'fortishield-wui', 'auth_context': {"username": "elastic"}}
 ])
 def test_change_rbac_mode_manually(login_endpoint, set_default_api_conf, restore_default_security_settings):
     """Check that all tokens are revoked when changing RBAC mode manually in the security.yaml ."""
@@ -75,11 +75,11 @@ def test_change_rbac_mode_manually(login_endpoint, set_default_api_conf, restore
     new_rbac_mode = opposite_rbac_mode[response['json']['data']['rbac_mode']]
 
     # Change RBAC mode manually
-    host_manager.modify_file_content(test_hosts[0], path=WAZUH_SECURITY_CONF,
+    host_manager.modify_file_content(test_hosts[0], path=FORTISHIELD_SECURITY_CONF,
                                      content=yaml.safe_dump({'rbac_mode': new_rbac_mode}))
 
-    # Restart the wazuh-manager service
-    host_manager.get_host(test_hosts[0]).ansible('command', f'service wazuh-manager restart', check=False)
+    # Restart the fortishield-manager service
+    host_manager.get_host(test_hosts[0]).ansible('command', f'service fortishield-manager restart', check=False)
 
     # Ensure workers are connected to master
     time.sleep(11)

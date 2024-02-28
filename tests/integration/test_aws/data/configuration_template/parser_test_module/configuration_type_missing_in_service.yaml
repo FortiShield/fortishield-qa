@@ -10,4 +10,4 @@
               - aws_profile:
                   value: qa
               - name:
-                  aws_log_groups: wazuh-cloudwatch-integration-tests
+                  aws_log_groups: fortishield-cloudwatch-integration-tests

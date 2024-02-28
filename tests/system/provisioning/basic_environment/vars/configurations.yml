@@ -1,6 +1,6 @@
-manager_hostname: "wazuh-manager"
+manager_hostname: "fortishield-manager"
 
-agent1_hostname: "wazuh-agent1"
+agent1_hostname: "fortishield-agent1"
 
 docker_network: "basic_environment_net"
 

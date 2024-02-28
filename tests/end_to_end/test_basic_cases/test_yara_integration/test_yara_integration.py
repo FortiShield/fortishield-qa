@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -19,9 +19,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
-    - wazuh-execd
-    - wazuh-analysisd
+    - fortishield-syscheckd
+    - fortishield-execd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -30,8 +30,8 @@ os_version:
     - CentOS 8
 
 references:
-    - https://github.com/wazuh/wazuh-automation/wiki/Wazuh-demo:-Execution-guide#yara
-    - https://documentation.wazuh.com/current/proof-of-concept-guide/detect-malware-yara-integration.html
+    - https://github.com/fortishield/fortishield-automation/wiki/Fortishield-demo:-Execution-guide#yara
+    - https://documentation.fortishield.github.io/current/proof-of-concept-guide/detect-malware-yara-integration.html
 
 tags:
     - demo
@@ -42,11 +42,11 @@ import json
 import re
 import pytest
 
-import wazuh_testing as fw
-from wazuh_testing import end_to_end as e2e
-from wazuh_testing import event_monitor as evm
-from wazuh_testing.tools import configuration as config
-from wazuh_testing.modules import TIER0, LINUX
+import fortishield_testing as fw
+from fortishield_testing import end_to_end as e2e
+from fortishield_testing import event_monitor as evm
+from fortishield_testing.tools import configuration as config
+from fortishield_testing.modules import TIER0, LINUX
 
 
 # Test cases data
@@ -78,25 +78,25 @@ def test_yara_integration(configure_environment, metadata, get_indexer_credentia
     description: Check that an alert is generated when malware is downloaded.
 
     test_phases:
-        - Set a custom Wazuh configuration.
+        - Set a custom Fortishield configuration.
         - Download malware to generate the event.
         - Check in the alerts.json log that the expected alert has been triggered and get its timestamp.
         - Check that the obtained alert from alerts.json has been indexed.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
     parameters:
         - configurate_environment:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration playbook.
+            brief: Set the fortishield configuration according to the configuration playbook.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - get_indexer_credentials:
             type: fixture
-            brief: Get the wazuh indexer credentials.
+            brief: Get the fortishield indexer credentials.
         - generate_events:
             type: fixture
             brief: Generate events that will trigger the alert according to the generate_events playbook.

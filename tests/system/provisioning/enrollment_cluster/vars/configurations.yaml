@@ -1,12 +1,12 @@
 cluster_key: "00000000000000000000000000000000"
 
-master_hostname: wazuh-master
+master_hostname: fortishield-master
 
-worker1_hostname: wazuh-worker1
-worker2_hostname: wazuh-worker2
+worker1_hostname: fortishield-worker1
+worker2_hostname: fortishield-worker2
 
-agent1_hostname: wazuh-agent1
-agent2_hostname: wazuh-agent2
+agent1_hostname: fortishield-agent1
+agent2_hostname: fortishield-agent2
 
 docker_network: cluster_net
 

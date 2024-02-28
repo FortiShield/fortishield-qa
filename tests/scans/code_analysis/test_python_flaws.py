@@ -1,7 +1,7 @@
 import json
 import os
 
-from wazuh_testing.tools.scans.code_analysis import (
+from fortishield_testing.tools.scans.code_analysis import (
     get_new_flaws,
     run_bandit_multiple_directories,
     update_known_flaws_in_file,
@@ -14,7 +14,7 @@ KNOWN_FLAWS_DIRECTORY = os.path.join(TEST_PYTHON_CODE_PATH, 'known_flaws')
 DEFAULT_DIRECTORIES_TO_CHECK = 'framework/,api/,wodles/'
 
 
-def test_check_security_flaws(clone_wazuh_repository, get_test_parameters):
+def test_check_security_flaws(clone_fortishield_repository, get_test_parameters):
     """Test whether the directory to check has python files with possible vulnerabilities or not.
 
     The test passes if there are no new vulnerabilities. The test fails in other case and generates a report.
@@ -24,17 +24,17 @@ def test_check_security_flaws(clone_wazuh_repository, get_test_parameters):
     `known_flaws/known_flaws_{framework|api|wodles}.json` file.
 
     Args:
-        clone_wazuh_repository (fixture): Pytest fixture returning the path of the temporary directory path the
+        clone_fortishield_repository (fixture): Pytest fixture returning the path of the temporary directory path the
             repository cloned. This directory is removed at the end of the pytest session.
         get_test_parameters (fixture): Pytest fixture returning the a dictionary with all the test parameters.
             These parameters are the directories to check, directories to exclude, the minimum confidence level, the
             minimum severity level and the repository name.
     """
-    # Wazuh is cloned from GitHub using the clone_wazuh_repository fixture
-    assert clone_wazuh_repository, "Error while cloning the Wazuh repository from GitHub, " \
-                                   "please check the Wazuh branch set in the parameter."
-    # Change to the cloned Wazuh repository directory
-    os.chdir(clone_wazuh_repository)
+    # Fortishield is cloned from GitHub using the clone_fortishield_repository fixture
+    assert clone_fortishield_repository, "Error while cloning the Fortishield repository from GitHub, " \
+                                   "please check the Fortishield branch set in the parameter."
+    # Change to the cloned Fortishield repository directory
+    os.chdir(clone_fortishield_repository)
 
     directories_to_check = get_test_parameters['directories_to_check']
     bandit_output_list = \

@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import argparse
@@ -11,17 +11,17 @@ import sys
 import time
 
 import yaml
-from wazuh_testing import logger
-from wazuh_testing.analysis import callback_analysisd_agent_id, callback_analysisd_event
-from wazuh_testing.fim import REGULAR, create_file, modify_file, delete_file, detect_initial_scan
-from wazuh_testing.tools import WAZUH_LOGS_PATH, LOG_FILE_PATH, WAZUH_PATH, WAZUH_CONF, PREFIX
-from wazuh_testing.tools.configuration import generate_syscheck_config
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import ManInTheMiddle, QueueMonitor, FileMonitor
-from wazuh_testing.tools.services import control_service, check_daemon_status, delete_sockets
+from fortishield_testing import logger
+from fortishield_testing.analysis import callback_analysisd_agent_id, callback_analysisd_event
+from fortishield_testing.fim import REGULAR, create_file, modify_file, delete_file, detect_initial_scan
+from fortishield_testing.tools import FORTISHIELD_LOGS_PATH, LOG_FILE_PATH, FORTISHIELD_PATH, FORTISHIELD_CONF, PREFIX
+from fortishield_testing.tools.configuration import generate_syscheck_config
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import ManInTheMiddle, QueueMonitor, FileMonitor
+from fortishield_testing.tools.services import control_service, check_daemon_status, delete_sockets
 
-alerts_json = os.path.join(WAZUH_LOGS_PATH, 'alerts', 'alerts.json')
-analysis_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'queue'))
+alerts_json = os.path.join(FORTISHIELD_LOGS_PATH, 'alerts', 'alerts.json')
+analysis_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'queue'))
 
 # Syscheck variables
 n_directories = 0
@@ -31,10 +31,10 @@ yaml_file = 'syscheck_events.yaml'
 
 
 def set_syscheck_config():
-    original_conf = open(WAZUH_CONF, 'r').readlines()
+    original_conf = open(FORTISHIELD_CONF, 'r').readlines()
     directory = 0
 
-    with open(WAZUH_CONF, 'w') as new_conf:
+    with open(FORTISHIELD_CONF, 'w') as new_conf:
         syscheck_flag = False
         for line in original_conf:
             if re.match(r'.*\<syscheck\>.*', line):
@@ -59,7 +59,7 @@ def set_syscheck_config():
 
 
 def set_syscheck_backup(original_conf):
-    with open(WAZUH_CONF, 'w') as o_conf:
+    with open(FORTISHIELD_CONF, 'w') as o_conf:
         o_conf.writelines(original_conf)
 
 
@@ -121,7 +121,7 @@ def generate_analysisd_yaml(n_events, modify_events):
             y_f.write(yaml.safe_dump(yaml_result))
 
     def remove_logs():
-        for root, dirs, files in os.walk(WAZUH_LOGS_PATH):
+        for root, dirs, files in os.walk(FORTISHIELD_LOGS_PATH):
             for file in files:
                 os.remove(os.path.join(root, file))
 
@@ -134,18 +134,18 @@ def generate_analysisd_yaml(n_events, modify_events):
     check_daemon_status(running_condition=False)
     remove_logs()
 
-    control_service('start', daemon='wazuh-db', debug_mode=True)
-    check_daemon_status(running_condition=True, target_daemon='wazuh-db')
+    control_service('start', daemon='fortishield-db', debug_mode=True)
+    check_daemon_status(running_condition=True, target_daemon='fortishield-db')
 
-    control_service('start', daemon='wazuh-analysisd', debug_mode=True)
-    check_daemon_status(running_condition=True, target_daemon='wazuh-analysisd')
+    control_service('start', daemon='fortishield-analysisd', debug_mode=True)
+    check_daemon_status(running_condition=True, target_daemon='fortishield-analysisd')
 
     mitm_analysisd = ManInTheMiddle(address=analysis_path, family='AF_UNIX', connection_protocol='UDP')
     analysis_queue = mitm_analysisd.queue
     mitm_analysisd.start()
 
-    control_service('start', daemon='wazuh-syscheckd', debug_mode=True)
-    check_daemon_status(running_condition=True, target_daemon='wazuh-syscheckd')
+    control_service('start', daemon='fortishield-syscheckd', debug_mode=True)
+    check_daemon_status(running_condition=True, target_daemon='fortishield-syscheckd')
 
     # Wait for initial scan
     detect_initial_scan(file_monitor)
@@ -185,7 +185,7 @@ def generate_analysisd_yaml(n_events, modify_events):
 
 
 def kill_daemons():
-    for daemon in ['wazuh-analysisd', 'wazuh-db', 'wazuh-syscheckd']:
+    for daemon in ['fortishield-analysisd', 'fortishield-db', 'fortishield-syscheckd']:
         control_service('stop', daemon=daemon)
         check_daemon_status(running_condition=False, target_daemon=daemon)
 

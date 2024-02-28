@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests will check if the logcollector detects that a custom socket is
        undefined if the 'target' attribute of the 'out_format' tag has the name of an unexistent
        socket (invalid value). Log data collection is the real-time process of making sense out
@@ -25,7 +25,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - linux
@@ -48,8 +48,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#out-format
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#out-format
 
 tags:
     - logcollector_configuration
@@ -57,17 +57,17 @@ tags:
 import os
 import sys
 import pytest
-import wazuh_testing.api as api
-import wazuh_testing.logcollector as logcollector
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools import LOG_FILE_PATH, get_service
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+import fortishield_testing.api as api
+import fortishield_testing.logcollector as logcollector
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools import LOG_FILE_PATH, get_service
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
-wazuh_component = get_service()
+fortishield.github.ioponent = get_service()
 
-LOGCOLLECTOR_DAEMON = "wazuh-logcollector"
+LOGCOLLECTOR_DAEMON = "fortishield-logcollector"
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.darwin, pytest.mark.sunos5, pytest.mark.tier(level=0)]
@@ -75,7 +75,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.darwin, pytest.mark.sunos5, pytest.
 # Configuration
 no_restart_windows_after_configuration_set = True
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_basic_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_basic_configuration.yaml')
 local_internal_options = {'logcollector.debug': '2'}
 
 local_internal_options = {'logcollector.debug': '2'}
@@ -97,7 +97,7 @@ metadata = [
      'log_format': 'json', 'target': 'custom_socket', 'valid_value': False},
 ]
 
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=parameters,
                                            metadata=metadata)
 configuration_ids = [f"{x['log_format']}_{x['target']}_{x['socket_name']}_{x['location']}_{x['socket_path']}"
@@ -105,10 +105,10 @@ configuration_ids = [f"{x['log_format']}_{x['target']}_{x['socket_name']}_{x['lo
 
 
 def check_configuration_target_valid(cfg):
-    """Check if the Wazuh module runs correctly and that it uses the designated socket.
+    """Check if the Fortishield module runs correctly and that it uses the designated socket.
 
     Ensure logcollector is running with the specified configuration, analyzing the designated socket and,
-    in the case of the Wazuh server, check if the API answer for localfile configuration block coincides
+    in the case of the Fortishield server, check if the API answer for localfile configuration block coincides
     the selected configuration.
 
     Args:
@@ -118,20 +118,20 @@ def check_configuration_target_valid(cfg):
         TimeoutError: If the socket target callback is not generated.
         AssertError: In the case of a server instance, the API response is different than the real configuration.
     """
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     log_callback = logcollector.callback_socket_target(cfg['location'], cfg['target'])
-    wazuh_log_monitor.start(timeout=5, callback=log_callback,
+    fortishield_log_monitor.start(timeout=5, callback=log_callback,
                             error_message=logcollector.GENERIC_CALLBACK_ERROR_TARGET_SOCKET)
 
-    if wazuh_component == 'wazuh-manager':
+    if fortishield.github.ioponent == 'fortishield-manager':
         real_configuration = dict((key, cfg[key]) for key in ('location', 'target', 'log_format'))
         api.wait_until_api_ready()
         api.compare_config_api_response([real_configuration], 'localfile')
 
 
 def check_configuration_target_invalid(cfg):
-    """Check if Wazuh fails because of an invalid target configuration value.
+    """Check if Fortishield fails because of an invalid target configuration value.
 
     Args:
         cfg (dict): Dictionary with the localfile configuration.
@@ -139,10 +139,10 @@ def check_configuration_target_invalid(cfg):
     Raises:
         TimeoutError: If the error callbacks are not generated.
     """
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     log_callback = logcollector.callback_socket_not_defined(cfg['location'], cfg['target'])
-    wazuh_log_monitor.start(timeout=5, callback=log_callback,
+    fortishield_log_monitor.start(timeout=5, callback=log_callback,
                             error_message=logcollector.GENERIC_CALLBACK_ERROR_TARGET_SOCKET_NOT_FOUND)
 
 
@@ -156,14 +156,14 @@ def get_configuration(request):
 @pytest.mark.filterwarnings('ignore::urllib3.exceptions.InsecureRequestWarning')
 def test_configuration_target(get_configuration, configure_environment, configure_local_internal_options_module):
     '''
-    description: Check if the 'wazuh-logcollector' daemon detects invalid configurations for the 'target' attribute
+    description: Check if the 'fortishield-logcollector' daemon detects invalid configurations for the 'target' attribute
                  of the 'out_format' tag. For this purpose, the test will set a 'socket' section to specify a custom
                  socket, and a 'localfile' section using valid/invalid values for that attribute. Then, it will check
                  if an event indicating that the socket is not defined when using an invalid value, or if an event
                  indicating that the socket is detected when using valid ones. Finally, the test will verify that
-                 the Wazuh API returns the same values for the 'localfile' section that the configured one.
+                 the Fortishield API returns the same values for the 'localfile' section that the configured one.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -176,17 +176,17 @@ def test_configuration_target(get_configuration, configure_environment, configur
             brief: Configure a custom environment for testing.
         - configure_local_internal_options_module:
             type: fixture
-            brief: Configure the Wazuh local internal options file.
+            brief: Configure the Fortishield local internal options file.
 
     assertions:
         - Verify that the logcollector detects undefined sockets when using invalid values for the 'target' attribute.
         - Verify that the logcollector detects custom sockets when using valid values for the 'target' attribute.
-        - Verify that the Wazuh API returns the same values for the 'localfile' section as the configured one.
+        - Verify that the Fortishield API returns the same values for the 'localfile' section as the configured one.
 
     input_description: A configuration template (test_basic_configuration_target) is contained in an external
-                       YAML file (wazuh_basic_configuration.yaml). That template is combined with different
+                       YAML file (fortishield_basic_configuration.yaml). That template is combined with different
                        test cases defined in the module. Those include configuration settings
-                       for the 'wazuh-logcollector' daemon.
+                       for the 'fortishield-logcollector' daemon.
 
     expected_output:
         - r'Socket target for .* -> .*'

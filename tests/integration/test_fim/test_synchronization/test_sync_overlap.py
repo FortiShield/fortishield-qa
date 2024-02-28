@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Check if the 'wazuh-syscheckd' daemon is performing a synchronization at the intervals specified in the
+brief: Check if the 'fortishield-syscheckd' daemon is performing a synchronization at the intervals specified in the
        configuration, using the 'interval' tag, if a new synchronization is fired, and the last sync message has been
        recieved in less time than 'response_timeout, the sync interval is doubled.
        The new value for interval cannot be higher than max_interval option. After a new sync interval is tried and the
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -43,8 +43,8 @@ os_version:
     - Windows Server 2019
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -63,12 +63,12 @@ import os
 import sys
 import pytest
 
-from wazuh_testing import global_parameters
-from wazuh_testing.tools import LOG_FILE_PATH, configuration
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules import TIER1, AGENT, SERVER
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS, MONITORED_DIR_1
-from wazuh_testing.modules.fim.event_monitor import (callback_detect_synchronization, CB_INVALID_CONFIG_VALUE,
+from fortishield_testing import global_parameters
+from fortishield_testing.tools import LOG_FILE_PATH, configuration
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules import TIER1, AGENT, SERVER
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS, MONITORED_DIR_1
+from fortishield_testing.modules.fim.event_monitor import (callback_detect_synchronization, CB_INVALID_CONFIG_VALUE,
                                                      ERR_MSG_INVALID_CONFIG_VALUE, ERR_MSG_FIM_SYNC_NOT_DETECTED,
                                                      CB_SYNC_SKIPPED, ERR_MSG_SYNC_SKIPPED_EVENT,
                                                      CB_SYNC_INTERVAL_RESET, ERR_MSG_SYNC_INTERVAL_RESET_EVENT)
@@ -94,16 +94,16 @@ configurations = configuration.load_configuration_template(configurations_path, 
                                                            configuration_metadata)
 
 # Variables
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 local_internal_options = FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
 
 
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configure_local_internal_options_function,
+def test_sync_overlap(configuration, metadata, set_fortishield_configuration, configure_local_internal_options_function,
                       create_files_in_folder, restart_syscheck_function, wait_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon is performing a synchronization at the interval specified in the
+    description: Check if the 'fortishield-syscheckd' daemon is performing a synchronization at the interval specified in the
                  configuration, using the 'interval' tag, if a new synchronization is fired, and the last sync message
                  has been recieved in less time than 'response_timeout, the sync interval is doubled.
                  The new value for interval cannot be higher than max_interval option. After a new sync interval is
@@ -117,7 +117,7 @@ def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configur
         - Check that next sync is skipped and interval value is doubled
         - Check that interval value is returned to configured value after successful sync
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -128,7 +128,7 @@ def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configur
         - metadata:
             type: dict
             brief: Test case data.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -148,7 +148,7 @@ def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configur
         - Verify that the new value for interval when doubled is equal or lower to max_interval.
 
     input_description: A test case (sync_interval) is contained in external YAML file (cases_sync_overlap.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined with
+                       includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined with
                        the interval periods and the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -160,25 +160,25 @@ def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configur
         - scheduled
     '''
     if sys.platform == 'win32' and metadata['lower']:
-        pytest.xfail("It will be blocked by wazuh/wazuh-qa#4071")
+        pytest.xfail("It will be blocked by fortishield/fortishield-qa#4071")
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # If config is invalid, check that invalid config value message appers
     if metadata['response_timeout'] == 'invalid' or metadata['max_interval'] == 'invalid':
-        wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                 callback=generate_monitoring_callback(CB_INVALID_CONFIG_VALUE),
                                 error_message=ERR_MSG_INVALID_CONFIG_VALUE,
                                 update_position=True).result()
 
     # Wait for new sync
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
                             error_message=ERR_MSG_FIM_SYNC_NOT_DETECTED, update_position=True).result()
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Check if response_timeout has elapsed, and sync is still running, the sync interval is doubled
-    interval = wazuh_log_monitor.start(timeout=global_parameters.default_timeout*5,
+    interval = fortishield_log_monitor.start(timeout=global_parameters.default_timeout*5,
                                        callback=generate_monitoring_callback(CB_SYNC_SKIPPED),
                                        accum_results=metadata['doubled_times'],
                                        error_message=ERR_MSG_SYNC_SKIPPED_EVENT, update_position=True).result()
@@ -201,7 +201,7 @@ def test_sync_overlap(configuration, metadata, set_wazuh_configuration, configur
 
     # Check when sync ends sync_interval is returned to normal after response_timeout since last message.
     if not metadata['lower']:
-        result = wazuh_log_monitor.start(timeout=global_parameters.default_timeout*10,
+        result = fortishield_log_monitor.start(timeout=global_parameters.default_timeout*10,
                                          callback=generate_monitoring_callback(CB_SYNC_INTERVAL_RESET),
                                          error_message=ERR_MSG_SYNC_INTERVAL_RESET_EVENT,
                                          update_position=True).result()

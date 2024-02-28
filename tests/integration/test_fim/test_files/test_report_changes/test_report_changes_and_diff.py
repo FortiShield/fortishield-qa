@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will check if FIM reports (or truncates if required)
        the changes made in monitored files when it matches the 'nodiff' tag and vice versa when
        the 'report_changes' option is enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -48,9 +48,9 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#diff
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#nodiff
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#diff
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#nodiff
 
 pytest_args:
     - fim_mode:
@@ -68,11 +68,11 @@ import os
 import sys
 
 import pytest
-from wazuh_testing.tools import PREFIX, configuration
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing import T_20, LOG_FILE_PATH
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.utils import regular_file_cud
+from fortishield_testing.tools import PREFIX, configuration
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing import T_20, LOG_FILE_PATH
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.utils import regular_file_cud
 from test_fim.common import make_diff_file_path
 
 
@@ -95,7 +95,7 @@ nodiff_file = os.path.join(PREFIX, 'testdir_nodiff', 'regular_file')
 
 directory_str = ','.join(test_directories)
 testdir_reports, testdir_nodiff = test_directories
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 
 # Test configurations
@@ -110,11 +110,11 @@ configurations = configuration.load_configuration_template(configurations_path, 
 # tests
 @pytest.mark.parametrize('test_folders', [test_directories], scope="module", ids='')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_reports_file_and_nodiff(configuration, metadata, set_wazuh_configuration,
+def test_reports_file_and_nodiff(configuration, metadata, set_fortishield_configuration,
                                  configure_local_internal_options_function, restart_syscheck_function,
                                  create_monitored_folders_module, wait_syscheck_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon reports the file changes (or truncates if required)
+    description: Check if the 'fortishield-syscheckd' daemon reports the file changes (or truncates if required)
                  in the generated events using the 'nodiff' tag and vice versa. For this purpose, the test
                  will monitor a directory and make file operations inside it. Then, it will check if a
                  'diff' file is created for the modified testing file. Finally, if the testing file matches
@@ -122,7 +122,7 @@ def test_reports_file_and_nodiff(configuration, metadata, set_wazuh_configuratio
                  'content_changes' field a message indicating that 'diff' is truncated because
                  the 'nodiff' option is used.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -133,7 +133,7 @@ def test_reports_file_and_nodiff(configuration, metadata, set_wazuh_configuratio
         - metadata:
             type: dict
             brief: Test case data.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -157,8 +157,8 @@ def test_reports_file_and_nodiff(configuration, metadata, set_wazuh_configuratio
         - Verify that FIM events include the modifications made in a monitored file
           when it does not match the 'nodiff' tag.
 
-    input_description: A test case (ossec_conf_report) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: A test case (ossec_conf_report) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the testing directory to be monitored defined in the module.
 
     expected_output:
@@ -189,7 +189,7 @@ def test_reports_file_and_nodiff(configuration, metadata, set_wazuh_configuratio
             assert '<Diff truncated because nodiff option>' not in event['data'].get('content_changes'), \
                 f'content_changes is truncated'
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-    regular_file_cud(folder, wazuh_log_monitor, file_list=file_list, min_timeout=T_20,
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+    regular_file_cud(folder, fortishield_log_monitor, file_list=file_list, min_timeout=T_20,
                      triggers_event=True, validators_after_update=[report_changes_validator, no_diff_validator],
                      escaped=escaped)

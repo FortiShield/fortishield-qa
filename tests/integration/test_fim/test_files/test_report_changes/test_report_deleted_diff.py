@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will check if FIM manages properly
        the 'diff' folder created in the 'queue/diff/local' directory when removing a monitored
        folder or the 'report_changes' option is disabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,9 +45,9 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#diff
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#diff
 
 pytest_args:
     - fim_mode:
@@ -68,15 +68,15 @@ import sys
 import time
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH, REGULAR
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import get_wazuh_conf, set_section_wazuh_conf, load_wazuh_configurations
-from wazuh_testing.tools.file import create_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import restart_wazuh_with_new_conf
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
-from wazuh_testing.modules.fim.utils import generate_params
-from wazuh_testing.modules.fim.event_monitor import detect_initial_scan, callback_detect_event
+from fortishield_testing import global_parameters, LOG_FILE_PATH, REGULAR
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import get_fortishield_conf, set_section_fortishield_conf, load_fortishield_configurations
+from fortishield_testing.tools.file import create_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import restart_fortishield_with_new_conf
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
+from fortishield_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim.event_monitor import detect_initial_scan, callback_detect_event
 from test_fim.common import make_diff_file_path
 
 # Marks
@@ -85,9 +85,9 @@ pytestmark = pytest.mark.tier(level=1)
 
 # variables
 local_internal_options = FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 
 test_directories = [os.path.join(PREFIX, 'testdir_reports'), os.path.join(PREFIX, 'testdir_nodiff')]
 testdir_reports, testdir_nodiff = test_directories
@@ -105,7 +105,7 @@ def change_conf(report_value):
                                                                'TEST_DIRECTORIES': directory_str,
                                                                'NODIFF_FILE': nodiff_file})
 
-    return load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+    return load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 configurations = change_conf('yes')
@@ -123,7 +123,7 @@ def get_configuration(request):
 
 def detect_fim_scan(file_monitor, fim_mode):
     """
-    Detect initial scan when restarting Wazuh.
+    Detect initial scan when restarting Fortishield.
 
     Parameters
     ----------
@@ -147,7 +147,7 @@ def wait_for_event(fim_mode):
     """
 
     # Wait until event is detected
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
                             error_message='Did not receive expected "Sending FIM event: ..." event')
 
 
@@ -170,7 +170,7 @@ def create_file_and_check_diff(name, path, fim_mode):
     """
     create_file(REGULAR, path, name, content='Sample content')
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
                             error_message='Did not receive expected "Sending FIM event: ..." event')
 
     diff_file = make_diff_file_path(path, name)
@@ -181,11 +181,11 @@ def create_file_and_check_diff(name, path, fim_mode):
 def disable_report_changes(fim_mode):
     """Change the `report_changes` value in the `ossec.conf` file and then restart `Syscheck` to apply the changes."""
     new_conf = change_conf(report_value='no')
-    new_ossec_conf = set_section_wazuh_conf(new_conf[0].get('sections'))
+    new_ossec_conf = set_section_fortishield_conf(new_conf[0].get('sections'))
 
-    restart_wazuh_with_new_conf(new_ossec_conf)
+    restart_fortishield_with_new_conf(new_ossec_conf)
     # Wait for FIM scan to finish
-    detect_fim_scan(wazuh_log_monitor, fim_mode)
+    detect_fim_scan(fortishield_log_monitor, fim_mode)
 
 
 # tests
@@ -195,14 +195,14 @@ def test_report_when_deleted_directories(path, get_configuration, configure_envi
                                          configure_local_internal_options_module, restart_syscheckd,
                                          wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon deletes the 'diff' folder created in the 'queue/diff/local'
+    description: Check if the 'fortishield-syscheckd' daemon deletes the 'diff' folder created in the 'queue/diff/local'
                  directory when removing a monitored folder and the 'report_changes' option is enabled.
                  For this purpose, the test will monitor a directory and add a testing file inside it. Then,
                  it will check if a 'diff' file is created for the modified testing file. Finally, the test
                  will remove the monitored folder, wait for the FIM 'deleted' event, and verify that
                  the corresponding 'diff' folder is deleted.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -233,8 +233,8 @@ def test_report_when_deleted_directories(path, get_configuration, configure_envi
         - Verify that FIM deletes the 'diff' folder in the 'queue/diff/local' directory
           when removing the corresponding monitored folder.
 
-    input_description: Different test cases are contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: Different test cases are contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the testing directory to be monitored defined in the module.
 
     expected_output:
@@ -258,17 +258,17 @@ def test_report_when_deleted_directories(path, get_configuration, configure_envi
 def test_report_changes_after_restart(get_configuration, configure_environment,
                                       configure_local_internal_options_module, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon deletes the 'diff' folder created in the 'queue/diff/file'
+    description: Check if the 'fortishield-syscheckd' daemon deletes the 'diff' folder created in the 'queue/diff/file'
                  directory when restarting that daemon, and the 'report_changes' option is disabled. For this
                  purpose, the test will monitor a directory and add a testing file inside it. Then, it will check
                  if a 'diff' file is created for the modified testing file. The folders in the 'queue/diff/file'
-                 directory will be deleted after the 'wazuh-syscheckd' daemon restart but will be created again if
+                 directory will be deleted after the 'fortishield-syscheckd' daemon restart but will be created again if
                  the 'report_changes' option is still active. To avoid this, the test will disable the 'report_changes'
-                 option (backing the main configuration) before restarting the 'wazuh-syscheckd' daemon to ensure that
+                 option (backing the main configuration) before restarting the 'fortishield-syscheckd' daemon to ensure that
                  the directories will not be created again. Finally, the test will restore the backed configuration and
                  verify that the initial scan of FIM is made.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -295,8 +295,8 @@ def test_report_changes_after_restart(get_configuration, configure_environment,
         - Verify that FIM deletes the 'diff' folder in the 'queue/diff/file' directory
           when restarting the disabling the 'report_changes' option is disabled.
 
-    input_description: Different test cases are contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: Different test cases are contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the testing directory to be monitored defined in the module.
 
     expected_output:
@@ -312,7 +312,7 @@ def test_report_changes_after_restart(get_configuration, configure_environment,
     # Create a file in the monitored path to force the creation of a report in diff
     diff_file_path = create_file_and_check_diff(FILE_NAME, testdir_reports, fim_mode)
 
-    backup_conf = get_wazuh_conf()
+    backup_conf = get_fortishield_conf()
     try:
         disable_report_changes(fim_mode)
         # Wait FIM to complete start and delete the diff_file
@@ -320,5 +320,5 @@ def test_report_changes_after_restart(get_configuration, configure_environment,
         assert not os.path.exists(diff_file_path), f'{diff_file_path} exists'
     finally:
         # Restore the original conf file so as not to interfere with other tests
-        restart_wazuh_with_new_conf(backup_conf)
-        detect_fim_scan(wazuh_log_monitor, fim_mode)
+        restart_fortishield_with_new_conf(backup_conf)
+        detect_fim_scan(fortishield_log_monitor, fim_mode)

@@ -2,11 +2,11 @@
   description: CloudWatch only logs after configurations
   configuration_parameters:
     SERVICE_TYPE: cloudwatchlogs
-    LOG_GROUP_NAME: wazuh-cloudwatchlogs-integration-tests
+    LOG_GROUP_NAME: fortishield-cloudwatchlogs-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
   metadata:
     service_type: cloudwatchlogs
-    log_group_name: wazuh-cloudwatchlogs-integration-tests
+    log_group_name: fortishield-cloudwatchlogs-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
     log_stream: permanent-logs

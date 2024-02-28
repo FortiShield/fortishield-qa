@@ -1,12 +1,12 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: Whenever a file is created or deleted from the group directory the merged.mg file must be updated. This test
-       checks the content of the merged.mg file that wazuh-remoted compiles for multi-groups.
+       checks the content of the merged.mg file that fortishield-remoted compiles for multi-groups.
 
 tier: 0
 
@@ -17,7 +17,7 @@ components:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -34,7 +34,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-remoted.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
 
 tags:
     - remoted
@@ -47,14 +47,14 @@ from time import sleep
 
 import pytest
 import requests
-from wazuh_testing.api import get_api_details_dict
-from wazuh_testing.remote import DEFAULT_TESTING_GROUP_NAME, new_agent_group, \
+from fortishield_testing.api import get_api_details_dict
+from fortishield_testing.remote import DEFAULT_TESTING_GROUP_NAME, new_agent_group, \
                                   remove_agent_group
-from wazuh_testing.tools import REMOTE_DAEMON, WAZUH_PATH, configuration
-from wazuh_testing.tools.file import delete_file
-import wazuh_testing.tools as tools
-from wazuh_testing.tools.services import check_daemon_status, control_service
-from wazuh_testing.tools.wazuh_manager import remove_agents
+from fortishield_testing.tools import REMOTE_DAEMON, FORTISHIELD_PATH, configuration
+from fortishield_testing.tools.file import delete_file
+import fortishield_testing.tools as tools
+from fortishield_testing.tools.services import check_daemon_status, control_service
+from fortishield_testing.tools.fortishield_manager import remove_agents
 
 # Marks
 pytestmarks = [pytest.mark.linux, pytest.mark.server, pytest.mark.tier(level=0)]
@@ -62,13 +62,13 @@ pytestmarks = [pytest.mark.linux, pytest.mark.server, pytest.mark.tier(level=0)]
 # Variables
 agent_name = 'testing_agent'
 agent_ip = 'any'
-groups_folder = os.path.join(WAZUH_PATH, 'queue', 'agent-groups')
+groups_folder = os.path.join(FORTISHIELD_PATH, 'queue', 'agent-groups')
 default_group_name = 'default'
 groups_list = [default_group_name, DEFAULT_TESTING_GROUP_NAME]
 mg_name = hashlib.sha256(','.join(groups_list).encode()).hexdigest()[:8]
-mg_folder_path = os.path.join(WAZUH_PATH, 'var', 'multigroups', mg_name)
+mg_folder_path = os.path.join(FORTISHIELD_PATH, 'var', 'multigroups', mg_name)
 merged_mg_file = os.path.join(mg_folder_path, 'merged.mg')
-shared_folder_path = os.path.join(WAZUH_PATH, 'etc', 'shared')
+shared_folder_path = os.path.join(FORTISHIELD_PATH, 'etc', 'shared')
 shared_file_name = 'testing_file'
 shared_file_path = os.path.join(shared_folder_path, DEFAULT_TESTING_GROUP_NAME, shared_file_name)
 response_data = None
@@ -87,7 +87,7 @@ configuration_parameters, configuration_metadata, test_case_ids = configuration.
 # Fixtures
 @pytest.fixture(scope="module")
 def restart_remoted():
-    """Restart the wazuh-remoted daemon."""
+    """Restart the fortishield-remoted daemon."""
 
     control_service('restart', daemon=REMOTE_DAEMON)
     check_daemon_status(target_daemon=REMOTE_DAEMON)
@@ -106,8 +106,8 @@ def prepare_environment(request, register_agent):
 
     agent_id = getattr(request.module, 'response_data')['id']
 
-    sb.run([f"{tools.WAZUH_PATH}/bin/agent_groups", "-q", "-a", "-i", agent_id, "-g", 'default'])
-    sb.run([f"{tools.WAZUH_PATH}/bin/agent_groups", "-q", "-a", "-i", agent_id, "-g", DEFAULT_TESTING_GROUP_NAME])
+    sb.run([f"{tools.FORTISHIELD_PATH}/bin/agent_groups", "-q", "-a", "-i", agent_id, "-g", 'default'])
+    sb.run([f"{tools.FORTISHIELD_PATH}/bin/agent_groups", "-q", "-a", "-i", agent_id, "-g", DEFAULT_TESTING_GROUP_NAME])
 
     yield
 
@@ -152,9 +152,9 @@ def manipulate_file(action, file_path):
 def test_merged_mg_file_content(metadata, configure_local_internal_options_module, restart_remoted,
                                 prepare_environment):
     '''
-    description: Check the content of the merged.mg file that wazuh-remoted compiles for multi-groups.
+    description: Check the content of the merged.mg file that fortishield-remoted compiles for multi-groups.
 
-    wazuh_min_version: 4.2.2
+    fortishield_min_version: 4.2.2
 
     parameters:
         - metadata:
@@ -165,7 +165,7 @@ def test_merged_mg_file_content(metadata, configure_local_internal_options_modul
             brief: Fixture to configure the local internal options file.
         - restart_remoted:
             type: fixture
-            brief: Restart the wazuh-remoted daemon.
+            brief: Restart the fortishield-remoted daemon.
         - prepare_environment:
             type: fixture
             brief: Configure a custom environment for testing.

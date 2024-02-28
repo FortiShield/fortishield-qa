@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. All these tests will be performed using ambiguous directory configurations,
        such as directories and subdirectories with opposite monitoring settings. In particular, it
        will be verified that the value of the 'ignore' attribute prevails over the 'restrict' one.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,8 +23,8 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agentd
-    - wazuh-syscheckd
+    - fortishield-agentd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,8 +45,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -64,13 +64,13 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import LOG_FILE_PATH, REGULAR, T_10
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.modules.fim.event_monitor import CB_IGNORING_DUE_TO_SREGEX, CB_IGNORING_DUE_TO_PATTERN
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.file import create_file
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import LOG_FILE_PATH, REGULAR, T_10
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.modules.fim.event_monitor import CB_IGNORING_DUE_TO_SREGEX, CB_IGNORING_DUE_TO_PATTERN
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.file import create_file
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=2)]
@@ -100,7 +100,7 @@ configurations = load_configuration_template(configurations_path, configuration_
 # Tests
 @pytest.mark.parametrize('test_folders', [test_directories], ids='')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_ignore_works_over_restrict(configuration, metadata, set_wazuh_configuration, test_folders,
+def test_ignore_works_over_restrict(configuration, metadata, set_fortishield_configuration, test_folders,
                                     create_monitored_folders, configure_local_internal_options_function,
                                     restart_syscheck_function, wait_syscheck_start):
     '''
@@ -112,18 +112,18 @@ def test_ignore_works_over_restrict(configuration, metadata, set_wazuh_configura
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
+            - Set fortishield configuration and local_internal_options.
             - Create custom folder for monitoring
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Create file and detect event creation event
             - Validate ignored event is generated with matching regex
         - teardown:
             - Delete custom monitored folder
             - Restore configuration
-            - Stop Wazuh
+            - Stop Fortishield
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -137,7 +137,7 @@ def test_ignore_works_over_restrict(configuration, metadata, set_wazuh_configura
         - test_folders:
             type: dict
             brief: List of folders to be created for monitoring.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - create_monitored_folders_module:
@@ -168,7 +168,7 @@ def test_ignore_works_over_restrict(configuration, metadata, set_wazuh_configura
     tags:
         - scheduled
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
     folder = test_directories[metadata['folder_index']]
     filename = metadata['filename']
 
@@ -176,7 +176,7 @@ def test_ignore_works_over_restrict(configuration, metadata, set_wazuh_configura
     create_file(REGULAR, folder, filename, content='')
 
     regex = CB_IGNORING_DUE_TO_PATTERN if metadata['is_pattern'] else CB_IGNORING_DUE_TO_SREGEX
-    matching_log = wazuh_log_monitor.start(timeout=T_10, accum_results=2, callback=generate_monitoring_callback(regex),
+    matching_log = fortishield_log_monitor.start(timeout=T_10, accum_results=2, callback=generate_monitoring_callback(regex),
                                            error_message=f'Did not receive expected '
                                                          f'"Ignoring ... due to ..." event for file '
                                                          f'{os.path.join(folder, filename)}').result()

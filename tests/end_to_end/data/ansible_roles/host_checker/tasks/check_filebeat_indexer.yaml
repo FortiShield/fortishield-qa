@@ -2,7 +2,7 @@
 # -------------------
 # (String) os: Target operating system
 
-- name: Get Wazuh installation
+- name: Get Fortishield installation
   include_role:
     name: service_controller
     tasks_from: get_installation_type
@@ -12,10 +12,10 @@
   shell: filebeat test output
   register: test_result
   ignore_errors: true
-  when: (os == 'linux' and 'server' in wazuh_info.stdout)
+  when: (os == 'linux' and 'server' in fortishield_info.stdout)
 
-- name: Check the connection between Filebeat and Wazuh Indexer
+- name: Check the connection between Filebeat and Fortishield Indexer
   set_fact:
     check_result: 'true'
-    errors: "{{ errors }}Filebeat cannot connect correctly with Wazuh Indexer.\n"
-  when: (os == 'linux' and 'server' in wazuh_info.stdout and 'ERROR' in test_result.stdout)
+    errors: "{{ errors }}Filebeat cannot connect correctly with Fortishield Indexer.\n"
+  when: (os == 'linux' and 'server' in fortishield_info.stdout and 'ERROR' in test_result.stdout)

@@ -1,21 +1,21 @@
 ---
-wazuh-master:
-  - regex: ".*Agent key generated for agent 'wazuh-agent2'.*"
+fortishield-master:
+  - regex: ".*Agent key generated for agent 'fortishield-agent2'.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 90
 
-wazuh-worker1:
-  - regex: ".*Agent key generated for 'wazuh-agent2'.*"
+fortishield-worker1:
+  - regex: ".*Agent key generated for 'fortishield-agent2'.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 90
 
-wazuh-agent2:
+fortishield-agent2:
   - regex: '.*Lost connection with manager. Setting lock.*'
     path: '/var/ossec/logs/ossec.log'
     timeout: 90
-  - regex: '.*Trying to connect to server \(\[wazuh-worker1.*'
+  - regex: '.*Trying to connect to server \(\[fortishield-worker1.*'
     path: '/var/ossec/logs/ossec.log'
     timeout: 90
-  - regex: '.*Connected to the server \(\[wazuh-worker1.*'
+  - regex: '.*Connected to the server \(\[fortishield-worker1.*'
     path: '/var/ossec/logs/ossec.log'
     timeout: 90

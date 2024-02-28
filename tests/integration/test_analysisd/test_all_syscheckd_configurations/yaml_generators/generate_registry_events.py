@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import argparse
@@ -10,13 +10,13 @@ import sys
 import time
 from datetime import timedelta
 
-from wazuh_testing import logger
-from wazuh_testing.fim import KEY_WOW64_64KEY, create_registry, delete_registry, registry_parser, \
+from fortishield_testing import logger
+from fortishield_testing.fim import KEY_WOW64_64KEY, create_registry, delete_registry, registry_parser, \
     modify_registry_value, modify_key_perms, modify_registry_owner
-from wazuh_testing.tools import WAZUH_CONF
-from wazuh_testing.tools.configuration import generate_syscheck_registry_config
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.time import TimeMachine
+from fortishield_testing.tools import FORTISHIELD_CONF
+from fortishield_testing.tools.configuration import generate_syscheck_registry_config
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.time import TimeMachine
 from win32api import RegOpenKeyEx
 from win32con import KEY_ALL_ACCESS, REG_SZ
 from win32security import LookupAccountName
@@ -35,10 +35,10 @@ def _callback_default(line):
 
 
 def set_syscheck_config():
-    original_conf = open(WAZUH_CONF, 'r').readlines()
+    original_conf = open(FORTISHIELD_CONF, 'r').readlines()
     registry = 0
 
-    with open(WAZUH_CONF, 'w') as new_conf:
+    with open(FORTISHIELD_CONF, 'w') as new_conf:
         syscheck_flag = False
         for line in original_conf:
             if re.match(r'.*\<syscheck\>.*', line):
@@ -123,7 +123,7 @@ def clean_environment(original_conf):
     for r in reg_list:
         delete_registry(registry_parser[KEY], r, KEY_ALL_ACCESS | KEY_WOW64_64KEY)
 
-    with open(WAZUH_CONF, 'w') as o_conf:
+    with open(FORTISHIELD_CONF, 'w') as o_conf:
         o_conf.writelines(original_conf)
 
     control_service('start')

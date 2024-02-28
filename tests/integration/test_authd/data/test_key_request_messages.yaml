@@ -7,7 +7,7 @@
     input: "id:001"
     log:
       - Requesting local addition for agent '001' from the agent key request.
-      - '{"error":0,"data":{"id":"001","name":"wazuh_agent1","ip":"any","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c911"}}'
+      - '{"error":0,"data":{"id":"001","name":"fortishield_agent1","ip":"any","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c911"}}'
 -
   name: 'IP'
   description: 'Obtain agent key with specific IP'
@@ -16,7 +16,7 @@
     input: "ip:10.10.10.10"
     log:
       - Requesting local addition for agent '002' from the agent key request.
-      - '{"error":0,"data":{"id":"002","name":"wazuh_agent2","ip":"10.10.10.10","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c912"}}'
+      - '{"error":0,"data":{"id":"002","name":"fortishield_agent2","ip":"10.10.10.10","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c912"}}'
 -
   name: 'Error 4'
   description: 'The script does not have any key for the agent ID/IP'
@@ -42,5 +42,5 @@
   -
     input: "id:001"
     log:
-      - "Duplicate ID. Removing old agent 'wazuh_agent1' (id '001')."
-      - '{"error":0,"data":{"id":"001","name":"wazuh_agent1","ip":"any","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c911"}}'
+      - "Duplicate ID. Removing old agent 'fortishield_agent1' (id '001')."
+      - '{"error":0,"data":{"id":"001","name":"fortishield_agent1","ip":"any","key":"675aaf366e6827ee7a77b2f7b4d89e603a21333c09afbb02c40191f199d7c911"}}'

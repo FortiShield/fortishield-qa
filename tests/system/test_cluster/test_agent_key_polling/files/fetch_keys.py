@@ -8,21 +8,21 @@ keys_db = [
         # Agent 001 basic configuration
         'id': '001',
         'ip': 'any',
-        'name': 'wazuh-agent1',
+        'name': 'fortishield-agent1',
         'key': '1111111111111111111111111111111111111111111111111111111111111111'
     },
     {
         # Agent 002 basic configuration
         'id': '002',
         'ip': 'any',
-        'name': 'wazuh-agent2',
+        'name': 'fortishield-agent2',
         'key': '2222222222222222222222222222222222222222222222222222222222222222'
     },
     {
         # Agent 003 basic configuration
         'id': '003',
         'ip': 'any',
-        'name': 'wazuh-agent3',
+        'name': 'fortishield-agent3',
         'key': '3333333333333333333333333333333333333333333333333333333333333333'
     }
 ]

@@ -1,25 +1,25 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh persistent information, exposing a socket
-       to receive requests and provide information. Wazuh-db has the capability to do automatic database backups, based
+brief: Fortishield-db is the daemon in charge of the databases with all the Fortishield persistent information, exposing a socket
+       to receive requests and provide information. Fortishield-db has the capability to do automatic database backups, based
        on the configuration parameters. This test, checks the proper working of the backup configuration and the
        backup files are generated correctly.
 
 tier: 0
 
 modules:
-    - wazuh_db
+    - fortishield_db
 
 components:
     - manager
 
 daemons:
-    - wazuh-db
+    - fortishield-db
 
 os_platform:
     - linux
@@ -44,10 +44,10 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-db.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-db.html
 
 tags:
-    - wazuh_db
+    - fortishield_db
 '''
 import os
 import subprocess
@@ -56,12 +56,12 @@ import pytest
 import time
 import numbers
 
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import restart_wazuh_function
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH
-from wazuh_testing.tools.utils import validate_interval_format
-from wazuh_testing.modules import TIER0, LINUX, SERVER
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import restart_fortishield_function
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH
+from fortishield_testing.tools.utils import validate_interval_format
+from fortishield_testing.modules import TIER0, LINUX, SERVER
 
 
 # Marks
@@ -70,8 +70,8 @@ pytestmark =  [TIER0, LINUX, SERVER]
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_db_backups_conf.yaml')
-backups_path = os.path.join(WAZUH_PATH, 'backup', 'db')
+configurations_path = os.path.join(test_data_path, 'fortishield_db_backups_conf.yaml')
+backups_path = os.path.join(FORTISHIELD_PATH, 'backup', 'db')
 interval = 5
 
 parameters = [{'ENABLED': 'yes', 'INTERVAL': str(interval)+'s', 'MAX_FILES':''},
@@ -94,7 +94,7 @@ metadata = [{'ENABLED': 'yes', 'INTERVAL': str(interval)+'s', 'MAX_FILES':''},
             {'ENABLED': 'yes', 'INTERVAL': str(interval)+'s', 'MAX_FILES':0}
            ]
 
-configurations = load_wazuh_configurations(configurations_path, __name__ ,
+configurations = load_fortishield_configurations(configurations_path, __name__ ,
                                            params=parameters, metadata=metadata)
 
 
@@ -102,7 +102,7 @@ configurations = load_wazuh_configurations(configurations_path, __name__ ,
 BACKUP_CREATION_CALLBACK = r'.*Created Global database backup "(backup/db/global.db-backup.*.gz)"'
 WRONG_INTERVAL_CALLBACK = r".*Invalid value for element ('interval':.*)"
 WRONG_MAX_FILES_CALLBACK = r".*Invalid value for element ('max_files':.*)"
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 timeout = 15
 
 
@@ -118,12 +118,12 @@ def get_configuration(request):
 def test_wdb_backup_configs(get_configuration, configure_environment, clear_logs, remove_backups, backups_path):
     '''
     description: Check that given different wdb backup configuration parameters, the expected behavior is achieved.
-                 For this, the test gets a series of parameters for the wazuh_db_backups_conf.yaml file and applies
+                 For this, the test gets a series of parameters for the fortishield_db_backups_conf.yaml file and applies
                  them to the manager's ossec.conf. It checks in case of erroneous configurations that the manager was
                  unable to start; otherwise it will check that after creating "max_files+1", there are a total of 
                  "max_files" backup files in the backup folder.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - get_configuration:
@@ -146,7 +146,7 @@ def test_wdb_backup_configs(get_configuration, configure_environment, clear_logs
 
     input_description:
         - Test cases are defined in the parameters and metada variables, that will be applied to the the 
-          wazuh_db_backup_command.yaml file. The parameters tested are: "enabled", "interval" and "max_files".
+          fortishield_db_backup_command.yaml file. The parameters tested are: "enabled", "interval" and "max_files".
           With the given input the test will check the correct behavior of wdb automatic global db backups.
 
     expected_output:
@@ -157,22 +157,22 @@ def test_wdb_backup_configs(get_configuration, configure_environment, clear_logs
         - f'Wrong backup file ammount, expected {test_max_files} but {total_files} are present in folder.
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
 
     '''
     test_interval = get_configuration['metadata']['INTERVAL']
     test_max_files = get_configuration['metadata']['MAX_FILES']
     try:
-        restart_wazuh_function()
+        restart_fortishield_function()
     except (subprocess.CalledProcessError, ValueError) as err:
         if not validate_interval_format(test_interval):
-            wazuh_log_monitor.start(callback=generate_monitoring_callback(WRONG_INTERVAL_CALLBACK), timeout=timeout,
+            fortishield_log_monitor.start(callback=generate_monitoring_callback(WRONG_INTERVAL_CALLBACK), timeout=timeout,
                                            error_message='Did not receive expected '
                                                          '"Invalid value element for interval..." event')
             return
         elif not isinstance(test_max_files, numbers.Number) or test_max_files==0:
-            wazuh_log_monitor.start(callback=generate_monitoring_callback(WRONG_MAX_FILES_CALLBACK), timeout=timeout,
+            fortishield_log_monitor.start(callback=generate_monitoring_callback(WRONG_MAX_FILES_CALLBACK), timeout=timeout,
                                            error_message='Did not receive expected '
                                                          '"Invalid value element for max_files..." event')
             return
@@ -189,7 +189,7 @@ def test_wdb_backup_configs(get_configuration, configure_environment, clear_logs
             pytest.fail("Error: A file was found in backups_path. No backups where expected when enabled is 'no'.")
     # Manage if backup generation is enabled - one or more backups expected
     else:
-        result= wazuh_log_monitor.start(timeout=timeout, accum_results=test_max_files+1,
+        result= fortishield_log_monitor.start(timeout=timeout, accum_results=test_max_files+1,
                                         callback=generate_monitoring_callback(BACKUP_CREATION_CALLBACK),
                                         error_message=f'Did not receive expected\
                                                         "Created Global database..." event').result()

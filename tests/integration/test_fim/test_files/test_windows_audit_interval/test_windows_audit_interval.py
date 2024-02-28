@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will verify that FIM checks at the specified frequency
        in the 'windows_audit_interval' tag, that the SACLs of the directories monitored using the 'whodata'
        monitoring mode are correct, detecting the changes and restoring the SACL rules when required.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,9 +39,9 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#whodata
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-audit-interval
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#whodata
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-audit-interval
     - https://en.wikipedia.org/wiki/Access-control_list
 
 pytest_args:
@@ -62,11 +62,11 @@ import re
 import sys
 
 import pytest
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
 if sys.platform == 'win32':
     from test_fim.test_files.test_windows_audit_interval.manage_acl import Privilege, get_file_security_descriptor, \
@@ -84,12 +84,12 @@ test_directories = [os.path.join(PREFIX, 'testdir_modify_sacl'), os.path.join(PR
 
 directory_str = ','.join(test_directories)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir_modify, testdir_restore = test_directories
-WAZUH_RULES = {'DELETE', 'WRITE_DAC', 'FILE_WRITE_DATA', 'FILE_WRITE_ATTRIBUTES'}
+FORTISHIELD_RULES = {'DELETE', 'WRITE_DAC', 'FILE_WRITE_DATA', 'FILE_WRITE_ATTRIBUTES'}
 previous_rules = set()
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # configurations
 
@@ -98,7 +98,7 @@ conf_params, conf_metadata = generate_params(extra_params={'TEST_DIRECTORIES': d
                                                            'WINDOWS_AUDIT_INTERVAL': str(windows_audit_interval)},
                                              modes=['whodata'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 # fixtures
@@ -111,7 +111,7 @@ def get_configuration(request):
 
 # functions
 def extra_configuration_before_yield():
-    """Get list of SACL before Wazuh applies its own rules based on whodata monitoring."""
+    """Get list of SACL before Fortishield applies its own rules based on whodata monitoring."""
     with Privilege('SeSecurityPrivilege'):
         lfss = get_file_security_descriptor(testdir_restore)
         sacl = get_sacl(lfss) if get_sacl(lfss) is not None else set()
@@ -139,13 +139,13 @@ def callback_sacl_restored(line):
 def test_windows_audit_modify_sacl(tags_to_apply, get_configuration, configure_environment, restart_syscheckd,
                                    wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects a SACL change every 'windows_audit_interval'
+    description: Check if the 'fortishield-syscheckd' daemon detects a SACL change every 'windows_audit_interval'
                  and sets monitoring to 'realtime' mode if so. For this purpose, the test will monitor a
                  folder and verify that the SACL rules are applied to it. Then, the test will remove one rule,
                  and finally, it will verify that an FIM event is generated indicating the rule modification
                  and change the monitoring mode to 'realtime'.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -169,8 +169,8 @@ def test_windows_audit_modify_sacl(tags_to_apply, get_configuration, configure_e
     assertions:
         - Verify that an FIM event is generated when a SACL modification is detected.
 
-    input_description: A test case (audit_interval) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (audit_interval) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directory to be monitored defined in this module.
                        For managing the SACL rules, a module 'manage_acl.py' is used.
 
@@ -185,20 +185,20 @@ def test_windows_audit_modify_sacl(tags_to_apply, get_configuration, configure_e
     check_apply_test(tags_to_apply, get_configuration['tags'])
 
     with Privilege('SeSecurityPrivilege'):
-        # Assert that Wazuh rules are added
+        # Assert that Fortishield rules are added
         lfss = get_file_security_descriptor(testdir_modify)
         dir_rules = get_sacl(lfss)
         assert dir_rules is not None, 'No SACL rules were applied to the monitored directory.'
-        for rule in WAZUH_RULES:
+        for rule in FORTISHIELD_RULES:
             assert rule in dir_rules, f'{rule} not found in {dir_rules}'
 
-        # Delete one of them and assert that after the 'windows_audit_interval' thread, Wazuh is set to real-time
+        # Delete one of them and assert that after the 'windows_audit_interval' thread, Fortishield is set to real-time
         # monitoring
-        modify_sacl(lfss, 'delete', mask=next(iter(WAZUH_RULES)))
+        modify_sacl(lfss, 'delete', mask=next(iter(FORTISHIELD_RULES)))
         dir_rules = get_sacl(lfss)
-        assert next(iter(WAZUH_RULES)) not in dir_rules, f'{next(iter(WAZUH_RULES))} found in {dir_rules}'
+        assert next(iter(FORTISHIELD_RULES)) not in dir_rules, f'{next(iter(FORTISHIELD_RULES))} found in {dir_rules}'
 
-    event = wazuh_log_monitor.start(timeout=windows_audit_interval, callback=callback_sacl_changed,
+    event = fortishield_log_monitor.start(timeout=windows_audit_interval, callback=callback_sacl_changed,
                                     error_message='Did not receive expected "The SACL '
                                                   'of \'...\' has been restored correctly" event').result()
     assert testdir_modify in event, f'{testdir_modify} not detected in SACL modification event'
@@ -210,12 +210,12 @@ def test_windows_audit_modify_sacl(tags_to_apply, get_configuration, configure_e
 def test_windows_audit_restore_sacl(tags_to_apply, get_configuration, configure_environment, restart_syscheckd,
                                     wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon restores previous SACL rules when the Wazuh service is stopped.
-                 For this purpose, the test will monitor a folder and verify that the Wazuh SACL rules are applied
+    description: Check if the 'fortishield-syscheckd' daemon restores previous SACL rules when the Fortishield service is stopped.
+                 For this purpose, the test will monitor a folder and verify that the Fortishield SACL rules are applied
                  to it. Then, the test will stop the agent service, and finally, it will verify that an FIM event
                  is generated, indicating the restoration of the previous SACL rules.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -238,10 +238,10 @@ def test_windows_audit_restore_sacl(tags_to_apply, get_configuration, configure_
 
     assertions:
         - Verify that an FIM event is generated indicating that previous SACL rules are restored
-          when the Wazuh agent is stopped.
+          when the Fortishield agent is stopped.
 
-    input_description: A test case (audit_interval) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (audit_interval) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directory to be monitored defined in this module.
                        For managing the SACL rules, a module 'manage_acl.py' is used.
 
@@ -257,16 +257,16 @@ def test_windows_audit_restore_sacl(tags_to_apply, get_configuration, configure_
     with Privilege('SeSecurityPrivilege'):
         lfss = get_file_security_descriptor(testdir_restore)
         dir_rules = set(get_sacl(lfss))
-        assert dir_rules - previous_rules == WAZUH_RULES
+        assert dir_rules - previous_rules == FORTISHIELD_RULES
 
-        # Stop Wazuh service to force SACL rules to be restored
+        # Stop Fortishield service to force SACL rules to be restored
         control_service('stop')
-        event = wazuh_log_monitor.start(timeout=5, callback=callback_sacl_restored,
+        event = fortishield_log_monitor.start(timeout=5, callback=callback_sacl_restored,
                                         error_message='Did not receive expected "The SACL '
                                                       'of \'...\' has been restored correctly" event').result()
         assert testdir_restore in event, f'{testdir_restore} not detected in SACL restore event'
         dir_rules = set(get_sacl(lfss))
         assert dir_rules == previous_rules, f'{dir_rules} is not equal to {previous_rules}'
 
-    # Start Wazuh service again so the fixture does not crash
+    # Start Fortishield service again so the fixture does not crash
     control_service('start')

@@ -4,13 +4,13 @@
     the content inside the incoming simple text log
   configuration_parameters:
     SERVICE_TYPE: cloudwatchlogs
-    LOG_GROUP_NAME: wazuh-cloudwatchlogs-integration-tests
+    LOG_GROUP_NAME: fortishield-cloudwatchlogs-integration-tests
     REGIONS: us-east-1
     DISCARD_REGEX: .*Test.*
     ONLY_LOGS_AFTER: 2023-JAN-12
   metadata:
     service_type: cloudwatchlogs
-    log_group_name: wazuh-cloudwatchlogs-integration-tests
+    log_group_name: fortishield-cloudwatchlogs-integration-tests
     only_logs_after: 2023-JAN-12
     discard_regex: .*Test.*
     regions: us-east-1

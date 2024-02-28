@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will check if FIM limits the size of
        the file monitored to generate 'diff' information to the limit set in the 'file_size' tag
        when the 'report_changes' option is enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,8 +45,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#file-size
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#file-size
 
 pytest_args:
     - fim_mode:
@@ -63,16 +63,16 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH, REGULAR
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import create_file, modify_file_content
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim.event_monitor import (CB_FILE_SIZE_LIMIT_REACHED, CB_DIFF_FOLDER_DELETED,
+from fortishield_testing import global_parameters, LOG_FILE_PATH, REGULAR
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import create_file, modify_file_content
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim.event_monitor import (CB_FILE_SIZE_LIMIT_REACHED, CB_DIFF_FOLDER_DELETED,
                                                      ERR_MSG_FIM_EVENT_NOT_DETECTED, ERR_MSG_FILE_LIMIT_REACHED,
                                                      ERR_MSG_FOLDER_DELETED, callback_detect_event)
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.utils import generate_params
 from test_fim.common import (generate_string, translate_size, disable_file_max_size, restore_file_max_size,
                              make_diff_file_path, disable_rt_delay, restore_rt_delay)
 # Marks
@@ -81,11 +81,11 @@ pytestmark = [pytest.mark.tier(level=1)]
 
 # Variables
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 directory_str = ','.join(test_directories)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1 = test_directories[0]
 
 # Configurations
@@ -100,7 +100,7 @@ conf_params, conf_metadata = generate_params(extra_params={'REPORT_CHANGES': {'r
                                              apply_to_all=({'FILE_SIZE_LIMIT': file_size_elem}
                                                            for file_size_elem in file_size_values))
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 # Fixtures
@@ -135,7 +135,7 @@ def extra_configuration_after_yield():
 def test_file_size_values(filename, folder, get_configuration, configure_environment,
                           configure_local_internal_options_module, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon limits the size of the monitored file to generate
+    description: Check if the 'fortishield-syscheckd' daemon limits the size of the monitored file to generate
                  'diff' information from the limit set in the 'file_size' tag. For this purpose, the test
                  will monitor a directory, create a testing file smaller than the 'file_limit' value,
                  and check if the compressed file has been created. Then, it will increase the size of
@@ -143,7 +143,7 @@ def test_file_size_values(filename, folder, get_configuration, configure_environ
                  file size limit has been generated, and the compressed file in the 'queue/diff/local'
                  directory does not exist.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -176,8 +176,8 @@ def test_file_size_values(filename, folder, get_configuration, configure_environ
           to generate 'diff' information when a limit is set in the 'file_size' tag.
         - Verify that the 'diff' folder is removed when a monitored file exceeds the size limit.
 
-    input_description: A test case (ossec_conf_diff) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: A test case (ossec_conf_diff) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the 'file_size' values defined in the module.
 
     expected_output:
@@ -198,7 +198,7 @@ def test_file_size_values(filename, folder, get_configuration, configure_environ
     to_write = generate_string(int(size_limit / 2), '0')
     create_file(REGULAR, folder, filename, content=to_write)
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event,
                             error_message=ERR_MSG_FIM_EVENT_NOT_DETECTED)
 
     if not os.path.exists(diff_file_path):
@@ -208,13 +208,13 @@ def test_file_size_values(filename, folder, get_configuration, configure_environ
     to_write = generate_string(size_limit, '0')
     modify_file_content(folder, filename, new_content=to_write * 3)
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                             callback=generate_monitoring_callback(CB_DIFF_FOLDER_DELETED),
                             error_message=ERR_MSG_FOLDER_DELETED)
 
     if os.path.exists(diff_file_path):
         raise FileExistsError(f"{diff_file_path} found. It should not exist after incresing the size.")
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                             callback=generate_monitoring_callback(CB_FILE_SIZE_LIMIT_REACHED),
                             error_message=ERR_MSG_FILE_LIMIT_REACHED)

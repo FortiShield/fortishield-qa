@@ -1,9 +1,9 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - Manager Agents provisioning
+Fortishield - Manager Agents provisioning
 
 ## Enviroment description
-This enviroment sets a Manager with three (3) agents. Each agent has a especific version. It is designed to allow testing on different versions of the wazuh agent working in conjunction with a specific version of the wazuh manager.
+This enviroment sets a Manager with three (3) agents. Each agent has a especific version. It is designed to allow testing on different versions of the fortishield agent working in conjunction with a specific version of the fortishield manager.
 
 ## Setting up the provisioning
 
@@ -66,7 +66,7 @@ following structure:
 #### Vars
 
 This folder contains the variables used to configure our environment. Variables like the cluster key or the agent key.
-- **agent#-package**: link to the wazuh agent package  to be installed on each agent host. (currently versions 4.1.5, 4.2.2 and 4.2.5)
+- **agent#-package**: link to the fortishield agent package  to be installed on each agent host. (currently versions 4.1.5, 4.2.2 and 4.2.5)
 
 ## Environment
 
@@ -77,9 +77,9 @@ The base environment defined for Docker provisioning is
 
 | Agent        | Reports to    |
 |--------------|---------------|
-| wazuh-agent1 | wazuh-manager |
-| wazuh-agent2 | wazuh-manager |
-| wazuh-agent3 | wazuh-manager |
+| fortishield-agent1 | fortishield-manager |
+| fortishield-agent2 | fortishield-manager |
+| fortishield-agent3 | fortishield-manager |
 
 ## Environment management
 
@@ -135,167 +135,167 @@ ok: [localhost]
 TASK [docker_container] ****************************************************************************************************************************
 changed: [localhost]
 
-PLAY [Wazuh Manager] ************************************************************************************************************************
+PLAY [Fortishield Manager] ************************************************************************************************************************
 
 TASK [Gathering Facts] ************************************************************************************************************************
-ok: [wazuh-manager]
+ok: [fortishield-manager]
 
 TASK [roles/manager-role : Check and update debian repositories] ******************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Installing dependencies using apt] *********************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
-TASK [roles/manager-role : Clone wazuh repository] ********************************************************************************************************
-changed: [wazuh-manager]
+TASK [roles/manager-role : Clone fortishield repository] ********************************************************************************************************
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Install manager] ***************************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Copy ossec.conf file] **********************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Set cluster key] ***************************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
-TASK [roles/manager-role : Set Wazuh Manager IP] **********************************************************************************************************
-changed: [wazuh-manager]
+TASK [roles/manager-role : Set Fortishield Manager IP] **********************************************************************************************************
+changed: [fortishield-manager]
 
-TASK [roles/manager-role : Stop Wazuh] ********************************************************************************************************************
-changed: [wazuh-manager]
+TASK [roles/manager-role : Stop Fortishield] ********************************************************************************************************************
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Remove client.keys] ************************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : enable execd debug mode] *******************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
 TASK [roles/manager-role : Register agents] ***************************************************************************************************************
-changed: [wazuh-manager]
+changed: [fortishield-manager]
 
-TASK [roles/manager-role : Start Wazuh] *******************************************************************************************************************
-changed: [wazuh-manager]
+TASK [roles/manager-role : Start Fortishield] *******************************************************************************************************************
+changed: [fortishield-manager]
 
-PLAY [Wazuh Agent1] **********************************************************************************************************************
+PLAY [Fortishield Agent1] **********************************************************************************************************************
 
 TASK [Gathering Facts] **********************************************************************************************************************
-ok: [wazuh-agent1]
+ok: [fortishield-agent1]
 
 TASK [roles/agent-role : Check and update debian repositories] ********************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Installing dependencies using apt] ***********************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Create log source] ***************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Download package] ****************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Install agent] *******************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Copy ossec.conf file] ************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : enable execd debug mode] *********************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Remove client.keys] **************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
 TASK [roles/agent-role : Register agents] *****************************************************************************************************************
-changed: [wazuh-agent1]
+changed: [fortishield-agent1]
 
-TASK [roles/agent-role : Set Wazuh Manager IP] ************************************************************************************************************
-changed: [wazuh-agent1]
+TASK [roles/agent-role : Set Fortishield Manager IP] ************************************************************************************************************
+changed: [fortishield-agent1]
 
-TASK [roles/agent-role : Restart Wazuh] *******************************************************************************************************************
-changed: [wazuh-agent1]
+TASK [roles/agent-role : Restart Fortishield] *******************************************************************************************************************
+changed: [fortishield-agent1]
 
-PLAY [Wazuh Agent2] ***************************************************************************************************************************
+PLAY [Fortishield Agent2] ***************************************************************************************************************************
 
 TASK [Gathering Facts] ***************************************************************************************************************************
-ok: [wazuh-agent2]
+ok: [fortishield-agent2]
 
 TASK [roles/agent-role : Check and update debian repositories] ******************************************************************************************** 
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Installing dependencies using apt] ***********************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Create log source] ***************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Download package] ****************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Install agent] *******************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Copy ossec.conf file] ************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : enable execd debug mode] *********************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Remove client.keys] **************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
 TASK [roles/agent-role : Register agents] *****************************************************************************************************************
-changed: [wazuh-agent2]
+changed: [fortishield-agent2]
 
-TASK [roles/agent-role : Set Wazuh Manager IP] ************************************************************************************************************
-changed: [wazuh-agent2]
+TASK [roles/agent-role : Set Fortishield Manager IP] ************************************************************************************************************
+changed: [fortishield-agent2]
 
-TASK [roles/agent-role : Restart Wazuh] *******************************************************************************************************************
-changed: [wazuh-agent2]
+TASK [roles/agent-role : Restart Fortishield] *******************************************************************************************************************
+changed: [fortishield-agent2]
 
-PLAY [Wazuh Agent3] **********************************************************************************************************************
+PLAY [Fortishield Agent3] **********************************************************************************************************************
 
 TASK [Gathering Facts] *************************************************************************************************************************
-ok: [wazuh-agent3]
+ok: [fortishield-agent3]
 
 TASK [roles/agent-role : Check and update debian repositories] *******************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Installing dependencies using apt] ***********************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Create log source] ***************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Download package] ****************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Install agent] *******************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Copy ossec.conf file] ************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : enable execd debug mode] *********************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Remove client.keys] **************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
 TASK [roles/agent-role : Register agents] *****************************************************************************************************************
-changed: [wazuh-agent3]
+changed: [fortishield-agent3]
 
-TASK [roles/agent-role : Set Wazuh Manager IP] ************************************************************************************************************
-changed: [wazuh-agent3]
+TASK [roles/agent-role : Set Fortishield Manager IP] ************************************************************************************************************
+changed: [fortishield-agent3]
 
-TASK [roles/agent-role : Restart Wazuh] *******************************************************************************************************************
-changed: [wazuh-agent3]
+TASK [roles/agent-role : Restart Fortishield] *******************************************************************************************************************
+changed: [fortishield-agent3]
 
 PLAY RECAP ************************************************************************************************************************************************
 localhost                  : ok=9    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-wazuh-agent1               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-wazuh-agent2               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-wazuh-agent3               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
-wazuh-manager              : ok=13   changed=12   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+fortishield-agent1               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+fortishield-agent2               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+fortishield-agent3               : ok=12   changed=11   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
+fortishield-manager              : ok=13   changed=12   unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   
 =============================================================================== 
 Playbook run took 0 days, 0 hours, 15 minutes, 47 seconds 
 

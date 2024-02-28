@@ -1,4 +1,4 @@
-wazuh-master:
+fortishield-master:
   - regex: .*Agent 'AGENT_ID' with file 'merged.mg' MD5 .*
     path: var/ossec/logs/ossec.log
     timeout: 30

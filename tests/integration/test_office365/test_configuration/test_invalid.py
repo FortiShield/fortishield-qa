@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'office365' module allows you to collect all the logs from Office 365 using its API.
+brief: The Fortishield 'office365' module allows you to collect all the logs from Office 365 using its API.
        Specifically, these tests will check if that module detects invalid configurations and indicates
        the location of the errors detected. The Office 365 Management Activity API aggregates actions
        and events into tenant-specific content blobs, which are classified by the type and source
@@ -22,9 +22,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-analysisd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -41,22 +41,22 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://github.com/wazuh/wazuh-documentation/blob/develop/source/office365/index.rst
-    - https://github.com/wazuh/wazuh-documentation/blob/develop/source/office365/monitoring-office365-activity.rst
+    - https://github.com/fortishield/fortishield-documentation/blob/develop/source/office365/index.rst
+    - https://github.com/fortishield/fortishield-documentation/blob/develop/source/office365/monitoring-office365-activity.rst
 '''
 import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.office365 import callback_detect_enabled_err, callback_detect_only_future_events_err, \
+from fortishield_testing import global_parameters
+from fortishield_testing.office365 import callback_detect_enabled_err, callback_detect_only_future_events_err, \
     callback_detect_interval_err, callback_detect_curl_max_size_err, callback_detect_tenant_id_err, \
     callback_detect_client_id_err, callback_detect_client_secret_err, callback_detect_subscription_err, \
     callback_detect_api_type_err
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
 # Marks
 
@@ -64,15 +64,15 @@ pytestmark = pytest.mark.tier(level=0)
 
 # variables
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 force_restart_after_restoring = True
 
 # configurations
 
 local_internal_options = {
-    'wazuh_modules.debug': 2
+    'fortishield_modules.debug': 2
 }
 
 cases = [
@@ -233,7 +233,7 @@ cases = [
 params = [case['params'] for case in cases]
 metadata = [case['metadata'] for case in cases]
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # callbacks
@@ -274,7 +274,7 @@ def test_invalid(get_local_internal_options, configure_local_internal_options,
                  will configure that module using invalid configuration settings with different attributes.
                  Finally, it will verify that error events are generated indicating the source of the errors.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -299,7 +299,7 @@ def test_invalid(get_local_internal_options, configure_local_internal_options,
         - Verify that the 'office365' module generates error events when invalid configurations are used.
 
     input_description: A configuration template (offic365_integration) is contained in an external YAML file
-                       (wazuh_conf.yaml). That template is combined with different test cases defined in
+                       (fortishield_conf.yaml). That template is combined with different test cases defined in
                        the module. Those include configuration settings for the 'office365' module.
 
     expected_output:
@@ -318,7 +318,7 @@ def test_invalid(get_local_internal_options, configure_local_internal_options,
     metadata = get_configuration.get('metadata')
     tags_to_apply = metadata['tags']
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                             callback=callbacks[tags_to_apply],
                             accum_results=1,
                             error_message='Did not receive expected '

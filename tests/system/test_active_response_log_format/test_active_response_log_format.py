@@ -1,6 +1,6 @@
 """
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: Check that when an Active Response is activated, the manager sends back the information to the agent
@@ -13,7 +13,7 @@ components:
     - agent
 path: tests/system/test_active_response/test_active_response_log_format/test_active_response_log_format.py
 daemons:
-    - wazuh-execd
+    - fortishield-execd
 os_platform:
     - linux
 os_version:
@@ -35,7 +35,7 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://github.com/wazuh/wazuh/issues/10858
+    - https://github.com/fortishield/fortishield/issues/10858
 tags:
     - active_response
 """
@@ -44,16 +44,16 @@ import os
 import time
 import pytest
 from random import randint
-from wazuh_testing.tools import WAZUH_LOGS_PATH
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools.system import HostManager, clean_environment
+from fortishield_testing.tools import FORTISHIELD_LOGS_PATH
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools.system import HostManager, clean_environment
 
 
 pytestmark = [pytest.mark.manager_agent_env]
 
 # Hosts and variables
 # In order to run this test, first you need to launch the manager_agent enviroment
-testinfra_hosts = ["wazuh-manager", "wazuh-agent1", "wazuh-agent2", "wazuh-agent3"]
+testinfra_hosts = ["fortishield-manager", "fortishield-agent1", "fortishield-agent2", "fortishield-agent3"]
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
                               'system', 'provisioning', 'manager_agent', 'inventory.yml')
 
@@ -68,18 +68,18 @@ log_sample = f"Dec  9 22:15:40 localhost sshd[5332]: Failed password for invalid
 sleep_time = 5
 
 
-@pytest.mark.parametrize('wazuh_agent, message_file', [('wazuh-agent1', messages_files[0]),
-                                                       ('wazuh-agent2', messages_files[1]),
-                                                       ('wazuh-agent3', messages_files[2])])
-def test_active_response_log_format(wazuh_agent, message_file):
+@pytest.mark.parametrize('fortishield_agent, message_file', [('fortishield-agent1', messages_files[0]),
+                                                       ('fortishield-agent2', messages_files[1]),
+                                                       ('fortishield-agent3', messages_files[2])])
+def test_active_response_log_format(fortishield_agent, message_file):
     """
     description: Check that when an Active Response is activated, the manager sends back the information to the agent
     and that it appears in active-response.log and ossec.log with the expected format
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     parameters:
-        - wazuh_agent:
+        - fortishield_agent:
             type: string
             brief: tells which agent to insert the log message.
         - message_file:
@@ -94,13 +94,13 @@ def test_active_response_log_format(wazuh_agent, message_file):
     """
 
     # Clear the agents files that will be monitored.
-    enviroment_files = [(wazuh_agent, os.path.join(WAZUH_LOGS_PATH, 'ossec.log')),
-                        (wazuh_agent, os.path.join(WAZUH_LOGS_PATH, 'active-responses.log'))]
+    enviroment_files = [(fortishield_agent, os.path.join(FORTISHIELD_LOGS_PATH, 'ossec.log')),
+                        (fortishield_agent, os.path.join(FORTISHIELD_LOGS_PATH, 'active-responses.log'))]
 
     clean_environment(host_manager, enviroment_files)
 
     # Add log message to agent monitored source
-    host_manager.modify_file_content(host=wazuh_agent, path=log_path, content=log_sample)
+    host_manager.modify_file_content(host=fortishield_agent, path=log_path, content=log_sample)
 
     # wait for active responses messages to be generated
     time.sleep(sleep_time)
@@ -109,4 +109,4 @@ def test_active_response_log_format(wazuh_agent, message_file):
     HostMonitor(inventory_path=inventory_path, messages_path=os.path.join(local_path, message_file),
                 tmp_path=tmp_path).run()
 
-    host_manager.modify_file_content(host=wazuh_agent, path=log_path, content="")
+    host_manager.modify_file_content(host=fortishield_agent, path=log_path, content="")

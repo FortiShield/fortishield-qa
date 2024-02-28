@@ -1,8 +1,8 @@
 '''
 brief: This module holds common methods and variables for the enrollment tests
 copyright:
-    Copyright (C) 2015-2021, Wazuh Inc.
-    Created by Wazuh, Inc. <info@wazuh.com>.
+    Copyright (C) 2015-2021, Fortishield Inc.
+    Created by Fortishield, Inc. <info@fortishield.github.io>.
     This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 '''
 
@@ -10,8 +10,8 @@ copyright:
 import subprocess
 import platform
 
-from wazuh_testing.agent import AgentAuthParser
-from wazuh_testing.tools import AGENT_AUTH_BINARY_PATH
+from fortishield_testing.agent import AgentAuthParser
+from fortishield_testing.tools import AGENT_AUTH_BINARY_PATH
 
 AGENTD_ENROLLMENT_REQUEST_TIMEOUT = 20
 AGENT_AUTH_ENROLLMENT_REQUEST_TIMEOUT = 10

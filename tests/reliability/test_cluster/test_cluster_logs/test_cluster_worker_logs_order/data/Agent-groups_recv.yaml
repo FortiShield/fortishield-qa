@@ -9,7 +9,7 @@
   tag: Starting.*
 - log_id: log1
   parent: log0
-  tag: .*chunks updated in wazuh-db in.*
+  tag: .*chunks updated in fortishield-db in.*
 - log_id: log2
   parent: log1
   tag: Obtained.*chunks of data in.*

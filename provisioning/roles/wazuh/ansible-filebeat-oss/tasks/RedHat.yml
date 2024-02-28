@@ -1,8 +1,8 @@
 ---
 - name: RedHat/CentOS/Fedora/Amazon Linux | Install Filebeats repo
   yum_repository:
-    name: wazuh_repo
-    description: Wazuh Repo
+    name: fortishield_repo
+    description: Fortishield Repo
     baseurl: "{{ filebeatrepo.yum }}"
     gpgkey: "{{ filebeatrepo.gpg }}"
     gpgcheck: true

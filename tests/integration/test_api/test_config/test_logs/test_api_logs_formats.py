@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -16,12 +16,12 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-modulesd
-    - wazuh-analysisd
-    - wazuh-execd
-    - wazuh-db
-    - wazuh-remoted
+    - fortishield-apid
+    - fortishield-modulesd
+    - fortishield-analysisd
+    - fortishield-execd
+    - fortishield-db
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -46,7 +46,7 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/configuration.html#logs
+    - https://documentation.fortishield.github.io/current/user-manual/api/configuration.html#logs
 
 tags:
     - api
@@ -58,10 +58,10 @@ import time
 import pytest
 import requests
 
-import wazuh_testing as fw
-from wazuh_testing import api
-from wazuh_testing.tools import configuration as config
-from wazuh_testing.modules.api import event_monitor as evm
+import fortishield_testing as fw
+from fortishield_testing import api
+from fortishield_testing.tools import configuration as config
+from fortishield_testing.modules.api import event_monitor as evm
 
 # Marks
 pytestmark = [pytest.mark.server]
@@ -129,7 +129,7 @@ def test_api_logs_formats(configuration, metadata, set_api_configuration, clean_
         - Send a request to the API to generate the desired event.
         - Check in the log file that the expected event has been recorded.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -137,7 +137,7 @@ def test_api_logs_formats(configuration, metadata, set_api_configuration, clean_
             brief: API configuration data. Needed for set_api_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - set_api_configuration:
             type: fixture
             brief: Set API custom configuration.

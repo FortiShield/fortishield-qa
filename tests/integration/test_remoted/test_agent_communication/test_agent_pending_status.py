@@ -1,18 +1,18 @@
 import os
 import pytest
 
-import wazuh_testing.remote as rd
-import wazuh_testing.tools.agent_simulator as ag
+import fortishield_testing.remote as rd
+import fortishield_testing.tools.agent_simulator as ag
 
 from time import sleep
 
-from wazuh_testing import TCP, UDP, TCP_UDP
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.thread_executor import ThreadExecutor
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.file import truncate_file
+from fortishield_testing import TCP, UDP, TCP_UDP
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.thread_executor import ThreadExecutor
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.file import truncate_file
 
 # Marks
 pytestmark = pytest.mark.tier(level=0)
@@ -20,7 +20,7 @@ pytestmark = pytest.mark.tier(level=0)
 # Variables
 current_test_path = os.path.dirname(os.path.realpath(__file__))
 test_data_path = os.path.join(current_test_path, 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_agent_pending_status.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_agent_pending_status.yaml')
 
 # Set configuration
 parameters = [
@@ -44,7 +44,7 @@ metadata = [
 configuration_ids = [f"{item['PROTOCOL'].upper()}_{item['PORT']}" for item in parameters]
 
 # Configuration data
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 def check_active_agents(num_agents=1, manager_address='127.0.0.1', agent_version='4.2.0', agent_os='debian7',
@@ -53,7 +53,7 @@ def check_active_agents(num_agents=1, manager_address='127.0.0.1', agent_version
     Args:
         num_agents (int): Number of agents to create and check their status.
         manager_address (str): Manager IP address.
-        agent_version (str): Agent wazuh version.
+        agent_version (str): Agent fortishield version.
         agent_os (str): Agent operating system.
         manager_port (int): Manager remote communication port.
         protocol (str): It can be TCP, UDP or TCP_UDP (both).
@@ -69,7 +69,7 @@ def check_active_agents(num_agents=1, manager_address='127.0.0.1', agent_version
         finally:
             sender.socket.close()
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Create num_agents (parameter) agents
     agents = ag.create_agents(agents_number=num_agents, manager_address=manager_address, disable_all_modules=True,
@@ -77,7 +77,7 @@ def check_active_agents(num_agents=1, manager_address='127.0.0.1', agent_version
     send_event_threads = []
 
     # Wait until remoted has loaded the new agent key
-    rd.wait_to_remoted_key_update(wazuh_log_monitor)
+    rd.wait_to_remoted_key_update(fortishield_log_monitor)
 
     # Create sender threads. One for each agent
     for idx, agent in enumerate(agents):

@@ -1,9 +1,9 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-            Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+            Created by Fortishield, Inc. <info@fortishield.github.io>.
             This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
-brief: Wazuh manager handles agent groups.
+brief: Fortishield manager handles agent groups.
         If a group is deleted from a master cluster, there will be an instance where the agents require a
         resynchronization (syncreq).
         If the group is deleted from a worker cluster, the cluster master will take care of reestablishing the
@@ -16,14 +16,14 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-authd
-    - wazuh-agentd
+    - fortishield-authd
+    - fortishield-agentd
 os_platform:
     - linux
 os_version:
     - Debian Buster
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/agent-enrollment.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
 '''
 
 import json
@@ -31,20 +31,20 @@ import os
 import pytest
 import time
 from time import time as current_time
-from wazuh_testing import T_025, T_1, T_5, T_10
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing import T_025, T_1, T_5, T_10
+from fortishield_testing.tools.system import HostManager
 from system import (assign_agent_to_new_group, create_new_agent_group, delete_agent_group, execute_wdb_query,
                     restart_cluster)
-from wazuh_testing.tools.configuration import get_test_cases_data
+from fortishield_testing.tools.configuration import get_test_cases_data
 from system.test_cluster.test_agent_groups.common import register_agent
 
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
-test_infra_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2', 'wazuh-agent1', 'wazuh-agent2']
-test_infra_managers = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-test_infra_agents = ['wazuh-agent1', 'wazuh-agent2']
+test_infra_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2', 'fortishield-agent1', 'fortishield-agent2']
+test_infra_managers = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+test_infra_agents = ['fortishield-agent1', 'fortishield-agent2']
 groups = ['group_master', 'group_worker1', 'group_worker2']
-workers = ['wazuh-worker1', 'wazuh-worker2']
+workers = ['fortishield-worker1', 'fortishield-worker2']
 groups_created = []
 query = "global 'sql select name, group_sync_status from agent;'"
 
@@ -106,13 +106,13 @@ def wait_end_initial_syncreq():
         result = execute_wdb_query(query, test_infra_hosts[0], host_manager)
 
 
-@pytest.mark.parametrize('target_node', ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2'])
+@pytest.mark.parametrize('target_node', ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2'])
 @pytest.mark.parametrize('metadata', t1_configuration_metadata, ids=t1_case_ids)
 def test_group_sync_status(metadata, target_node, clean_environment, group_creation_and_assignation,
                            wait_end_initial_syncreq):
     '''
-    description: Delete a group folder in wazuh server cluster and check group_sync status in 2 times.
-    wazuh_min_version: 4.4.0
+    description: Delete a group folder in fortishield server cluster and check group_sync status in 2 times.
+    fortishield_min_version: 4.4.0
     metadata:
         - metadata:
             type: list
@@ -132,7 +132,7 @@ def test_group_sync_status(metadata, target_node, clean_environment, group_creat
             brief: Wait until syncreqs related with the test-environment setting get neutralized
     assertions:
         - Verify that group_sync status changes according the trigger.
-        - Verify same conditions creating and assigning groups from all wazuh-manager clusters (Master and Workers)
+        - Verify same conditions creating and assigning groups from all fortishield-manager clusters (Master and Workers)
     input_description: Different use cases are found in the test module and include parameters.
     expected_output:
         - If the group-folder is deleted from master cluster, it is expected to find a

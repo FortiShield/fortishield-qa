@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -21,7 +21,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -32,7 +32,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
 
 pytest_args:
     - fim_mode:
@@ -51,13 +51,13 @@ import os
 
 
 import pytest
-from wazuh_testing import LOG_FILE_PATH, T_10, T_60
-from wazuh_testing.tools import PREFIX, configuration
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim import TEST_DIR_1
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import check_fim_event, CB_FIM_PATH_CONVERTED
-from wazuh_testing.modules.fim.utils import regular_file_cud
+from fortishield_testing import LOG_FILE_PATH, T_10, T_60
+from fortishield_testing.tools import PREFIX, configuration
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim import TEST_DIR_1
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import check_fim_event, CB_FIM_PATH_CONVERTED
+from fortishield_testing.modules.fim.utils import regular_file_cud
 
 
 # Marks
@@ -80,33 +80,33 @@ configurations = configuration.load_configuration_template(configurations_path, 
 # Variables
 test_folders = [os.path.join(PREFIX, 'windows', 'System32', TEST_DIR_1),
                 os.path.join(PREFIX, 'windows', 'SysWOW64', TEST_DIR_1)]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 
 # Tests
 @pytest.mark.parametrize('test_folders', [test_folders], ids='', scope='module')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_windows_system_monitoring(configuration, metadata, test_folders, set_wazuh_configuration,
+def test_windows_system_monitoring(configuration, metadata, test_folders, set_fortishield_configuration,
                                    create_monitored_folders_module, configure_local_internal_options_function,
                                    restart_syscheck_function, wait_syscheck_start):
     '''
-    description: Check if the 'wazuh-syscheckd' monitors the windows system folders (System32 and SysWOW64) properly,
+    description: Check if the 'fortishield-syscheckd' monitors the windows system folders (System32 and SysWOW64) properly,
     and that monitoring for Sysnative folder is redirected to System32 and works properly.
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
+            - Set fortishield configuration and local_internal_options.
             - Create custom folder for monitoring
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - In case of monitoring Sysnative, check it is redirected to System32.
             - Create, Update and Delete files in monitored folders, and check logs appear.
         - teardown:
             - Delete custom monitored folder
             - Restore configuration
-            - Stop wazuh
+            - Stop fortishield
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -120,7 +120,7 @@ def test_windows_system_monitoring(configuration, metadata, test_folders, set_wa
         - test_folders:
             type: dict
             brief: List of folders to be created for monitoring.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - create_monitored_folders_module:
@@ -155,12 +155,12 @@ def test_windows_system_monitoring(configuration, metadata, test_folders, set_wa
     '''
     file_list = [f"regular_file"]
     folder = os.path.join(PREFIX, 'windows', metadata['folder'], TEST_DIR_1)
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # If monitoring sysnative, check redirection log message
     if metadata['redirected']:
         check_fim_event(callback=CB_FIM_PATH_CONVERTED, timeout=T_10)
 
     # Create, Update and Delete files in monitored folder and check expected events are generated
-    regular_file_cud(folder, wazuh_log_monitor, file_list=file_list, min_timeout=T_60, triggers_event=True,
+    regular_file_cud(folder, fortishield_log_monitor, file_list=file_list, min_timeout=T_60, triggers_event=True,
                      escaped=True)

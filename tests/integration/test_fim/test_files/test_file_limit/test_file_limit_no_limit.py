@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if the FIM event 'no limit'
        is generated when the 'file_limit' feature is disabled in the configuration.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -57,8 +57,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
 
 pytest_args:
     - fim_mode:
@@ -77,14 +77,14 @@ import sys
 
 import pytest
 
-from wazuh_testing import global_parameters, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import ERR_MSG_FILE_LIMIT_DISABLED, CB_FILE_LIMIT_DISABLED
-from wazuh_testing.modules import TIER1
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing import global_parameters, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import ERR_MSG_FILE_LIMIT_DISABLED, CB_FILE_LIMIT_DISABLED
+from fortishield_testing.modules import TIER1
+from fortishield_testing.modules.fim.utils import generate_params
 
 # Marks
 pytestmark = [TIER1]
@@ -93,9 +93,9 @@ pytestmark = [TIER1]
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 
 directory_str = ','.join(test_directories)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1 = test_directories[0]
 
 
@@ -103,7 +103,7 @@ testdir1 = test_directories[0]
 
 params, metadata = generate_params(extra_params={"TEST_DIRECTORIES": testdir1})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # Fixtures
@@ -119,11 +119,11 @@ def get_configuration(request):
 def test_file_limit_no_limit(configure_local_internal_options_module, get_configuration, configure_environment,
                              restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects that the 'file_limit' feature of FIM is disabled.
+    description: Check if the 'fortishield-syscheckd' daemon detects that the 'file_limit' feature of FIM is disabled.
                  For this purpose, the test will monitor a testing directory, and finally, it will verify
                  that the FIM event 'no limit' is generated.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -139,13 +139,13 @@ def test_file_limit_no_limit(configure_local_internal_options_module, get_config
             brief: Configure a custom environment for testing.
         - restart_syscheckd:
             type: fixture
-            brief: Clear the Wazuh logs file and start a new monitor.
+            brief: Clear the Fortishield logs file and start a new monitor.
 
     assertions:
         - Verify that the FIM event 'no limit' is generated when the 'file_limit' feature is disabled.
 
-    input_description: A test case (no_file_limit) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it is
+    input_description: A test case (no_file_limit) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it is
                        combined with the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -157,6 +157,6 @@ def test_file_limit_no_limit(configure_local_internal_options_module, get_config
         - who_data
     '''
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                             callback=generate_monitoring_callback(CB_FILE_LIMIT_DISABLED),
                             error_message=ERR_MSG_FILE_LIMIT_DISABLED)

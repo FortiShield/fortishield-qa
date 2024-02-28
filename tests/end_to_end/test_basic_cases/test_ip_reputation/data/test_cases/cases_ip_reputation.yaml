@@ -6,7 +6,7 @@
       event_description: Access Apache web server
       command: |
         $Web = New-Object Net.WebClient
-        $Web.DownloadString("http://wazuh-manager")
+        $Web.DownloadString("http://fortishield-manager")
     malicious_ip:
       rule.id: 100100
       rule.level: 10

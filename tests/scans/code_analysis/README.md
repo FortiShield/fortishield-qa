@@ -1,23 +1,23 @@
 # Code Analysis
 
-The `code_analysis` directory contains Python tests to verify potential vulnerabilities in the Wazuh Python code.
+The `code_analysis` directory contains Python tests to verify potential vulnerabilities in the Fortishield Python code.
 
 ## Description
 
 `test_python_flaws.py` is a Pytest test used to look for new possible vulnerabilities in directories containing Python code. It uses [Bandit](https://github.com/PyCQA/bandit) to search for these potential flaws.
 
-The test checks the `framework/`, `api/` and `wodles/` directories of the [Wazuh](https://github.com/wazuh/wazuh) repository by default, comparing the *Bandit* output with the vulnerabilities identified as false positives or vulnerabilities to fix. It saves the results in three JSON files (one JSON file for each module).
+The test checks the `framework/`, `api/` and `wodles/` directories of the [Fortishield](https://github.com/fortishield/fortishield) repository by default, comparing the *Bandit* output with the vulnerabilities identified as false positives or vulnerabilities to fix. It saves the results in three JSON files (one JSON file for each module).
 
 The contents of this directory are:
 - `known_flaws`: The directory contains three JSON files, one for each module (`api`, `framework` and `wodles`). Each file has a dictionary with two keys: **false_positives** and **to_fix**. These values are the list of vulnerabilities considered false positives and the list of vulnerabilities you must fix (with issues), respectively. After running the test and analyzing the new vulnerabilities, you must edit these files.
 - `conftest.py`: The Pytest configuration file. It adds the possibility to use specific parameters when running the test.
-- `test_python_flaws.py`: The test itself. You should run this test using the same Python virtual environment used in the Wazuh framework and API unit tests. If the test fails, a new JSON file will be created inside this directory, showing information about the possible new vulnerabilities found.
+- `test_python_flaws.py`: The test itself. You should run this test using the same Python virtual environment used in the Fortishield framework and API unit tests. If the test fails, a new JSON file will be created inside this directory, showing information about the possible new vulnerabilities found.
 
 ## Usage
 
 - Run the test: `pytest tests/scans/code_analysis/test_python_flaws.py`
 - If the test passes without failures, everything is correct, and no action is needed.
-- If the test fails, `wazuh-qa/tests/scans/code_analysis/new_flaws_{module}.json` file will report the new code vulnerabilities found.
+- If the test fails, `fortishield-qa/tests/scans/code_analysis/new_flaws_{module}.json` file will report the new code vulnerabilities found.
 You should analyze the new vulnerabilities found in the module and report them in GitHub issues.
 
 If you need to fix a new vulnerability, add it to the **to_fix** key module's JSON file entry found in the **known_flaws** directory. 
@@ -27,14 +27,14 @@ The test updates the files inside **known_flaws** automatically with information
 
 ## Parameters
 
-You can set the directories, repository, and branch parameters to test any directory containing Python code inside the Wazuh organization.
+You can set the directories, repository, and branch parameters to test any directory containing Python code inside the Fortishield organization.
 You can also use more parameters to customize the test functionality. The test will only succeed if you check different directories and repositories, as we don't have **known_flaws** files for non-default directories.
 
-> By default, the test checks the `framework`, `wodles` and `api` directories in the [wazuh/wazuh](https://github.com/wazuh/wazuh) repository's master branch.
+> By default, the test checks the `framework`, `wodles` and `api` directories in the [fortishield/fortishield](https://github.com/fortishield/fortishield) repository's master branch.
 
 | Parameter             | Description                                           | Default Value     |
 |-----------------------|-------------------------------------------------------|-------------------|
-| `--repo`              | The repository to test.                               | `wazuh`           |
+| `--repo`              | The repository to test.                               | `fortishield`           |
 | `--reference`         | The repository branch.                                | `master`          |
 | `--check_directories` | The directories to check (comma-separated).           | `framework/,api/,wodles/` |
 | `--exclude_directories`| The directories to exclude (comma-separated).        | `test/,tests/`    |
@@ -53,7 +53,7 @@ You can also use more parameters to customize the test functionality. The test w
 pytest tests/scans/code_analysis/test_python_flaws.py
 ============================= test session starts ==============================
 platform linux -- Python 3.9.2, pytest-6.2.3, py-1.10.0, pluggy-0.13.1
-rootdir: /home/manuel/git/wazuh-qa
+rootdir: /home/manuel/git/fortishield-qa
 plugins: html-3.1.1, metadata-1.11.0, cov-2.12.0, testinfra-5.0.0, asyncio-0.14.0
 collected 1 item
 
@@ -62,10 +62,10 @@ tests/scans/code_analysis/test_python_flaws.py F                         [100%]
 =================================== FAILURES ===================================
 __________________________ test_check_security_flaws ___________________________
 
-clone_wazuh_repository = '/tmp/tmpk9uc0l2g'
+clone_fortishield_repository = '/tmp/tmpk9uc0l2g'
 get_test_parameters = {'directories_to_check': ['framework/', 'api/', 'wodles/'], 'directories_to_exclude': 'tests/,test/', 'min_confidence_level': 'MEDIUM', 'min_severity_level': 'LOW', ...}
 
-    def test_check_security_flaws(clone_wazuh_repository, get_test_parameters):
+    def test_check_security_flaws(clone_fortishield_repository, get_test_parameters):
         """Test whether the directory to check has python files with possible vulnerabilities or not.
 
         The test passes if there are no new vulnerabilities. The test fails in other case and generates a report.
@@ -75,17 +75,17 @@ get_test_parameters = {'directories_to_check': ['framework/', 'api/', 'wodles/']
         `known_flaws/known_flaws_{framework|api|wodles}.json` file.
 
         Args:
-            clone_wazuh_repository (fixture): Pytest fixture returning the path of the temporary directory path the
+            clone_fortishield_repository (fixture): Pytest fixture returning the path of the temporary directory path the
                 repository cloned. This directory is removed at the end of the pytest session.
             get_test_parameters (fixture): Pytest fixture returning the a dictionary with all the test parameters.
                 These parameters are the directories to check, directories to exclude, the minimum confidence level, the
                 minimum severity level and the repository name.
         """
-        # Wazuh is cloned from GitHub using the clone_wazuh_repository fixture
-        assert clone_wazuh_repository, "Error while cloning the Wazuh repository from GitHub, " \
-                                       "please check the Wazuh branch set in the parameter."
-        # Change to the cloned Wazuh repository directory
-        os.chdir(clone_wazuh_repository)
+        # Fortishield is cloned from GitHub using the clone_fortishield_repository fixture
+        assert clone_fortishield_repository, "Error while cloning the Fortishield repository from GitHub, " \
+                                       "please check the Fortishield branch set in the parameter."
+        # Change to the cloned Fortishield repository directory
+        os.chdir(clone_fortishield_repository)
 
         directories_to_check = get_test_parameters['directories_to_check']
         bandit_output_list = \
@@ -120,12 +120,12 @@ get_test_parameters = {'directories_to_check': ['framework/', 'api/', 'wodles/']
             f"\nThe following possible vulnerabilities were found: {json.dumps(flaws_already_found, indent=4, sort_keys=True)}"
 E       AssertionError:
 E         The following possible vulnerabilities were found: {
-E             "wodles/": "Vulnerabilities found in files: wodles/utils.py, check them in /home/manuel/git/wazuh-qa/tests/scans/code_analysis/new_flaws_wodles.json"
+E             "wodles/": "Vulnerabilities found in files: wodles/utils.py, check them in /home/manuel/git/fortishield-qa/tests/scans/code_analysis/new_flaws_wodles.json"
 E         }
 E       assert not True
 E        +  where True = any(<generator object test_check_security_flaws.<locals>.<genexpr> at 0x7fecf3a6ca50>)
 
-/home/manuel/git/wazuh-qa/tests/scans/code_analysis/test_python_flaws.py:64: AssertionError
+/home/manuel/git/fortishield-qa/tests/scans/code_analysis/test_python_flaws.py:64: AssertionError
 =============================== warnings summary ===============================
 tests/scans/code_analysis/test_python_flaws.py::test_check_security_flaws
   invalid escape sequence \g
@@ -169,7 +169,7 @@ The vulnerabilities detected are in the following dictionary:
             "test_name": "blacklist"
         },
         {
-            "code": "     try:\n         proc = subprocess.Popen([wazuh_control, option], stdout=subprocess.PIPE)\n         (stdout, stderr) = proc.communicate()\n",
+            "code": "     try:\n         proc = subprocess.Popen([fortishield_control, option], stdout=subprocess.PIPE)\n         (stdout, stderr) = proc.communicate()\n",
             "filename": "wodles/utils.py",
             "issue_confidence": "HIGH",
             "issue_severity": "LOW",
@@ -213,7 +213,7 @@ After this, if we pass the test again, it will pass.
 pytest tests/security/test_python_code/test_python_flaws.py
 ================================================================= test session starts ==================================================================
 platform linux -- Python 3.9.2, pytest-6.2.3, py-1.10.0, pluggy-0.13.1
-rootdir: /home/manuel/git/wazuh-qa
+rootdir: /home/manuel/git/fortishield-qa
 plugins: html-3.1.1, metadata-1.11.0, cov-2.12.0, testinfra-5.0.0, asyncio-0.14.0
 collected 1 item
 

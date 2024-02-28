@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: These tests will check if the 'who-data' feature of the File Integrity Monitoring (FIM)
        system works properly. 'who-data' information contains the user who made the changes
        on the monitored files and also the program name or process used to carry them out.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -43,9 +43,9 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/auditing-whodata/who-linux.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/auditing-whodata/who-linux.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -62,11 +62,11 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import LOG_FILE_PATH, T_30
-from wazuh_testing.tools import configuration, PREFIX
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.event_monitor import detect_whodata_start
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import LOG_FILE_PATH, T_30
+from fortishield_testing.tools import configuration, PREFIX
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.event_monitor import detect_whodata_start
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 # Marks
@@ -96,27 +96,27 @@ configurations = configuration.load_configuration_template(configurations_path, 
 
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_ambiguous_whodata_thread(configuration, metadata, set_wazuh_configuration,
+def test_ambiguous_whodata_thread(configuration, metadata, set_fortishield_configuration,
                                   configure_local_internal_options_function, restart_syscheck_function):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon starts the 'whodata' thread when the configuration
+    description: Check if the 'fortishield-syscheckd' daemon starts the 'whodata' thread when the configuration
                  is ambiguous. For example, when using 'whodata' on the same directory using conflicting
                  values ('yes' and 'no'). For this purpose, the configuration is applied and it checks
                  that the last value detected for 'whodata' in the 'ossec.conf' file is the one used.
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
+            - Set fortishield configuration and local_internal_options.
             - Create custom folder for monitoring
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Detect if real-time whodata thread has been started
         - teardown:
             - Delete custom monitored folder
             - Restore configuration
-            - Stop wazuh
+            - Stop fortishield
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -127,7 +127,7 @@ def test_ambiguous_whodata_thread(configuration, metadata, set_wazuh_configurati
         - metadata:
             type: dict
             brief: Test case data.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -141,8 +141,8 @@ def test_ambiguous_whodata_thread(configuration, metadata, set_wazuh_configurati
         - Verify that 'whodata' thread is started when the last 'whodata' value detected is set to 'yes'.
         - Verify that 'whodata' thread is not started when the last 'whodata' value detected is set to 'no'.
 
-    input_description: Two test cases are contained in external YAML file (wazuh_conf_whodata_thread.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and testing
+    input_description: Two test cases are contained in external YAML file (fortishield_conf_whodata_thread.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and testing
                        directories to monitor.
 
     expected_output:
@@ -151,11 +151,11 @@ def test_ambiguous_whodata_thread(configuration, metadata, set_wazuh_configurati
     tags:
         - who_data
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     if metadata['whodata_enabled']:
-        detect_whodata_start(wazuh_log_monitor, timeout=T_30)
+        detect_whodata_start(fortishield_log_monitor, timeout=T_30)
     else:
         with pytest.raises(TimeoutError):
-            detect_whodata_start(wazuh_log_monitor, timeout=T_30)
+            detect_whodata_start(fortishield_log_monitor, timeout=T_30)
             raise AttributeError(f'Unexpected event "File integrity monitoring real-time Whodata engine started"')

@@ -1,7 +1,7 @@
 import pytest
 import requests
 
-from wazuh_testing.api import get_api_details_dict
+from fortishield_testing.api import get_api_details_dict
 
 
 @pytest.fixture(scope='function')

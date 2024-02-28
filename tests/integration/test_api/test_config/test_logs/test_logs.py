@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,7 +9,7 @@ type: integration
 
 brief: These tests will check if the 'level' setting of the API is working properly. This setting
        allows specifying the level of detail (INFO, DEBUG) of the messages written to the 'api.log' file.
-       The Wazuh API is an open source 'RESTful' API that allows for interaction with the Wazuh manager
+       The Fortishield API is an open source 'RESTful' API that allows for interaction with the Fortishield manager
        from a web browser, command line tool like 'cURL' or any script or program that can make web requests.
 
 components:
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/configuration.html#logs
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/configuration.html#logs
 
 tags:
     - api
@@ -53,11 +53,11 @@ import re
 import pytest
 import requests
 
-import wazuh_testing as fw
-from wazuh_testing import tools
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools import configuration as config
-from wazuh_testing.modules.api import event_monitor as evm
+import fortishield_testing as fw
+from fortishield_testing import tools
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import configuration as config
+from fortishield_testing.modules.api import event_monitor as evm
 
 # Marks
 
@@ -94,7 +94,7 @@ def test_logs(get_configuration, configure_api_environment, restart_api):
                  In this test the API log has 'debug' level configured.
                  It checks if logs are saved with 'debug' level.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -137,7 +137,7 @@ def test_request_logging_request_headers(get_api_details, get_configuration, con
     '''
     description: Check if the request_logging API middleware works.
 
-    wazuh_min_version: 4.1.0
+    fortishield_min_version: 4.1.0
 
     tier: 0
 
@@ -198,7 +198,7 @@ def test_request_logging_json_body(get_api_details, get_configuration, configure
     '''
     description: Check if the request_logging API middleware works.
 
-    wazuh_min_version: 4.1.0
+    fortishield_min_version: 4.1.0
 
     tier: 0
 

@@ -1,25 +1,25 @@
-wazuh-manager:
+fortishield-manager:
   roles:
     - manager
 
-wazuh-agent1:
+fortishield-agent1:
   roles:
     - agent
-  manager: wazuh-manager
+  manager: fortishield-manager
   version: 4.1.5
   revision: 1
   repository: live
 
-wazuh-agent2:
+fortishield-agent2:
   roles:
     - agent
-  manager: wazuh-manager
+  manager: fortishield-manager
   version: 4.2.2
   revision: 1
   repository: live
 
-wazuh-agent3:
-  manager: wazuh-manager
+fortishield-agent3:
+  manager: fortishield-manager
   roles:
     - agent
   version: 4.2.5

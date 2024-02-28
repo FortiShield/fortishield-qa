@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-analysisd' daemon receives the log messages and compares them to the rules.
+brief: The 'fortishield-analysisd' daemon receives the log messages and compares them to the rules.
        It then creates an alert when a log message matches an applicable rule.
-       Specifically, these tests will verify if the pre-decoding stage of 'wazuh-analysisd' daemon correctly handles
+       Specifically, these tests will verify if the pre-decoding stage of 'fortishield-analysisd' daemon correctly handles
        syslog formats.
 
 components:
@@ -21,7 +21,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -38,7 +38,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 '''
 
@@ -47,7 +47,7 @@ import os
 import pytest
 import yaml
 import json
-from wazuh_testing.tools import WAZUH_PATH
+from fortishield_testing.tools import FORTISHIELD_PATH
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=2), pytest.mark.server]
@@ -61,7 +61,7 @@ with open(messages_path) as f:
 
 # Variables
 
-logtest_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'logtest'))
+logtest_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'logtest'))
 receiver_sockets_params = [(logtest_path, 'AF_UNIX', 'TCP')]
 receiver_sockets = None  # Set in the fixtures
 
@@ -77,7 +77,7 @@ def test_precoder_supported_formats(connect_to_sockets_function, test_case: list
                  To do this, it receives syslog format and checks that the predecoder JSON responses
                  are the same that the loaded ouput for each test case from the 'syslog_socket_input.yaml' file.
 
-    wazuh_min_version: 4.3.0
+    fortishield_min_version: 4.3.0
 
     tier: 2
 

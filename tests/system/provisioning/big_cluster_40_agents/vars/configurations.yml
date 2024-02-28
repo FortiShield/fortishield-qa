@@ -1,8 +1,8 @@
 cluster_key: "00000000000000000000000000000000"
 
-master_hostname: "wazuh-master"
-worker1_hostname: "wazuh-worker1"
-worker2_hostname: "wazuh-worker2"
+master_hostname: "fortishield-master"
+worker1_hostname: "fortishield-worker1"
+worker2_hostname: "fortishield-worker2"
 
 docker_network: "cluster_net"
 

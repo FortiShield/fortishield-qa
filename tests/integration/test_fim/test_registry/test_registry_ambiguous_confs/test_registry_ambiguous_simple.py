@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -13,7 +13,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        using ambiguous configurations, such as keys and subkeys with opposite monitoring settings.
        In particular, it will verify that the 'restrict_*', 'tags', 'recursion_level', and 'check_'
        attributes work properly.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -25,7 +25,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -41,8 +41,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -60,13 +60,13 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, registry_value_cud, registry_key_cud, CHECK_GROUP, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, registry_value_cud, registry_key_cud, CHECK_GROUP, \
     CHECK_ALL, CHECK_MTIME, CHECK_OWNER, CHECK_SIZE, CHECK_SUM, KEY_WOW64_32KEY, \
     KEY_WOW64_64KEY, REQUIRED_REG_KEY_ATTRIBUTES, REQUIRED_REG_VALUE_ATTRIBUTES, \
     generate_params
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -120,12 +120,12 @@ conf_params = {'WINDOWS_REGISTRY_1': test_regs[0],
                }
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_ambiguous_simple.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_ambiguous_simple.yaml')
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -145,14 +145,14 @@ def get_configuration(request):
 def test_ambiguous_tags(key, sub_keys, arch,
                         get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon adds, in the generated events, the tags specified in
+    description: Check if the 'fortishield-syscheckd' daemon adds, in the generated events, the tags specified in
                  the configuration. The 'tags' attribute allows adding tags to alerts for monitored registry
                  keys. For this purpose, the test will monitor a registry key using different tags in
                  key and subkey paths. Then it will make key operations inside that entry, and finally, the
                  test will verify that FIM events generated include only in its 'tags' field, the tags set
                  in the configuration for the monitored key paths or subpaths.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -186,8 +186,8 @@ def test_ambiguous_tags(key, sub_keys, arch,
           when the 'tag' attribute is not used.
 
     input_description: A test case (ambiguous_tag) is contained in an external YAML file
-                       (wazuh_ambiguous_simple.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon. That is combined with the testing registry
+                       (fortishield_ambiguous_simple.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon. That is combined with the testing registry
                        keys to be monitored defined in the module.
 
     expected_output:
@@ -207,10 +207,10 @@ def test_ambiguous_tags(key, sub_keys, arch,
 
     check_apply_test({"ambiguous_tag"}, get_configuration['tags'])
 
-    registry_key_cud(key, sub_keys[0], wazuh_log_monitor, arch=arch, time_travel=True,
+    registry_key_cud(key, sub_keys[0], fortishield_log_monitor, arch=arch, time_travel=True,
                      min_timeout=global_parameters.default_timeout, validators_after_cud=[tag_validator])
 
-    registry_key_cud(key, sub_keys[1], wazuh_log_monitor, arch=arch, time_travel=True,
+    registry_key_cud(key, sub_keys[1], fortishield_log_monitor, arch=arch, time_travel=True,
                      min_timeout=global_parameters.default_timeout, validators_after_cud=[no_tag_validator])
 
 
@@ -223,13 +223,13 @@ def test_ambiguous_tags(key, sub_keys, arch,
 def test_ambiguous_recursion(key, subkey, arch,
                              get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects events for a registry key level defined
+    description: Check if the 'fortishield-syscheckd' daemon detects events for a registry key level defined
                  in the 'recursion_level' attribute. The 'recursion_level' attribute limits the maximum
                  level of recursion allowed. For this purpose, the test will monitor a registry key
                  with several levels of deep and make key/value operations inside it. Finally, it
                  will verify that only FIM events are generated up to the deep level specified.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -260,8 +260,8 @@ def test_ambiguous_recursion(key, subkey, arch,
         - Verify that FIM events are generated up to the specified registry key depth.
 
     input_description: A test case (ambiguous_recursion) is contained in an external YAML file
-                       (wazuh_ambiguous_simple.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon. That is combined with the testing registry
+                       (fortishield_ambiguous_simple.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon. That is combined with the testing registry
                        keys to be monitored defined in the module.
 
     expected_output:
@@ -274,13 +274,13 @@ def test_ambiguous_recursion(key, subkey, arch,
     expected_recursion_key = os.path.join(subkey, key_name)
     check_apply_test({"ambiguous_recursion"}, get_configuration['tags'])
 
-    registry_key_cud(key, subkey, wazuh_log_monitor, arch=arch,
+    registry_key_cud(key, subkey, fortishield_log_monitor, arch=arch,
                      time_travel=True, triggers_event=False, min_timeout=global_parameters.default_timeout)
 
-    registry_key_cud(key, expected_recursion_key, wazuh_log_monitor, arch=arch,
+    registry_key_cud(key, expected_recursion_key, fortishield_log_monitor, arch=arch,
                      time_travel=True, triggers_event=True, min_timeout=global_parameters.default_timeout)
 
-    registry_value_cud(key, expected_recursion_key, wazuh_log_monitor, arch=arch,
+    registry_value_cud(key, expected_recursion_key, fortishield_log_monitor, arch=arch,
                        time_travel=True, triggers_event=True, min_timeout=global_parameters.default_timeout)
 
 
@@ -292,14 +292,14 @@ def test_ambiguous_recursion(key, subkey, arch,
 def test_ambiguous_checks(key, subkey, key_checkers, subkey_checkers,
                           get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon adds, in the generated events, the 'check_' fields
+    description: Check if the 'fortishield-syscheckd' daemon adds, in the generated events, the 'check_' fields
                  specified in the configuration. These checks are attributes indicating that a monitored
                  key has been modified. For this purpose, the test will monitor a registry key using
                  different 'check_' attributes in key and subkey paths. Then it will make key/value operations
                  inside that key, and finally, the test will verify that the FIM events generated include
                  only the 'check_' fields set in the configuration for the monitored key paths or subpaths.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -334,8 +334,8 @@ def test_ambiguous_checks(key, subkey, key_checkers, subkey_checkers,
           for the monitored registry entries.
 
     input_description: A test case (ambiguous_checks) is contained in an external YAML file
-                       (wazuh_ambiguous_simple.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon. That is combined with the testing registry
+                       (fortishield_ambiguous_simple.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon. That is combined with the testing registry
                        keys to be monitored defined in the module.
 
     expected_output:
@@ -347,17 +347,17 @@ def test_ambiguous_checks(key, subkey, key_checkers, subkey_checkers,
     '''
     check_apply_test({"ambiguous_checks"}, get_configuration['tags'])
     # Test registry keys.
-    registry_key_cud(key, subkey[0], wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+    registry_key_cud(key, subkey[0], fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                      options=key_checkers, time_travel=get_configuration['metadata']['fim_mode'] == 'scheduled')
 
     # Test registry values.
-    registry_value_cud(key, subkey[0], wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+    registry_value_cud(key, subkey[0], fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                        options=key_checkers, time_travel=get_configuration['metadata']['fim_mode'] == 'scheduled')
 
     # Test registry keys.
-    registry_key_cud(key, subkey[1], wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+    registry_key_cud(key, subkey[1], fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                      options=subkey_checkers, time_travel=get_configuration['metadata']['fim_mode'] == 'scheduled')
 
     # Test registry values.
-    registry_value_cud(key, subkey[1], wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+    registry_value_cud(key, subkey[1], fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                        options=subkey_checkers, time_travel=get_configuration['metadata']['fim_mode'] == 'scheduled')

@@ -1,16 +1,16 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
 
 import pytest
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.agentless_cluster_env]
 
-test_hosts = ['wazuh-master', 'wazuh-worker1']
+test_hosts = ['fortishield-master', 'fortishield-worker1']
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                               'provisioning', 'agentless_cluster', 'inventory.yml')
 default_api_conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'api_configurations', 'default.yaml')
@@ -25,11 +25,11 @@ host_manager = HostManager(inventory_path)
 
 @pytest.mark.parametrize('login_endpoint, host, old_password, new_password', [
     # User-roles based login
-    ({}, 'wazuh-master', test_passw, 'Newpass1*'),
-    ({}, 'wazuh-worker1', 'Newpass1*', 'Newpass2*'),
+    ({}, 'fortishield-master', test_passw, 'Newpass1*'),
+    ({}, 'fortishield-worker1', 'Newpass1*', 'Newpass2*'),
     # Auth context login
-    ({"auth_context": {"username": "testing"}}, 'wazuh-master', 'Newpass2*', 'Newpass1*'),
-    ({"auth_context": {"username": "testing"}}, 'wazuh-worker1', 'Newpass1*', 'Newpass2*')
+    ({"auth_context": {"username": "testing"}}, 'fortishield-master', 'Newpass2*', 'Newpass1*'),
+    ({"auth_context": {"username": "testing"}}, 'fortishield-worker1', 'Newpass1*', 'Newpass2*')
 ])
 def test_update_password(login_endpoint, host, old_password, new_password, set_default_api_conf,
                          create_testing_api_user,

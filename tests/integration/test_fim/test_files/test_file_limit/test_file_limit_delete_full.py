@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will check if, after manipulating files while
        the FIM database is in 'full database alert' mode, files that are deleted in 'normal' mode
        generate events consistent with deleted files.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,8 +45,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
 
 pytest_args:
     - fim_mode:
@@ -64,17 +64,17 @@ import os
 from time import sleep
 
 import pytest
-from wazuh_testing import T_10, T_20
-from wazuh_testing.fim import LOG_FILE_PATH, delete_file, generate_params, create_file, REGULAR
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import create_file, delete_file
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import (callback_detect_event, ERR_MSG_DATABASE_FULL_ALERT_EVENT,
+from fortishield_testing import T_10, T_20
+from fortishield_testing.fim import LOG_FILE_PATH, delete_file, generate_params, create_file, REGULAR
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import create_file, delete_file
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import (callback_detect_event, ERR_MSG_DATABASE_FULL_ALERT_EVENT,
                                                      CB_FILE_LIMIT_CAPACITY, ERR_MSG_WRONG_VALUE_FOR_DATABASE_FULL,
                                                      ERR_MSG_NO_EVENTS_EXPECTED, ERR_MSG_DELETED_EVENT_NOT_RECIEVED)
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim.utils import generate_params
 
 # Marks
 pytestmark = [pytest.mark.tier(level=1)]
@@ -84,9 +84,9 @@ base_file_name = "test_file"
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 
 directory_str = ','.join(test_directories)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_delete_full.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_delete_full.yaml')
 testdir1 = test_directories[0]
 NUM_FILES = 7
 NUM_FILES_TO_CREATE = 8
@@ -99,7 +99,7 @@ conf_params = {'TEST_DIRECTORIES': testdir1, 'LIMIT': str(NUM_FILES)}
 
 params, metadata = generate_params(extra_params=conf_params, modes=['realtime', 'whodata'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # Fixtures
@@ -138,7 +138,7 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
                  no FIM events to be generated (file limit reached). Finally, it will delete 'test_file10'
                  and verify that the 'deleted' FIM event matches that file.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -160,7 +160,7 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
             brief: Configure a custom environment for testing.
         - restart_syscheckd:
             type: fixture
-            brief: Clear the Wazuh logs file and start a new monitor.
+            brief: Clear the Fortishield logs file and start a new monitor.
 
     assertions:
         - Verify that the FIM database is in 'full database alert' mode
@@ -170,8 +170,8 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
         - Verify that after manipulating files in 'full database alert' mode, files that are deleted
           while the FIM database is in 'normal' mode generate events consistent with deleted files.
 
-    input_description: A test case (tags_delete_full) is contained in external YAML file (wazuh_conf_delete_full.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it is combined with
+    input_description: A test case (tags_delete_full) is contained in external YAML file (fortishield_conf_delete_full.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it is combined with
                        the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -183,7 +183,7 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
         - who_data
     '''
     #Check that database is full and assert database usage percentage is 100%
-    database_state = wazuh_log_monitor.start(timeout=T_20,
+    database_state = fortishield_log_monitor.start(timeout=T_20,
                                              callback=generate_monitoring_callback(CB_FILE_LIMIT_CAPACITY),
                                              error_message=ERR_MSG_DATABASE_FULL_ALERT_EVENT).result()
 
@@ -197,7 +197,7 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
 
     # Check no Creation or Deleted event has been  generated
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=T_10,
+        event = fortishield_log_monitor.start(timeout=T_10,
                                         callback=callback_detect_event).result()
         assert event is None, ERR_MSG_NO_EVENTS_EXPECTED
 
@@ -205,7 +205,7 @@ def test_file_limit_delete_full(folder, file_name, configure_local_internal_opti
     delete_file(os.path.join(folder, f'{file_name}{0}'))
 
     #Get that the file deleted generetes an event and assert the event data path.
-    event = wazuh_log_monitor.start(timeout=T_20,
+    event = fortishield_log_monitor.start(timeout=T_20,
                                     callback=callback_detect_event,
                                     error_message=ERR_MSG_DELETED_EVENT_NOT_RECIEVED).result()
 

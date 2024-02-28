@@ -1,6 +1,6 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - Cluster provisioning
+Fortishield - Cluster provisioning
 
 ## Setting up the provisioning
 

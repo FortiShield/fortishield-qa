@@ -20,10 +20,10 @@
         block: ''
         marker: <!-- {mark} ANSIBLE MANAGED BLOCK -->
 
-    - name: Restart wazuh-manager
+    - name: Restart fortishield-manager
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux
 
@@ -34,5 +34,5 @@
     - name: Delete syscheck configuration
       win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
-        regex: wazuh-manager
+        regex: fortishield-manager
         state: absent

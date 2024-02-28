@@ -1,6 +1,6 @@
 """
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: Check that when an agent pointing to a master/worker node is registered using CLI tool, and and then
@@ -12,8 +12,8 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -35,7 +35,7 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://github.com/wazuh/wazuh-qa/issues/2507
+    - https://github.com/fortishield/fortishield-qa/issues/2507
 tags:
     - cluster
 """
@@ -48,13 +48,13 @@ from system.test_cluster.test_agent_groups.common import register_agent
 from system import (AGENT_NO_GROUPS, AGENT_STATUS_ACTIVE, AGENT_STATUS_DISCONNECTED, check_agent_groups,
                     check_agent_status, restart_cluster, check_keys_file, assign_agent_to_new_group,
                     delete_agent_group, ERR_MSG_CLIENT_KEYS_IN_MASTER_NOT_FOUND, create_new_agent_group)
-from wazuh_testing.modules import WAZUH_SERVICE_PREFIX, WAZUH_SERVICES_STOPPED
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.modules import FORTISHIELD_SERVICE_PREFIX, FORTISHIELD_SERVICES_STOPPED
+from fortishield_testing.tools.system import HostManager
 
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
-test_infra_agents = ["wazuh-agent1"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
+test_infra_agents = ["fortishield-agent1"]
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -71,13 +71,13 @@ timeout = 10
 
 # Tests
 @pytest.mark.parametrize("initial_status", [AGENT_STATUS_ACTIVE, AGENT_STATUS_DISCONNECTED])
-@pytest.mark.parametrize("agent_target", ["wazuh-master", "wazuh-worker1"])
+@pytest.mark.parametrize("agent_target", ["fortishield-master", "fortishield-worker1"])
 def test_assign_agent_to_a_group(agent_target, initial_status, clean_environment):
     '''
     description: Check agent enrollment process and new group assignment works as expected in a cluster environment.
                  Check that when an agent pointing to a master/worker node is registered using CLI tool, and and then
                  it's assigned to a new group the change is synced in the cluster.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - agent_target:
             type: String
@@ -87,7 +87,7 @@ def test_assign_agent_to_a_group(agent_target, initial_status, clean_environment
             brief: Status of the agent when the assign the new group.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering the agent key file exists in all nodes.
         - Verify that after registering and before starting the agent, it has no groups assigned.
@@ -111,7 +111,7 @@ def test_assign_agent_to_a_group(agent_target, initial_status, clean_environment
     check_agent_status(agent_id, agent_name, agent_ip, AGENT_STATUS_ACTIVE, host_manager, test_infra_managers)
 
     if (initial_status == AGENT_STATUS_DISCONNECTED):
-        host_manager.control_service(host='wazuh-agent1', service=WAZUH_SERVICE_PREFIX, state=WAZUH_SERVICES_STOPPED)
+        host_manager.control_service(host='fortishield-agent1', service=FORTISHIELD_SERVICE_PREFIX, state=FORTISHIELD_SERVICES_STOPPED)
         time.sleep(timeout)
         check_agent_status(agent_id, agent_name, agent_ip, AGENT_STATUS_DISCONNECTED, host_manager, test_infra_managers)
 
@@ -120,7 +120,7 @@ def test_assign_agent_to_a_group(agent_target, initial_status, clean_environment
         create_new_agent_group(test_infra_managers[0], test_group, host_manager)
 
         # Add agent to a new group
-        assign_agent_to_new_group('wazuh-master', test_group, agent_id, host_manager)
+        assign_agent_to_new_group('fortishield-master', test_group, agent_id, host_manager)
 
         time.sleep(timeout)
         # Check that agent has group set to group_test on Managers
@@ -128,4 +128,4 @@ def test_assign_agent_to_a_group(agent_target, initial_status, clean_environment
 
     finally:
         # Delete group of agent
-        delete_agent_group('wazuh-master', test_group, host_manager)
+        delete_agent_group('fortishield-master', test_group, host_manager)

@@ -1,7 +1,7 @@
 Ansible Role: Filebeat for Elastic Stack
 ------------------------------------
 
-An Ansible Role that installs [Filebeat-oss](https://www.elastic.co/products/beats/filebeat), this can be used in conjunction with [ansible-wazuh-manager](https://github.com/wazuh/wazuh-ansible/ansible-wazuh-server).
+An Ansible Role that installs [Filebeat-oss](https://www.elastic.co/products/beats/filebeat), this can be used in conjunction with [ansible-fortishield-manager](https://github.com/fortishield/fortishield-ansible/ansible-fortishield-server).
 
 Requirements
 ------------
@@ -27,12 +27,12 @@ Available variables are listed below, along with default values (see `defaults/m
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2016, Wazuh Inc. (License GPLv3)
+FORTISHIELD Copyright (C) 2016, Fortishield Inc. (License GPLv3)
 
 ### Based on previous work from geerlingguy
 
  - https://github.com/geerlingguy/ansible-role-filebeat
 
-### Modified by Wazuh
+### Modified by Fortishield
 
-The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+The playbooks have been modified by Fortishield, including some specific requirements, templates and configuration to improve integration with Fortishield ecosystem.

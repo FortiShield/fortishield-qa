@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests will check if the 'age' option work as expected, ignoring files
        that have not been modified for a time greater than the 'age' value when the system datetime
        is changed while the logcollector process is running.
@@ -26,7 +26,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - linux
@@ -51,8 +51,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#age
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#age
 
 tags:
     - logcollector_age
@@ -65,12 +65,12 @@ from datetime import datetime
 
 import pytest
 
-import wazuh_testing.logcollector as logcollector
-from wazuh_testing.tools import get_service
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.time import TimeMachine, time_to_timedelta, time_to_seconds
-from wazuh_testing.tools.utils import lower_case_key_dictionary_array
+import fortishield_testing.logcollector as logcollector
+from fortishield_testing.tools import get_service
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.time import TimeMachine, time_to_timedelta, time_to_seconds
+from fortishield_testing.tools.utils import lower_case_key_dictionary_array
 
 
 # Marks
@@ -78,16 +78,16 @@ pytestmark = pytest.mark.tier(level=0)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_age.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_age.yaml')
 
-DAEMON_NAME = "wazuh-logcollector"
+DAEMON_NAME = "fortishield-logcollector"
 
 local_internal_options = {'logcollector.vcheck_files': '0', 'logcollector.debug': '2', 'monitord.rotate_log': '0',
                           'windows.debug': '2'}
 
 timeout_logcollector_read = 10
 now_date = datetime.now()
-folder_path = os.path.join(tempfile.gettempdir(), 'wazuh_testing_age')
+folder_path = os.path.join(tempfile.gettempdir(), 'fortishield_testing_age')
 folder_path_regex = os.path.join(folder_path, '*')
 timeout_file_read = 4
 
@@ -110,7 +110,7 @@ metadata = lower_case_key_dictionary_array(parameters)
 
 new_host_datetime = ['60s', '-60s', '30m', '-30m', '2h', '-2h', '43d', '-43d']
 
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=parameters,
                                            metadata=metadata)
 
@@ -141,7 +141,7 @@ def test_configuration_age_datetime(get_configuration, configure_environment, co
                                     restart_monitord, restart_logcollector_function, file_monitoring,
                                     new_datetime, get_files_list, create_file_structure_function):
     '''
-    description: Check if the 'wazuh-logcollector' daemon ignores the monitored files that have not been modified
+    description: Check if the 'fortishield-logcollector' daemon ignores the monitored files that have not been modified
                  for a time greater than the value set in the 'age' tag, and the system datetime is changed. For
                  this purpose, the test will create a folder with a testing log file to be monitored and configure
                  different values for the 'age' option. Once the logcollector has started, it will change the system
@@ -149,7 +149,7 @@ def test_configuration_age_datetime(get_configuration, configure_environment, co
                  depending on the 'age' value, the test will verify that the 'ignore' event is triggered or not
                  and restore the system datetime to its initial value.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -162,7 +162,7 @@ def test_configuration_age_datetime(get_configuration, configure_environment, co
             brief: Configure a custom environment for testing.
         - configure_local_internal_options_module:
             type: fixture
-            brief: Configure the Wazuh local internal options.
+            brief: Configure the Fortishield local internal options.
         - restart_monitord:
             type: fixture
             brief: Reset the log file and start a new monitor.
@@ -189,8 +189,8 @@ def test_configuration_age_datetime(get_configuration, configure_environment, co
         - Verify that the logcollector does not ignore the monitored files that have been modified
           for a time greater than the 'age' value.
 
-    input_description: A configuration template (test_age) is contained in an external YAML file (wazuh_age.yaml),
-                       which includes configuration settings for the 'wazuh-logcollector' daemon and, it is combined
+    input_description: A configuration template (test_age) is contained in an external YAML file (fortishield_age.yaml),
+                       which includes configuration settings for the 'fortishield-logcollector' daemon and, it is combined
                        with the test cases (settings, time offset, and files to monitor) defined in the module.
 
     expected_output:

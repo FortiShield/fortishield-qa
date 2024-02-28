@@ -1,6 +1,6 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - Big cluster - Forty agents provisioning
+Fortishield - Big cluster - Forty agents provisioning
 
 ## Setting up the provisioning
 

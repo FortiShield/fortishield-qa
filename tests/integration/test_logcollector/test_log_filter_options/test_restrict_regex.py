@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests check the behavior of the restrict and ignore options, that allow
        users to configure regex patterns that limit if a log will be sent to analysis or will be ignored.
        The restrict causes any log that does not match the regex to be ignored, conversely, the 'ignore' option
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - linux
@@ -44,10 +44,10 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html
-    - https://documentation.wazuh.com/current/user-manual/reference/statistics-files/wazuh-logcollector-state.html
-    - https://documentation.wazuh.com/current/user-manual/reference/internal-options.html#logcollector
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/statistics-files/fortishield-logcollector-state.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/internal-options.html#logcollector
 
 tags:
     - logcollector_options
@@ -57,11 +57,11 @@ import sys
 import re
 import pytest
 
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.local_actions import run_local_command_returning_output
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.modules.logcollector import event_monitor as evm
-from wazuh_testing.modules import logcollector as lc
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.local_actions import run_local_command_returning_output
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.modules.logcollector import event_monitor as evm
+from fortishield_testing.modules import logcollector as lc
 
 
 # Reference paths
@@ -90,8 +90,8 @@ local_internal_options = lc.LOGCOLLECTOR_DEFAULT_LOCAL_INTERNAL_OPTIONS
 @pytest.mark.parametrize('new_file_path,', [test_file], ids=[''])
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=case_ids)
 def test_restrict_multiple_regex(configuration, metadata, new_file_path, create_file, truncate_monitored_files,
-                                 set_wazuh_configuration, configure_local_internal_options_function,
-                                 restart_wazuh_function):
+                                 set_fortishield_configuration, configure_local_internal_options_function,
+                                 restart_fortishield_function):
     '''
     description: Check if logcollector behavior when two restrict tags are added.
 
@@ -100,26 +100,26 @@ def test_restrict_multiple_regex(configuration, metadata, new_file_path, create_
            - Create file to monitor logs
            - Truncate ossec.log file
            - Set ossec.conf and local_internal_options.conf
-           - Restart the wazuh daemon
+           - Restart the fortishield daemon
         - Test:
            - Insert the log message.
            - Check expected response.
         - Teardown:
            - Delete the monitored file
            - Restore ossec.conf and local_internal_options.conf
-           - Stop Wazuh
+           - Stop Fortishield
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata
+            brief: Fortishield configuration metadata
         - new_file_path:
             type: str
             brief: path for the log file to be created and deleted after the test.
@@ -129,15 +129,15 @@ def test_restrict_multiple_regex(configuration, metadata, new_file_path, create_
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options:
             type: fixture
             brief: Configure the local_internal_options file.
-        - restart_wazuh_function:
+        - restart_fortishield_function:
             type: fixture
-            brief: Restart wazuh.
+            brief: Restart fortishield.
 
     assertions:
         - Check that logcollector is analyzing the log file.
@@ -148,9 +148,9 @@ def test_restrict_multiple_regex(configuration, metadata, new_file_path, create_
         - The `cases_restrict_multiple_regex` file provides the test cases.
 
     expected_output:
-        - r".*wazuh-logcollector.*Analizing file: '{file}'.*"
-        - r".*wazuh-logcollector.*DEBUG: Reading syslog '{message}'.*"
-        - r".*wazuh-logcollector.*DEBUG: Ignoring the log line '{message}' due to {tag} config: '{regex}'"
+        - r".*fortishield-logcollector.*Analizing file: '{file}'.*"
+        - r".*fortishield-logcollector.*DEBUG: Reading syslog '{message}'.*"
+        - r".*fortishield-logcollector.*DEBUG: Ignoring the log line '{message}' due to {tag} config: '{regex}'"
     '''
     log = metadata['log_sample']
     command = f"echo {log}>> {test_file}"

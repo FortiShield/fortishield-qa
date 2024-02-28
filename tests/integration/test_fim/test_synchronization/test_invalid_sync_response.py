@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if FIM detects invalid
        values for the 'interval' tag of the 'synchronization' feature.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,8 +40,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -58,11 +58,11 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, callback_configuration_warning
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, callback_configuration_warning
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -71,13 +71,13 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=2)]
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
-configurations_path = os.path.join(test_data_path, 'wazuh_invalid_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_invalid_conf.yaml')
 test_directories = [os.path.join(PREFIX, 'testdir1')]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # configurations
 
-configurations = load_wazuh_configurations(configurations_path, __name__)
+configurations = load_fortishield_configurations(configurations_path, __name__)
 
 
 # fixtures
@@ -92,13 +92,13 @@ def get_configuration(request):
 
 def test_invalid_sync_response(get_configuration, configure_environment, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects invalid synchronization intervals
+    description: Check if the 'fortishield-syscheckd' daemon detects invalid synchronization intervals
                  by catching the warning message displayed on the log file. For this purpose,
                  the test will monitor a testing directory and setup the 'synchronization' option
                  using invalid values for its 'interval' tag. Finally, it will verify that the FIM
                  'warning' event has been generated, indicating that an invalid value is used.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -117,8 +117,8 @@ def test_invalid_sync_response(get_configuration, configure_environment, restart
         - Verify that FIM 'warning' event is generated when using an invalid value
           for the interval tag of the 'synchronization' option.
 
-    input_description: A test case (sync_invalid) is contained in external YAML file (wazuh_invalid_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined
+    input_description: A test case (sync_invalid) is contained in external YAML file (fortishield_invalid_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined
                        with the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -130,6 +130,6 @@ def test_invalid_sync_response(get_configuration, configure_environment, restart
     '''
     check_apply_test({'sync_invalid'}, get_configuration['tags'])
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_configuration_warning,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_configuration_warning,
                             error_message='Did not receive expected '
                                           '"WARNING: ...: Invalid value for element" event')

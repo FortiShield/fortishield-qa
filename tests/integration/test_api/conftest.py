@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
@@ -7,13 +7,13 @@ import shutil
 
 import pytest
 
-import wazuh_testing as fw
-from wazuh_testing import api
-from wazuh_testing.modules.api import event_monitor as evm
-from wazuh_testing.tools import configuration as conf
-from wazuh_testing.tools import services as svcs
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
+import fortishield_testing as fw
+from fortishield_testing import api
+from fortishield_testing.modules.api import event_monitor as evm
+from fortishield_testing.tools import configuration as conf
+from fortishield_testing.tools import services as svcs
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
 
 
 @pytest.fixture(scope='module')
@@ -21,21 +21,21 @@ def configure_api_environment(get_configuration, request):
     """Configure a custom environment for API testing. Restart API is needed for applying the configuration."""
 
     # Save current configuration
-    backup_config = conf.get_api_conf(fw.WAZUH_API_CONF)
+    backup_config = conf.get_api_conf(fw.FORTISHIELD_API_CONF)
 
     # Save current security config
-    backup_security_config = conf.get_api_conf(fw.WAZUH_SECURITY_CONF) if \
-        os.path.exists(fw.WAZUH_SECURITY_CONF) else None
+    backup_security_config = conf.get_api_conf(fw.FORTISHIELD_SECURITY_CONF) if \
+        os.path.exists(fw.FORTISHIELD_SECURITY_CONF) else None
 
     # Set new configuration
     api_config = get_configuration.get('configuration', None)
     if api_config:
-        conf.write_api_conf(fw.WAZUH_API_CONF, api_config)
+        conf.write_api_conf(fw.FORTISHIELD_API_CONF, api_config)
 
     # Set security configuration
     security_config = get_configuration.get('security_config', None)
     if security_config:
-        conf.write_security_conf(fw.WAZUH_SECURITY_CONF, security_config)
+        conf.write_security_conf(fw.FORTISHIELD_SECURITY_CONF, security_config)
 
     # Create test directories
     if hasattr(request.module, 'test_directories'):
@@ -58,13 +58,13 @@ def configure_api_environment(get_configuration, request):
             shutil.rmtree(test_dir, ignore_errors=True)
 
     # Restore previous configuration
-    conf.write_api_conf(fw.WAZUH_API_CONF, backup_config if backup_config else {})
+    conf.write_api_conf(fw.FORTISHIELD_API_CONF, backup_config if backup_config else {})
 
     # Restore previous RBAC configuration
     if backup_security_config:
-        conf.write_security_conf(fw.WAZUH_SECURITY_CONF, backup_security_config)
+        conf.write_security_conf(fw.FORTISHIELD_SECURITY_CONF, backup_security_config)
     elif security_config and not backup_security_config:
-        os.remove(fw.WAZUH_SECURITY_CONF)
+        os.remove(fw.FORTISHIELD_SECURITY_CONF)
 
     # Call extra functions after yield
     if hasattr(request.module, 'extra_configuration_after_yield'):
@@ -88,15 +88,15 @@ def clean_log_files():
 
 @pytest.fixture(scope='module')
 def restart_api(get_configuration, request):
-    # Stop Wazuh and Wazuh API
+    # Stop Fortishield and Fortishield API
     svcs.control_service('stop')
 
     # Reset api.log and start a new monitor
     truncate_file(fw.API_LOG_FILE_PATH)
     file_monitor = FileMonitor(fw.API_LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
-    # Start Wazuh API
+    # Start Fortishield API
     svcs.control_service('start')
 
 
@@ -135,15 +135,15 @@ def get_api_details():
 
 @pytest.fixture(scope='module')
 def restart_api_module(request):
-    # Stop Wazuh and Wazuh API
+    # Stop Fortishield and Fortishield API
     svcs.control_service('stop')
 
     # Reset api.log and start a new monitor
     truncate_file(fw.API_LOG_FILE_PATH)
     file_monitor = FileMonitor(fw.API_LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
-    # Start Wazuh API
+    # Start Fortishield API
     svcs.control_service('start')
     evm.check_api_start_log(file_monitor)
 
@@ -166,18 +166,18 @@ def set_api_configuration(configuration):
         configuration (dict): Configuration template data to write in the api.yaml.
     """
     # Save current configuration
-    backup_config = conf.get_api_conf(fw.WAZUH_API_CONF)
+    backup_config = conf.get_api_conf(fw.FORTISHIELD_API_CONF)
 
     # Get configuration for testing
     test_config = configuration['configuration']
 
     # Set the new configuration
-    conf.write_api_conf(fw.WAZUH_API_CONF, test_config)
+    conf.write_api_conf(fw.FORTISHIELD_API_CONF, test_config)
 
     yield
 
     # Restore previous configuration
-    conf.write_api_conf(fw.WAZUH_API_CONF, backup_config if backup_config else {})
+    conf.write_api_conf(fw.FORTISHIELD_API_CONF, backup_config if backup_config else {})
 
 
 @pytest.fixture(scope='function')
@@ -190,6 +190,6 @@ def restart_api_function():
 
     yield
 
-    # Stop daemons in reverse to simulate Wazuh's behavior
+    # Stop daemons in reverse to simulate Fortishield's behavior
     for daemon in daemons[::-1]:
         svcs.control_service('stop', daemon=daemon)

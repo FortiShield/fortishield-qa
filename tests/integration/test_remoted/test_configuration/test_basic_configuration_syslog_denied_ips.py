@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, this test will check that specified 'denied-ips' connection is denied and
        syslog produces a 'not allowed' message.
 
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -35,10 +35,10 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-remoted.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/agent-key-polling.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/agent-key-polling.html
 
 tags:
     - remoted
@@ -48,10 +48,10 @@ import pytest
 import requests
 from urllib3.exceptions import InsecureRequestWarning
 
-import wazuh_testing.remote as remote
-import wazuh_testing.api as api
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.utils import format_ipv6_long
+import fortishield_testing.remote as remote
+import fortishield_testing.api as api
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.utils import format_ipv6_long
 from urllib3.exceptions import InsecureRequestWarning
 import requests
 
@@ -60,7 +60,7 @@ pytestmark = [pytest.mark.server, pytest.mark.tier(level=0)]
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), '')
-configurations_path = os.path.join(test_data_path, 'data', 'wazuh_basic_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'data', 'fortishield_basic_configuration.yaml')
 
 parameters = [
     {'ALLOWED': '127.0.0.0/24', 'DENIED': '127.0.0.1', 'IPV6': 'no'},
@@ -74,7 +74,7 @@ metadata = [
     {'allowed-ips': '::1/64', 'denied-ips': '::1', 'ipv6': 'yes'}
 ]
 
-configurations = load_wazuh_configurations(configurations_path, 'test_basic_configuration_allowed_denied_ips',
+configurations = load_fortishield_configurations(configurations_path, 'test_basic_configuration_allowed_denied_ips',
                                            params=parameters, metadata=metadata)
 configuration_ids = [f"{x['ALLOWED']}_{x['DENIED']}" for x in parameters]
 
@@ -88,11 +88,11 @@ def get_configuration(request):
 
 def test_denied_ips_syslog(get_configuration, configure_environment, restart_remoted, wait_for_remoted_start_log):
     '''
-    description: Check that 'wazuh-remoted' denied connection to the specified 'denied-ips'.
+    description: Check that 'fortishield-remoted' denied connection to the specified 'denied-ips'.
                  For this purpose, it uses the configuration from test cases, check if the different errors are
                  logged correctly and check if the API retrieves the expected configuration.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -102,7 +102,7 @@ def test_denied_ips_syslog(get_configuration, configure_environment, restart_rem
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - restart_remoted:
             type: fixture
             brief: Clear the 'ossec.log' file and start a new monitor.
@@ -116,13 +116,13 @@ def test_denied_ips_syslog(get_configuration, configure_environment, restart_rem
         - Verify that the selected configuration is the same as the API response.
 
     input_description: A configuration template (test_basic_configuration_allowed_denied_ips) is contained in an
-                       external YAML file, (wazuh_basic_configuration.yaml). That template is combined with different
-                       test cases defined in the module. Those include configuration settings for the 'wazuh-remoted'
+                       external YAML file, (fortishield_basic_configuration.yaml). That template is combined with different
+                       test cases defined in the module. Those include configuration settings for the 'fortishield-remoted'
                        daemon and agents info.
 
     expected_output:
         - r'Started <pid>: .* Listening on port .*'
-        - Wazuh remoted did not start as expected.
+        - Fortishield remoted did not start as expected.
         - r'Remote syslog allowed from: .*'
         - The expected output for denied-ips has not been produced.
         - r'Message from .* not allowed. Cannot find the ID of the agent'
@@ -154,15 +154,15 @@ def test_denied_ips_syslog(get_configuration, configure_environment, restart_rem
 
     log_callback = remote.callback_detect_syslog_allowed_ips(expected_allowed_ips)
 
-    wazuh_log_monitor.start(timeout=remote.REMOTED_GLOBAL_TIMEOUT, callback=log_callback,
-                            error_message="Wazuh remoted didn't start as expected.")
+    fortishield_log_monitor.start(timeout=remote.REMOTED_GLOBAL_TIMEOUT, callback=log_callback,
+                            error_message="Fortishield remoted didn't start as expected.")
 
     remote.send_syslog_message(message='Feb 22 13:08:48 Remoted Syslog Denied testing', port=514, protocol=remote.UDP,
                                manager_address=denied_ip)
 
     log_callback = remote.callback_detect_syslog_denied_ips(denied_ip)
 
-    wazuh_log_monitor.start(timeout=remote.REMOTED_GLOBAL_TIMEOUT, callback=log_callback,
+    fortishield_log_monitor.start(timeout=remote.REMOTED_GLOBAL_TIMEOUT, callback=log_callback,
                             error_message="The expected output for denied-ips has not been produced")
 
     # Check that API query return the selected configuration

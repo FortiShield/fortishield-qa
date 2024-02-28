@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests will check if the logcollector generates the 'file_status.json'
        file used by the 'only future events' option when using ULS (unified logging system) events in
        macOS systems. Log data collection is the real-time process of making sense out of the records
@@ -24,7 +24,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - macos
@@ -34,40 +34,40 @@ os_version:
     - macOS Server
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html
     - https://developer.apple.com/documentation/os/logging
 
 tags:
     - logcollector_macos
 '''
 import pytest
-import wazuh_testing.logcollector as logcollector
+import fortishield_testing.logcollector as logcollector
 import sys
 
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.logcollector import LOG_COLLECTOR_GLOBAL_TIMEOUT
-from wazuh_testing.tools.monitoring import FileMonitor, wait_file
-from wazuh_testing.tools.file import read_json
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.logcollector import LOG_COLLECTOR_GLOBAL_TIMEOUT
+from fortishield_testing.tools.monitoring import FileMonitor, wait_file
+from fortishield_testing.tools.file import read_json
 from os.path import dirname, join, realpath
 from re import match
 if sys.platform != 'win32':
-    from wazuh_testing.tools import LOGCOLLECTOR_FILE_STATUS_PATH
+    from fortishield_testing.tools import LOGCOLLECTOR_FILE_STATUS_PATH
 
 # Marks
 pytestmark = [pytest.mark.darwin, pytest.mark.tier(level=0)]
 
 # Configuration
 test_data_path = join(dirname(realpath(__file__)), 'data')
-configurations_path = join(test_data_path, 'wazuh_macos_file_status_basic.yaml')
+configurations_path = join(test_data_path, 'fortishield_macos_file_status_basic.yaml')
 
 parameters = [{'ONLY_FUTURE_EVENTS': 'yes'}, {'ONLY_FUTURE_EVENTS': 'no'}]
 metadata = [{'only-future-events': 'yes'}, {'only-future-events': 'no'}]
 
-daemons_handler_configuration = {'daemons': ['wazuh-logcollector'], 'ignore_errors': False}
+daemons_handler_configuration = {'daemons': ['fortishield-logcollector'], 'ignore_errors': False}
 
 # Configuration data
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"only_future_events_{x['ONLY_FUTURE_EVENTS']}" for x in parameters]
 
 # Max number of characters to be displayed in the log's debug message
@@ -97,21 +97,21 @@ def test_macos_file_status_basic(restart_logcollector_required_daemons_package, 
                                  delete_file_status_json, configure_local_internal_options_module,
                                  get_configuration, configure_environment, file_monitoring, daemons_handler_module):
     '''
-    description: Check if the 'wazuh-logcollector' builds and updates the 'file_status.json' file from ULS events.
+    description: Check if the 'fortishield-logcollector' builds and updates the 'file_status.json' file from ULS events.
                  For this purpose, the test will configure a 'localfile' section using the macOS settings.
                  Once the logcollector is started, it will wait until the macOS ULS module is ready, and then,
                  the test will generate 'unified logging system' (ULS) events by using a logger tool. After this,
                  it will check if the 'file_status.json' file has been created and if the 'macos' key is inside it.
                  Finally, the test will verify that the 'file_status.json' file has valid content.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - restart_logcollector_required_daemons_package:
             type: fixture
-            brief: Restart the 'wazuh-agentd', 'wazuh-logcollector', and 'wazuh-modulesd' daemons.
+            brief: Restart the 'fortishield-agentd', 'fortishield-logcollector', and 'fortishield-modulesd' daemons.
         - truncate_log_file:
             type: fixture
             brief: Clear the 'ossec.log' file.
@@ -132,16 +132,16 @@ def test_macos_file_status_basic(restart_logcollector_required_daemons_package, 
             brief: Handle the monitoring of a specified file.
         - daemons_handler_module:
             type: fixture
-            brief: Handler of Wazuh daemons.
+            brief: Handler of Fortishield daemons.
 
     assertions:
         - Verify that the logcollector detects the macOS ULS events.
         - Verify that the logcollector generates the 'file_status.json' file with valid content.
 
     input_description: A configuration template (test_macos_file_status_basic) is contained in an external YAML
-                       file (wazuh_macos_file_status_basic.yaml). That template is combined with two test cases
+                       file (fortishield_macos_file_status_basic.yaml). That template is combined with two test cases
                        defined in the module. Those include configuration settings
-                       for the 'wazuh-logcollector' daemon.
+                       for the 'fortishield-logcollector' daemon.
 
     expected_output:
         - r'Monitoring macOS logs with.*'

@@ -1,20 +1,20 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
 import uuid
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH, WAZUH_LOGS_PATH
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools import FORTISHIELD_PATH, FORTISHIELD_LOGS_PATH
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.cluster, pytest.mark.agentless_cluster_env]
 
 # Hosts
-test_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
+test_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
 worker_hosts = test_hosts[1:]
 
 # Data paths
@@ -66,14 +66,14 @@ def test_ruleset_sync_status(update_cluster_json):
     """
     api_token = host_manager.get_api_token(test_hosts[0])
     for host in test_hosts:
-        host_manager.clear_file_without_recreate(host=host, file_path=os.path.join(WAZUH_LOGS_PATH, 'cluster.log'))
+        host_manager.clear_file_without_recreate(host=host, file_path=os.path.join(FORTISHIELD_LOGS_PATH, 'cluster.log'))
 
     # Check that all workers are synced before starting.
     assert all(item['synced'] for item in get_sync_status(api_token))
 
     # Modify a custom rule file and verify that synced status is False for all workers.
     host_manager.modify_file_content(host=test_hosts[0],
-                                     path=os.path.join(WAZUH_PATH, 'etc', 'rules', 'local_rules.xml'),
+                                     path=os.path.join(FORTISHIELD_PATH, 'etc', 'rules', 'local_rules.xml'),
                                      content=rule_content)
     assert all(not item['synced'] for item in get_sync_status(api_token) if item['name'] != test_hosts[0])
 

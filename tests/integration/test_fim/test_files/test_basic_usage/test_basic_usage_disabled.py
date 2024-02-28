@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
-       files are modified. Specifically, these tests will verify that when the 'wazuh-syscheckd' daemon
+       files are modified. Specifically, these tests will verify that when the 'fortishield-syscheckd' daemon
        is disabled, no FIM events are generated.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -62,12 +62,12 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import T_10, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.event_monitor import callback_detect_end_scan
-from wazuh_testing.modules.fim.utils import generate_params, regular_file_cud
+from fortishield_testing import T_10, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.event_monitor import callback_detect_end_scan
+from fortishield_testing.modules.fim.utils import generate_params, regular_file_cud
 
 # Marks
 
@@ -77,9 +77,9 @@ pytestmark = pytest.mark.tier(level=0)
 
 test_directories = [os.path.join(PREFIX, 'testdir')]
 directory_str = test_directories[0]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_disabled.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_disabled.yaml')
 testdir = test_directories[0]
 
 # configurations
@@ -87,7 +87,7 @@ testdir = test_directories[0]
 conf_params = {'TEST_DIRECTORIES': directory_str}
 p, m = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -102,11 +102,11 @@ def get_configuration(request):
 
 def test_disabled(get_configuration, configure_environment, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon generates FIM events when it is disabled
+    description: Check if the 'fortishield-syscheckd' daemon generates FIM events when it is disabled
                  in the main configuration file. For this purpose, the test will monitor a testing
                  folder and finally verifies that no FIM events have been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -122,10 +122,10 @@ def test_disabled(get_configuration, configure_environment, restart_syscheckd):
             brief: Clear the 'ossec.log' file and start a new monitor.
 
     assertions:
-        - Verify that when the 'wazuh-syscheckd' daemon is disabled, no FIM events are generated.
+        - Verify that when the 'fortishield-syscheckd' daemon is disabled, no FIM events are generated.
 
-    input_description: A test case is contained in external YAML file (wazuh_conf_disabled.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, it is combined
+    input_description: A test case is contained in external YAML file (fortishield_conf_disabled.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, it is combined
                        with the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -136,8 +136,8 @@ def test_disabled(get_configuration, configure_environment, restart_syscheckd):
     '''
     # Expect a timeout when checking for syscheckd initial scan
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=T_10, callback=callback_detect_end_scan)
+        event = fortishield_log_monitor.start(timeout=T_10, callback=callback_detect_end_scan)
         raise AttributeError(f'Unexpected event {event}')
 
     # Use 'regular_file_cud' and don't expect any event
-    regular_file_cud(testdir, wazuh_log_monitor, min_timeout=T_10, triggers_event=False)
+    regular_file_cud(testdir, fortishield_log_monitor, min_timeout=T_10, triggers_event=False)

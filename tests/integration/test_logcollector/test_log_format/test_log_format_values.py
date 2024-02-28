@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests will check if the logcollector accepts only allowed values for
        the 'log_format' tag, and the log file to monitor has compatible content with those values.
        Log data collection is the real-time process of making sense out of the records generated
@@ -25,7 +25,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - linux
@@ -46,8 +46,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#log-format
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#log-format
 
 tags:
     - logcollector_log_format
@@ -55,13 +55,13 @@ tags:
 import os
 import pytest
 import sys
-import wazuh_testing.tools.file as file
+import fortishield_testing.tools.file as file
 
-import wazuh_testing.logcollector as logcollector
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+import fortishield_testing.logcollector as logcollector
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
 # Marks
 pytestmark = pytest.mark.tier(level=0)
@@ -70,7 +70,7 @@ pytestmark = pytest.mark.tier(level=0)
 no_restart_windows_after_configuration_set = True
 force_restart_after_restoring = True
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 local_internal_options = {'windows.debug': '2', 'agent.debug': '0', 'logcollector.debug':'2'}
 
 if sys.platform == 'win32':
@@ -127,7 +127,7 @@ else:
     metadata.append({'location': f'{nmap_log}', 'log_format': 'nmapg', 'valid_value': False})
     metadata.append({'location': f'{nmap_log}', 'log_format': 'nmapg', 'valid_value': True})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"{x['log_format'], x['valid_value']}" for x in metadata]
 
 log_format_windows_print_analyzing_info = ['eventlog', 'eventchannel', 'iis']
@@ -325,40 +325,40 @@ def modify_file(file, type, content):
 
 
 def check_log_format_valid(cfg):
-    """Checks if Wazuh runs correctly with the specified log formats.
+    """Checks if Fortishield runs correctly with the specified log formats.
 
     Args:
         cfg (dict): Dictionary with the localfile configuration.
     Raises:
         TimeoutError: If the "Analyzing file" callback is not generated.
     """
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     if cfg['log_format'] == 'eventchannel' or cfg['log_format'] == 'eventlog':
         log_callback = logcollector.callback_eventchannel_analyzing(cfg['location'])
     else:
         log_callback = logcollector.callback_analyzing_file(cfg['location'])
 
-    wazuh_log_monitor.start(timeout=5, callback=log_callback,
+    fortishield_log_monitor.start(timeout=5, callback=log_callback,
                             error_message=logcollector.GENERIC_CALLBACK_ERROR_ANALYZING_FILE)
 
 
 def check_log_format_value_valid(conf):
-    """Checks if Wazuh runs correctly with the correct log format and specific content.
+    """Checks if Fortishield runs correctly with the correct log format and specific content.
 
     Args:
         conf (dict): Dictionary with the localfile configuration.
     Raises:
         TimeoutError: If the "Analyzing file" callback is not generated.
     """
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     if conf['log_format'] not in log_format_windows_print_analyzing_info:
         if conf['log_format'] in log_format_not_print_reading_info:
             # Logs format that only shows when a specific file is read.
 
             log_callback = logcollector.callback_read_file(conf['location'])
-            wazuh_log_monitor.start(timeout=5, callback=log_callback,
+            fortishield_log_monitor.start(timeout=5, callback=log_callback,
                                     error_message=logcollector.GENERIC_CALLBACK_ERROR_READING_FILE)
 
         elif conf['log_format'] == 'multi-line:3':
@@ -371,7 +371,7 @@ def check_log_format_value_valid(conf):
                     msg += line.rstrip('\n')
                     msg += ' '
                 log_callback = logcollector.callback_reading_file(conf['log_format'], msg.rstrip(' '))
-                wazuh_log_monitor.start(timeout=5, callback=log_callback,
+                fortishield_log_monitor.start(timeout=5, callback=log_callback,
                                         error_message=logcollector.GENERIC_CALLBACK_ERROR_READING_FILE)
         else:
             # Verify that the content of the parsed file is equal to the output generated in the logs.
@@ -379,7 +379,7 @@ def check_log_format_value_valid(conf):
                 lines = f.readlines()
                 for line in lines:
                     log_callback = logcollector.callback_reading_file(conf['log_format'], line.rstrip('\n'))
-                    wazuh_log_monitor.start(timeout=5, callback=log_callback,
+                    fortishield_log_monitor.start(timeout=5, callback=log_callback,
                                             error_message=logcollector.GENERIC_CALLBACK_ERROR_READING_FILE)
 
 
@@ -399,18 +399,18 @@ def analyzing_invalid_value(conf):
 
 
 def check_log_format_value_invalid(conf):
-    """Check if Wazuh fails because of content invalid log.
+    """Check if Fortishield fails because of content invalid log.
 
     Args:
         conf (dict): Dictionary with the localfile configuration.
     Raises:
        TimeoutError: If error callback are not generated.
    """
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     if conf['log_format'] not in log_format_windows_print_analyzing_info:
         log_callback = analyzing_invalid_value(conf)
-        wazuh_log_monitor.start(timeout=5, callback=log_callback, error_message=logcollector.GENERIC_CALLBACK_ERROR)
+        fortishield_log_monitor.start(timeout=5, callback=log_callback, error_message=logcollector.GENERIC_CALLBACK_ERROR)
 
 
 def check_log_format_values(conf):
@@ -432,14 +432,14 @@ def check_log_format_values(conf):
 
 def test_log_format(configure_local_internal_options_module, get_configuration, configure_environment):
     '''
-    description: Check if the 'wazuh-logcollector' accepts only allowed values for the 'log_format' tag, and the content
+    description: Check if the 'fortishield-logcollector' accepts only allowed values for the 'log_format' tag, and the content
                  of the log file to monitor is compatible with those values. For this purpose, the test will create a
                  testing log file, configure a 'localfile' section to monitor it, and set the 'log_format' tag with
                  valid/invalid values. Then, it will check if an error event is triggered when the value used is
                  invalid. Finally, the test will verify that an 'analyzing' event is generated if the content of
                  the monitored log file is compatible with the log format, or an error event is generated if not.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -462,8 +462,8 @@ def test_log_format(configure_local_internal_options_module, get_configuration, 
           the log file has valid content.
 
     input_description: A configuration template (test_log_format_values) is contained in an external YAML
-                       file (wazuh_conf.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-logcollector' daemon.
+                       file (fortishield_conf.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-logcollector' daemon.
 
     expected_output:
         - r'Analyzing event log.*'

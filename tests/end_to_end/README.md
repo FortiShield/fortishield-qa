@@ -4,11 +4,11 @@ End-to-end testing is a technique that tests the entire software product from be
 
 The main purpose of End-to-end (E2E) testing is to test from the end user’s experience by simulating the real user scenario and validating the system under test and its components for integration and data integrity.
 
-The Wazuh architecture is based on agent, running on the monitored endpoints, that forward security data to a central server. The central server decodes and analyzes the incoming information and passes the results along to the Wazuh indexer for indexing and storage. The Wazuh indexer cluster is a collection of one or more nodes that communicate with each other to perform read and write operations on indices.
+The Fortishield architecture is based on agent, running on the monitored endpoints, that forward security data to a central server. The central server decodes and analyzes the incoming information and passes the results along to the Fortishield indexer for indexing and storage. The Fortishield indexer cluster is a collection of one or more nodes that communicate with each other to perform read and write operations on indices.
 
-The diagram below represents the Wazuh components and data flow.
+The diagram below represents the Fortishield components and data flow.
 
-![wazuh-data-flow](https://documentation.wazuh.com/current/_images/data-flow1.png)
+![fortishield-data-flow](https://documentation.fortishield.github.io/current/_images/data-flow1.png)
 
 
 Our E2E tests will verify that, after generating an event, an alert will be triggered and correctly indexed.
@@ -106,7 +106,7 @@ Variables required by the tests:
 **DISCLAIMER:** this guide assumes you have a proper testing environment. If you do not, please check
 our [testing environment guide](#setting-up-a-test-environment).
 
-Our newest integration tests are located in `wazuh-qa/tests/end_to_end/test_basic_cases`:
+Our newest integration tests are located in `fortishield-qa/tests/end_to_end/test_basic_cases`:
 
 - _test_audit_
 - _test_aws_infrastructure_monitoring_
@@ -133,8 +133,8 @@ Every group will have the following structure:
 ├── test_<basic_case>
 │   ├── data
 │   │   ├── playbooks
-│   │   │   ├── <wazuh_conf>.yaml
-│   │   │   └── <wazuh_conf>.yaml
+│   │   │   ├── <fortishield_conf>.yaml
+│   │   │   └── <fortishield_conf>.yaml
 │   │   ├── test_cases
 │   │   │   └── <cases>.yaml
 └── └── └── test_<module>.py
@@ -169,7 +169,7 @@ python -m pytest <TEST_PATH> --inventory-path=<INVENTORY_PATH>
 python3 -m pytest tests/end_to_end/test_basic_cases/test_audit/ --inventory-path=/home/juliamagan/Desktop/QA/2893/inventory.yml
 ======================================================================== test session starts ========================================================================
 platform linux -- Python 3.9.7, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
-rootdir: /home/juliamagan/Desktop/QA/wazuh-qa
+rootdir: /home/juliamagan/Desktop/QA/fortishield-qa
 plugins: metadata-2.0.1, html-3.1.1, testinfra-5.0.0
 collected 1 item
 

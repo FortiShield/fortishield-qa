@@ -23,21 +23,21 @@
     update_cache: yes
     cache_valid_time: 3600
 
-- name: "Clone wazuh-qa repository"
+- name: "Clone fortishield-qa repository"
   git:
-    repo: "https://github.com/wazuh/wazuh-qa"
-    dest: /wazuh-qa
-    version: "{{ wazuh_qa_branch }}"
+    repo: "https://github.com/fortishield/fortishield-qa"
+    dest: /fortishield-qa
+    version: "{{ fortishield_qa_branch }}"
     depth: '1'
 
 - name: "Get manager package"
   ansible.builtin.get_url:
-    url: "https://{{package_repository}}.wazuh.com/{{repository}}/apt/pool/main/w/wazuh-manager/wazuh-manager_{{package_version}}-{{package_revision}}_amd64.deb"
-    dest: /tmp/wazuh-manager.deb
+    url: "https://{{package_repository}}.fortishield.github.io/{{repository}}/apt/pool/main/w/fortishield-manager/fortishield-manager_{{package_version}}-{{package_revision}}_amd64.deb"
+    dest: /tmp/fortishield-manager.deb
 
 - name: "Install manager package"
   ansible.builtin.apt:
-    deb: /tmp/wazuh-manager.deb
+    deb: /tmp/fortishield-manager.deb
 
 - name: Copy ossec.conf file
   copy:
@@ -54,15 +54,15 @@
     line: "<key>{{ cluster_key }}</key>"
     backrefs: yes
 
-- name: Set Wazuh Master IP
+- name: Set Fortishield Master IP
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: '<node>(.*)</node>'
     line: "<node>{{ master_hostname }}</node>"
     backrefs: yes
 
-- name: Stop Wazuh
-  command: /var/ossec/bin/wazuh-control stop
+- name: Stop Fortishield
+  command: /var/ossec/bin/fortishield-control stop
 
 - name: Remove client.keys
   file:
@@ -74,9 +74,9 @@
     path: /var/ossec/etc/local_internal_options.conf
     block: |
       authd.debug=2
-      wazuh_clusterd.debug=2
-      wazuh_db.debug=2
-      wazuh_modules.debug=2
+      fortishield_clusterd.debug=2
+      fortishield_db.debug=2
+      fortishield_modules.debug=2
 
 - name: Register agents
   blockinfile:
@@ -90,8 +90,8 @@
     mode: "0644"
     create: yes
 
-- name: Start Wazuh
-  command: /var/ossec/bin/wazuh-control restart
+- name: Start Fortishield
+  command: /var/ossec/bin/fortishield-control restart
 
 - name: "Install necessary dependencies"
   command: /var/ossec/framework/python/bin/python3 -m pip install lockfile filetype certifi testinfra

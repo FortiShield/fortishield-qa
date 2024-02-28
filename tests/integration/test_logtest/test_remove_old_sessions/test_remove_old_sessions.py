@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logtest' tool allows the testing and verification of rules and decoders against provided log examples
-       remotely inside a sandbox in 'wazuh-analysisd'. This functionality is provided by the manager, whose work
+brief: The 'fortishield-logtest' tool allows the testing and verification of rules and decoders against provided log examples
+       remotely inside a sandbox in 'fortishield-analysisd'. This functionality is provided by the manager, whose work
        parameters are configured in the ossec.conf file in the XML rule_test section. Test logs can be evaluated through
-       the 'wazuh-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
+       the 'fortishield-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
        configuration is valid. Also checks rules, decoders, decoders, alerts matching logs correctly.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -39,9 +39,9 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - logtest_configuration
@@ -49,11 +49,11 @@ tags:
 import pytest
 import os
 
-from wazuh_testing.logtest import callback_remove_session, callback_session_initialized
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import SocketController
-from wazuh_testing.tools import LOGTEST_SOCKET_PATH
-from wazuh_testing import global_parameters
+from fortishield_testing.logtest import callback_remove_session, callback_session_initialized
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import SocketController
+from fortishield_testing.tools import LOGTEST_SOCKET_PATH
+from fortishield_testing import global_parameters
 from json import dumps
 
 # Marks
@@ -61,8 +61,8 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 # Configurations
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__)
 local_internal_options = {'analysisd.debug': '2'}
 
 # Variables
@@ -75,7 +75,7 @@ create_session_data = {'version': 1, 'command': 'log_processing',
 msg_create_session = dumps(create_session_data)
 
 
-# Functions to manage the comunication with Wazuh-logtest
+# Functions to manage the comunication with Fortishield-logtest
 def create_connection():
     return SocketController(address=LOGTEST_SOCKET_PATH, family='AF_UNIX', connection_protocol='TCP')
 
@@ -100,11 +100,11 @@ def test_remove_old_session(configure_local_internal_options_module,
                             file_monitoring, restart_required_logtest_daemons,
                             wait_for_logtest_startup):
     '''
-    description: Check if 'wazuh-logtest' correctly detects and handles the situation where trying to use more
+    description: Check if 'fortishield-logtest' correctly detects and handles the situation where trying to use more
                  sessions than allowed. To do this, it creates more sessions than allowed and wait for the message which
-                 informs that 'wazuh-logtest' has removed the oldest session.
+                 informs that 'fortishield-logtest' has removed the oldest session.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -117,13 +117,13 @@ def test_remove_old_session(configure_local_internal_options_module,
             brief: Get configuration from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - file_monitoring:
             type: fixture
             brief: Handle the monitoring of a specified file.
         - restart_required_logtest_daemons:
             type: fixture
-            brief: Wazuh logtests daemons handler.
+            brief: Fortishield logtests daemons handler.
         - wait_for_logtest_startup:
             type: fixture
             brief: Wait until logtest has begun.
@@ -138,7 +138,7 @@ def test_remove_old_session(configure_local_internal_options_module,
         - Verify that the session that exceeds the limit is created.
 
     input_description: Some test cases are defined in the module. These include some input configurations stored in
-                       the 'wazuh_conf.yaml' and the session creation data from the module.
+                       the 'fortishield_conf.yaml' and the session creation data from the module.
 
     expected_output:
         - 'Session initialization event not found'
@@ -171,7 +171,7 @@ def test_remove_old_session(configure_local_internal_options_module,
                               callback=callback_session_initialized,
                               error_message='Session initialization event not found')
 
-    # This session should do Wazuh-logtest to remove the oldest session
+    # This session should do Fortishield-logtest to remove the oldest session
     receiver_socket = create_connection()
     receiver_socket.send(msg_create_session, True)
     msg_recived = receiver_socket.receive()[4:]

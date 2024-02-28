@@ -1,14 +1,14 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the set_secure_headers middleware of the API handled by the 'wazuh-apid' daemon is
-       working properly. The Wazuh API is an open source 'RESTful' API that allows for interaction with the Wazuh
+brief: These tests will check if the set_secure_headers middleware of the API handled by the 'fortishield-apid' daemon is
+       working properly. The Fortishield API is an open source 'RESTful' API that allows for interaction with the Fortishield
        manager from a web browser, command line tool like 'cURL' or any script or program that can make web requests.
 
 components:
@@ -20,7 +20,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
+    - fortishield-apid
 
 os_platform:
     - linux
@@ -45,7 +45,7 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
 
 tags:
     - api
@@ -68,7 +68,7 @@ def test_secure_headers(restart_api_module, get_api_details):
                  For this purpose, the test makes an API request and checks that the response headers fulfill the REST
                  recommended standard.
 
-    wazuh_min_version: 4.1.0
+    fortishield_min_version: 4.1.0
 
     tier: 0
 

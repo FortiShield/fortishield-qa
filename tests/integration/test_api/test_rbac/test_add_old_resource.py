@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Security
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/reference.html#tag/Security
     - https://en.wikipedia.org/wiki/Role-based_access_control
 
 tags:
@@ -50,7 +50,7 @@ tags:
 '''
 import requests
 import pytest
-from wazuh_testing.api import get_security_resource_information
+from fortishield_testing.api import get_security_resource_information
 
 # Marks
 pytestmark = [pytest.mark.server]
@@ -66,7 +66,7 @@ def test_add_old_user(restart_api_module, wait_for_start_module, set_security_re
     description: Check if the security relationships of a previous user are maintained
                  in the system after adding a new user with the same ID.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -123,7 +123,7 @@ def test_add_old_role(set_security_resources, get_api_details):
     description: Check if the security relationships of a previous role are maintained
                  in the system after adding a new role with the same ID.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -179,7 +179,7 @@ def test_add_old_policy(set_security_resources, get_api_details):
     description: Check if the security relationships of a previous policy are maintained
                  in the system after adding a new policy with the same ID.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -238,7 +238,7 @@ def test_add_old_rule(set_security_resources, get_api_details):
     description: Check if the security relationships of a previous rule are maintained
                  in the system after adding a new rule with the same ID.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 

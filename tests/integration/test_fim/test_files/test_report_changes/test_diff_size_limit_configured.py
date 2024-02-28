@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will check if FIM limits the size of
        'diff' information to generate from the file monitored when the 'diff_size_limit' and
        the 'report_changes' options are enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -51,8 +51,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -70,16 +70,16 @@ tags:
 import os
 import pytest
 
-from wazuh_testing import global_parameters, DATA, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim import (TEST_DIR_1, REPORT_CHANGES, TEST_DIRECTORIES, DIFF_LIMIT_VALUE, FILE_SIZE_LIMIT,
+from fortishield_testing import global_parameters, DATA, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim import (TEST_DIR_1, REPORT_CHANGES, TEST_DIRECTORIES, DIFF_LIMIT_VALUE, FILE_SIZE_LIMIT,
                                        DIFF_SIZE_LIMIT, DISK_QUOTA_ENABLED, DISK_QUOTA_LIMIT, FILE_SIZE_ENABLED)
-from wazuh_testing.modules.fim.event_monitor import (CB_MAXIMUM_FILE_SIZE, ERR_MSG_MAXIMUM_FILE_SIZE,
+from fortishield_testing.modules.fim.event_monitor import (CB_MAXIMUM_FILE_SIZE, ERR_MSG_MAXIMUM_FILE_SIZE,
                                                      ERR_MSG_WRONG_VALUE_MAXIMUM_FILE_SIZE)
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim.utils import generate_params
 
 
 # Marks
@@ -88,10 +88,10 @@ pytestmark = [pytest.mark.tier(level=1)]
 
 # Variables
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_directory = os.path.join(PREFIX, TEST_DIR_1)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), DATA)
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_diff.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_diff.yaml')
 
 
 # Configurations
@@ -104,7 +104,7 @@ parameters, metadata = generate_params(extra_params={REPORT_CHANGES.upper(): {RE
                                                      DISK_QUOTA_ENABLED: 'no',
                                                      DISK_QUOTA_LIMIT: '2KB'})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 # Fixtures
@@ -118,14 +118,14 @@ def get_configuration(request):
 def test_diff_size_limit_configured(configure_local_internal_options_module, get_configuration, configure_environment,
                                     restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon limits the size of 'diff' information to generate from
+    description: Check if the 'fortishield-syscheckd' daemon limits the size of 'diff' information to generate from
                  the value set in the 'diff_size_limit' attribute when the global 'file_size' tag is different.
                  For this purpose, the test will monitor a directory and, once the FIM is started, it will wait
                  for the FIM event related to the maximum file size to generate 'diff' information. Finally,
                  the test will verify that the value gotten from that FIM event corresponds with the one set
                  in the 'diff_size_limit'.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -148,8 +148,8 @@ def test_diff_size_limit_configured(configure_local_internal_options_module, get
           set in the 'diff_size_limit' attribute when the global 'file_size' tag is different.
 
     input_description: A test case (ossec_conf_diff_size_limit) is contained in external YAML
-                       file (wazuh_conf_diff.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon and, these are combined with the
+                       file (fortishield_conf_diff.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon and, these are combined with the
                        testing directory to be monitored defined in the module.
 
     expected_output:
@@ -162,7 +162,7 @@ def test_diff_size_limit_configured(configure_local_internal_options_module, get
         - who_data
     '''
 
-    diff_size_value = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    diff_size_value = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                               callback=generate_monitoring_callback(CB_MAXIMUM_FILE_SIZE),
                                               error_message=ERR_MSG_MAXIMUM_FILE_SIZE).result()
 

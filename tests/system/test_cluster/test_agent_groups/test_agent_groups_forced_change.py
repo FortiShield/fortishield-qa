@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: system
 brief: This tests check that when a cluster has a series of agents with groups assigned, when an agent has it's
-        group changed by a Wazuh-DB command, the cluster updates it's information.
+        group changed by a Fortishield-DB command, the cluster updates it's information.
 tier: 0
 modules:
     - cluster
@@ -13,8 +13,8 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-db
-    - wazuh-clusterd
+    - fortishield-db
+    - fortishield-clusterd
 os_platform:
     - linux
 os_version:
@@ -36,17 +36,17 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/agent-auth.html
-    - https://documentation.wazuh.com/current/user-manual/registering/command-line-registration.html
-    - https://documentation.wazuh.com/current/user-manual/registering/agent-enrollment.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent-auth.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/command-line-registration.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
 tags:
-    - wazuh-db
+    - fortishield-db
 '''
 import os
 import time
 import pytest
 
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system import HostManager
 from system import (create_new_agent_group, check_agent_groups, change_agent_group_with_wdb, restart_cluster,
                     check_agent_status, AGENT_STATUS_ACTIVE)
 from system.test_cluster.test_agent_groups.common import register_agent
@@ -55,8 +55,8 @@ from system.test_cluster.test_agent_groups.common import register_agent
 pytestmark = [pytest.mark.cluster, pytest.mark.basic_cluster_env]
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
-test_infra_agents = ["wazuh-agent1", "wazuh-agent2", "wazuh-agent3"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
+test_infra_agents = ["fortishield-agent1", "fortishield-agent2", "fortishield-agent3"]
 agent_groups = ["Group1", "Group2", "Group3"]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -83,14 +83,14 @@ def test_sync_when_forced_to_change_a_group(agent_host, clean_environment, delet
     description: Check that having an agent with a group assigned,
                  when the change is forced with a wdb command, the new group
                  is synced in the cluster.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - agent_host:
             type: String
             brief: Name of the host where the agent will register.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering the agents appear as active in all nodes.
         - Verify that after registering and after starting the agent, the indicated group is synchronized.
@@ -121,7 +121,7 @@ def test_sync_when_forced_to_change_a_group(agent_host, clean_environment, delet
     check_agent_groups(agent2_data[1], agent_groups[1], test_infra_managers, host_manager)
     check_agent_groups(agent3_data[1], agent_groups[2], test_infra_managers, host_manager)
 
-    # Force group change on wazuh-agent1
+    # Force group change on fortishield-agent1
     change_agent_group_with_wdb(agent1_data[1], agent_groups[1], test_infra_managers[0], host_manager)
 
     # Check that agent has group set to Group2 in new node
@@ -134,11 +134,11 @@ def test_force_group_change_during_sync(clean_environment, delete_group):
     description: Check that having an agent with a group assigned, when the change is forced with a wdb command,
                  and the agent's group is changed again during the sync timeframe, the agent has the correct group
                  assigned and synced in the cluster.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that after registering the agents appear as active in all nodes.
         - Verify that after registering and after starting the agent, the indicated group is synchronized.
@@ -169,7 +169,7 @@ def test_force_group_change_during_sync(clean_environment, delete_group):
     check_agent_groups(agent2_data[1], agent_groups[1], test_infra_managers, host_manager)
     check_agent_groups(agent3_data[1], agent_groups[2], test_infra_managers, host_manager)
 
-    # Force group change twice on wazuh-agent1
+    # Force group change twice on fortishield-agent1
     change_agent_group_with_wdb(agent1_data[1], agent_groups[1], test_infra_managers[0], host_manager)
     change_agent_group_with_wdb(agent1_data[1], agent_groups[2], test_infra_managers[0], host_manager)
 

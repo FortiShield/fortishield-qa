@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: This module verifies the correct behavior of 'wazuh-authd' under different messages
+brief: This module verifies the correct behavior of 'fortishield-authd' under different messages
        in a Cluster scenario (for Master).
 
 components:
@@ -17,8 +17,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
+    - fortishield-authd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -42,9 +42,9 @@ import subprocess
 
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH, WAZUH_DB_SOCKET_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
+from fortishield_testing.tools import FORTISHIELD_PATH, FORTISHIELD_DB_SOCKET_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
 
 # Marks
 
@@ -55,17 +55,17 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 message_tests = read_yaml(os.path.join(test_data_path, 'local_enroll_messages.yaml'))
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=None, metadata=None)
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=None, metadata=None)
 
 # Variables
 log_monitor_paths = []
-ls_sock_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'auth'))
-receiver_sockets_params = [(ls_sock_path, 'AF_UNIX', 'TCP'), (WAZUH_DB_SOCKET_PATH, 'AF_UNIX', 'TCP')]
+ls_sock_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'auth'))
+receiver_sockets_params = [(ls_sock_path, 'AF_UNIX', 'TCP'), (FORTISHIELD_DB_SOCKET_PATH, 'AF_UNIX', 'TCP')]
 test_case_ids = [f"{test_case['name'].lower().replace(' ', '-')}" for test_case in message_tests]
 
 # TODO Replace or delete
-monitored_sockets_params = [('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-db', None, True), ('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
 # Fixtures
@@ -104,13 +104,13 @@ def set_up_groups(get_current_test_case, request):
 
 # Tests
 def test_authd_local_messages(configure_environment, configure_sockets_environment, connect_to_sockets_function,
-                              set_up_groups, insert_pre_existent_agents, restart_wazuh_daemon_function,
+                              set_up_groups, insert_pre_existent_agents, restart_fortishield_daemon_function,
                               wait_for_authd_startup_function, get_current_test_case, tear_down):
     '''
     description:
         Checks that every input message in trough local authd port generates the adequate response to worker.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -133,7 +133,7 @@ def test_authd_local_messages(configure_environment, configure_sockets_environme
             brief: adds the required agents to the client.keys and global.db
         - restart_authd_function:
             type: fixture
-            brief: stops the wazuh-authd daemon
+            brief: stops the fortishield-authd daemon
         - wait_for_authd_startup_function:
             type: fixture
             brief: Waits until Authd is accepting connections.

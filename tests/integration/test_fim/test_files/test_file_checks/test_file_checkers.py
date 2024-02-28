@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will check if FIM events generated contain only
        the 'check_' fields specified in the configuration when using the 'check_all' attribute along
        with other 'check_' attributes.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -63,14 +63,14 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import CHECK_GROUP, CHECK_MTIME, CHECK_OWNER, CHECK_PERM, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import CHECK_GROUP, CHECK_MTIME, CHECK_OWNER, CHECK_PERM, \
     CHECK_SHA256SUM, CHECK_SIZE, CHECK_MD5SUM, CHECK_SHA1SUM, CHECK_ALL, \
     LOG_FILE_PATH, REQUIRED_ATTRIBUTES, generate_params
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.utils import regular_file_cud
-from wazuh_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.utils import regular_file_cud
+from fortishield_testing.tools import PREFIX
 from time import sleep
 
 # Marks
@@ -93,7 +93,7 @@ test_folders = [directory_1,
                 ]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 file_all_attrs = REQUIRED_ATTRIBUTES[CHECK_ALL]
 
@@ -113,9 +113,9 @@ conf_params = {'DIRECTORY_1': test_folders[0],
                'DIRECTORY_5': test_folders[4],
                }
 
-configurations_path = os.path.join(test_data_path, 'wazuh_check_all.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_check_all.yaml')
 p, m = generate_params(extra_params=conf_params, modes=['realtime'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -146,7 +146,7 @@ def get_configuration(request):
 def test_checkers(file_path, file_attrs, tags_to_apply, triggers_modification, create_monitored_folders_module,
                   test_folders, get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon adds in the generated events the 'check_' specified in
+    description: Check if the 'fortishield-syscheckd' daemon adds in the generated events the 'check_' specified in
                  the configuration. These checks are attributes indicating that a monitored directory entry has
                  been modified. For example, if 'check_all=yes' and 'check_perm=no' are set for the same entry,
                  'syscheck' must send an event containing every possible 'check_' except the perms.
@@ -156,7 +156,7 @@ def test_checkers(file_path, file_attrs, tags_to_apply, triggers_modification, c
                  will verify that the FIM events generated contain only the fields of the 'checks' specified for
                  the monitored keys/values.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -195,8 +195,8 @@ def test_checkers(file_path, file_attrs, tags_to_apply, triggers_modification, c
     assertions:
         - Verify that the FIM events generated contain only the 'check_' fields specified in the configuration.
 
-    input_description: Different test cases are contained in an external YAML file (wazuh_check_all.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. Those are
+    input_description: Different test cases are contained in an external YAML file (fortishield_check_all.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. Those are
                        combined with the testing directories to be monitored defined in the module.
 
     expected_output:
@@ -214,10 +214,10 @@ def test_checkers(file_path, file_attrs, tags_to_apply, triggers_modification, c
     # In the case of CHECK_MTIME only, we need to wait one second after file creation for the timestamp to be different
     # (otherwise FIM will not generate alert).
     if file_attrs == {CHECK_MTIME}:
-        regular_file_cud(file_path, wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+        regular_file_cud(file_path, fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                          validators_after_create=[waitasecond],
                          options=file_attrs, triggers_modified_event=triggers_modification, escaped=True)
     # Test files checks.
     else:
-        regular_file_cud(file_path, wazuh_log_monitor, min_timeout=global_parameters.default_timeout,
+        regular_file_cud(file_path, fortishield_log_monitor, min_timeout=global_parameters.default_timeout,
                          options=file_attrs, triggers_modified_event=triggers_modification, escaped=True)

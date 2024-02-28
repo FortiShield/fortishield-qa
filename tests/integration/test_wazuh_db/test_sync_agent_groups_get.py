@@ -1,20 +1,20 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: integration
-brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh persistent information, exposing a socket
-       to receive requests and provide information. The Wazuh core uses list-based databases to store information
+brief: Fortishield-db is the daemon in charge of the databases with all the Fortishield persistent information, exposing a socket
+       to receive requests and provide information. The Fortishield core uses list-based databases to store information
        related to agent keys, and FIM/Rootcheck event data.
        This test checks the usage of the sync-agent-groups-get command used to allow the cluster getting the
        information to be synchronized..
 tier: 0
 modules:
-    - wazuh_db
+    - fortishield_db
 components:
     - manager
 daemons:
-    - wazuh-db
+    - fortishield-db
 os_platform:
     - linux
 os_version:
@@ -36,21 +36,21 @@ os_version:
     - Red Hat 7
     - Red Hat 6
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-db.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-db.html
 tags:
-    - wazuh_db
+    - fortishield_db
 '''
 import os
 import time
 import pytest
 import json
 
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.wazuh_db import query_wdb, insert_agent_into_group, clean_agents_from_db
-from wazuh_testing.wazuh_db import clean_groups_from_db, clean_belongs, calculate_global_hash
-from wazuh_testing.modules import TIER0, SERVER, LINUX
-from wazuh_testing.tools.file import get_list_of_content_yml
-from wazuh_testing.tools.services import delete_dbs
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.fortishield_db import query_wdb, insert_agent_into_group, clean_agents_from_db
+from fortishield_testing.fortishield_db import clean_groups_from_db, clean_belongs, calculate_global_hash
+from fortishield_testing.modules import TIER0, SERVER, LINUX
+from fortishield_testing.tools.file import get_list_of_content_yml
+from fortishield_testing.tools.services import delete_dbs
 
 
 # Marks
@@ -62,9 +62,9 @@ messages_file = os.path.join(os.path.join(test_data_path, 'global'), 'sync_agent
 module_tests = get_list_of_content_yml(messages_file)
 
 log_monitor_paths = []
-wdb_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
+wdb_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'wdb'))
 receiver_sockets_params = [(wdb_path, 'AF_UNIX', 'TCP')]
-monitored_sockets_params = [('wazuh-db', None, True)]
+monitored_sockets_params = [('fortishield-db', None, True)]
 receiver_sockets = None  # Set in the fixtures
 
 
@@ -96,15 +96,15 @@ def clean_databases():
                               for module_data, module_name in module_tests
                               for case in module_data]
                          )
-def test_sync_agent_groups(restart_wazuh_daemon, test_case, create_groups, pre_insert_agents_into_group,
+def test_sync_agent_groups(restart_fortishield_daemon, test_case, create_groups, pre_insert_agents_into_group,
                            clean_databases):
     '''
     description: Check that commands about sync_aget_groups_get works properly.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
-        - restart_wazuh_daemon:
+        - restart_fortishield_daemon:
             type: fixture
-            brief: Truncate ossec.log and restart Wazuh.
+            brief: Truncate ossec.log and restart Fortishield.
         - test_case:
             type: fixture
             brief: List of test_case stages (dicts with input, output and agent_id and expected_groups keys).
@@ -121,7 +121,7 @@ def test_sync_agent_groups(restart_wazuh_daemon, test_case, create_groups, pre_i
     expected_output:
         - an array with all the agents that match with the search criteria
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     # Set each case

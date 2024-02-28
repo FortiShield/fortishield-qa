@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -17,7 +17,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-modulesd
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -26,7 +26,7 @@ os_version:
     - CentOS 8
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/sec-config-assessment/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/sec-config-assessment/index.html
 
 tags:
     - sca
@@ -34,11 +34,11 @@ tags:
 import os
 import pytest
 
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.sca import event_monitor as evm
-from wazuh_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.sca import event_monitor as evm
+from fortishield_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0)]
@@ -61,8 +61,8 @@ test_folder = '/testfile'
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=case_ids)
 def test_validate_remediation_results(configuration, metadata, prepare_cis_policies_file, truncate_monitored_files,
-                                      prepare_test_folder, set_wazuh_configuration,
-                                      configure_local_internal_options_function, restart_wazuh_function,
+                                      prepare_test_folder, set_fortishield_configuration,
+                                      configure_local_internal_options_function, restart_fortishield_function,
                                       wait_for_sca_enabled):
     '''
     description: This test will check that a SCA scan results, with the  expected initial results (passed/failed) for a
@@ -73,31 +73,31 @@ def test_validate_remediation_results(configuration, metadata, prepare_cis_polic
     test_phases:
         - Copy cis_sca ruleset file into agent
         - Create a folder that will be checked by the SCA rules
-        - Restart wazuh
+        - Restart fortishield
         - Validate the result for a given SCA check are as expected
         - Change the folder's permissions
         - Validate the result for a given SCA check change as expected
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - prepare_cis_policies_file:
             type: fixture
             brief: copy test sca policy file. Delete it after test.
         - prepare_test_folder:
             type: fixture
             brief: Create a folder with a given set of permissions. Delete it after test.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options_function:
             type: fixture
             brief: Configure the local_internal_options_file.
@@ -106,7 +106,7 @@ def test_validate_remediation_results(configuration, metadata, prepare_cis_polic
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - restart_modulesd_function:
             type: fixture
-            brief: Restart the wazuh-modulesd daemon.
+            brief: Restart the fortishield-modulesd daemon.
         - wait_for_sca_enabled:
             type: fixture
             brief: Wait for the sca Module to start before starting the test.
@@ -123,10 +123,10 @@ def test_validate_remediation_results(configuration, metadata, prepare_cis_polic
         - r".*sca.*wm_sca_hash_integrity.*DEBUG: ID: (\\d+); Result: '(.*)'"
     '''
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Get the results for the checks obtained in the initial SCA scan
-    results = evm.get_sca_scan_rule_id_results(file_monitor=wazuh_log_monitor, results_num=2)
+    results = evm.get_sca_scan_rule_id_results(file_monitor=fortishield_log_monitor, results_num=2)
 
     # Assert the tested check has initial expected results (failed/passed)
     check_result = results[metadata['check_id']-1][1]
@@ -136,7 +136,7 @@ def test_validate_remediation_results(configuration, metadata, prepare_cis_polic
     os.chmod(test_folder, metadata['perms'])
 
     # Get the results for the checks obtained in the SCA scan
-    results = evm.get_sca_scan_rule_id_results(file_monitor=wazuh_log_monitor, results_num=2)
+    results = evm.get_sca_scan_rule_id_results(file_monitor=fortishield_log_monitor, results_num=2)
 
     # Assert the tested check result changed as expected (passed to failed, and vice-versa)
     check_result = results[metadata['check_id']-1][1]

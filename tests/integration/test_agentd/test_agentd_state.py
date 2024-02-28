@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-agentd' program is the client-side daemon that communicates with the server.
-       These tests will check if the content of the 'wazuh-agentd' daemon statistics file is valid.
-       The statistics files are documents that show real-time information about the Wazuh environment.
+brief: The 'fortishield-agentd' program is the client-side daemon that communicates with the server.
+       These tests will check if the content of the 'fortishield-agentd' daemon statistics file is valid.
+       The statistics files are documents that show real-time information about the Fortishield environment.
 
 components:
     - agentd
@@ -18,8 +18,8 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agentd
-    - wazuh-remoted
+    - fortishield-agentd
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -40,7 +40,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/statistics-files/wazuh-agentd-state.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/statistics-files/fortishield-agentd-state.html
 
 tags:
     - stats_file
@@ -52,14 +52,14 @@ from time import sleep
 import pytest
 import yaml
 
-from wazuh_testing.fim import change_internal_options
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.agent import (CLIENT_KEYS_PATH, set_state_interval, callback_ack, callback_keepalive,
+from fortishield_testing.fim import change_internal_options
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.agent import (CLIENT_KEYS_PATH, set_state_interval, callback_ack, callback_keepalive,
                                  callback_connected_to_server, callback_state_file_updated)
 
 # Marks
@@ -67,9 +67,9 @@ pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), p
 
 # Configurations
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-test_data_file = os.path.join(test_data_path, 'wazuh_state_tests.yaml')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__)
+test_data_file = os.path.join(test_data_path, 'fortishield_state_tests.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__)
 
 # Open test cases description file
 with open(test_data_file) as f:
@@ -78,15 +78,15 @@ with open(test_data_file) as f:
 # Global RemotedSimulator variable
 remoted_server = None
 # Global FileMonitor variable to watch ossec.log
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # Variables
 if sys.platform == 'win32':
-    state_file_path = os.path.join(WAZUH_PATH, 'wazuh-agent.state')
-    internal_options = os.path.join(WAZUH_PATH, 'internal_options.conf')
+    state_file_path = os.path.join(FORTISHIELD_PATH, 'fortishield-agent.state')
+    internal_options = os.path.join(FORTISHIELD_PATH, 'internal_options.conf')
 else:
-    state_file_path = os.path.join(WAZUH_PATH, 'var', 'run', 'wazuh-agentd.state')
-    internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+    state_file_path = os.path.join(FORTISHIELD_PATH, 'var', 'run', 'fortishield-agentd.state')
+    internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
 
 # Fixtures
@@ -123,10 +123,10 @@ def add_custom_key():
                          ids=[test_case['name'] for test_case in test_cases])
 def test_agentd_state(configure_environment, test_case):
     '''
-    description: Check that the statistics file 'wazuh-agentd.state' is created automatically
+    description: Check that the statistics file 'fortishield-agentd.state' is created automatically
                  and verify that the content of its fields is correct.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -139,12 +139,12 @@ def test_agentd_state(configure_environment, test_case):
             brief: List of tests to be performed.
 
     assertions:
-        - Verify that the 'wazuh-agentd.state' statistics file has been created.
-        - Verify that the information stored in the 'wazuh-agentd.state' statistics file
-          is consistent with the connection status to the 'wazuh-remoted' daemon.
+        - Verify that the 'fortishield-agentd.state' statistics file has been created.
+        - Verify that the information stored in the 'fortishield-agentd.state' statistics file
+          is consistent with the connection status to the 'fortishield-remoted' daemon.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
-                       Different test cases that are contained in an external YAML file (wazuh_state_tests.yaml)
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
+                       Different test cases that are contained in an external YAML file (fortishield_state_tests.yaml)
                        that includes the parameters and their expected responses.
 
     expected_output:
@@ -355,7 +355,7 @@ def wait_connect(update_position=False):
         update_position (bool, optional): update position after reading.
                                           Defaults to False.
     """
-    wazuh_log_monitor.start(timeout=240,
+    fortishield_log_monitor.start(timeout=240,
                             callback=callback_connected_to_server,
                             update_position=update_position,
                             error_message='Agent connected not found')
@@ -368,7 +368,7 @@ def wait_ack(update_position=False):
         update_position (bool, optional): update position after reading.
                                           Defaults to False.
     """
-    wazuh_log_monitor.start(timeout=240,
+    fortishield_log_monitor.start(timeout=240,
                             callback=callback_ack,
                             update_position=update_position,
                             error_message='Ack not found')
@@ -381,7 +381,7 @@ def wait_keepalive(update_position=False):
         update_position (bool, optional): update position after reading.
                                           Defaults to False.
     """
-    wazuh_log_monitor.start(timeout=240,
+    fortishield_log_monitor.start(timeout=240,
                             callback=callback_keepalive,
                             update_position=update_position,
                             error_message='Keepalive not found')
@@ -394,7 +394,7 @@ def wait_state_update(update_position=True):
         update_position (bool, optional): update position after reading.
                                           Defaults to True.
     """
-    wazuh_log_monitor.start(timeout=240,
+    fortishield_log_monitor.start(timeout=240,
                             callback=callback_state_file_updated,
                             update_position=update_position,
                             error_message='State file update not found')

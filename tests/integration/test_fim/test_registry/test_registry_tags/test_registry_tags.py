@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if FIM events include
        all tags set in the 'tags' attribute.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -38,8 +38,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -54,10 +54,10 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, registry_value_cud, generate_params, KEY_WOW64_64KEY, KEY_WOW64_32KEY
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, registry_value_cud, generate_params, KEY_WOW64_64KEY, KEY_WOW64_32KEY
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 pytestmark = [pytest.mark.win32, pytest.mark.tier(level=1)]
 
@@ -67,18 +67,18 @@ sub_key = "SOFTWARE\\test_key"
 sub_key_2 = "SOFTWARE\\Classes\\test_key"
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_regs = [os.path.join(key, sub_key), os.path.join(key, sub_key_2)]
 reg1, reg2 = test_regs
 # Configurations
 tags = ['tag1', 'tág', '0tag', '000', 'a' * 1000]
 conf_params = {'WINDOWS_REGISTRY_1': reg1, 'WINDOWS_REGISTRY_2': reg2}
 
-configurations_path = os.path.join(test_data_path, 'wazuh_registry_tag_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_registry_tag_conf.yaml')
 p, m = generate_params(extra_params=conf_params,
                        apply_to_all=({'FIM_TAGS': tag} for tag in tags),
                        modes=['scheduled'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -99,13 +99,13 @@ def get_configuration(request):
 def test_tags(key, subkey, arch,
               get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon generates the tags required for each event depending
+    description: Check if the 'fortishield-syscheckd' daemon generates the tags required for each event depending
                  on the values set in the 'tags' attribute. This attribute allows adding tags to alerts for
                  monitored registry entries. For this purpose, the test will monitor a key and make value
                  operations inside it. Finally, it will verify that FIM events generated include in the
                  'tags' field all tags set in the configuration.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -135,8 +135,8 @@ def test_tags(key, subkey, arch,
     assertions:
         - Verify that FIM events include all tags set in the 'tags' attribute.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_registry_tag_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_registry_tag_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined
                        with the testing registry keys to be monitored defined in this module.
 
     expected_output:
@@ -151,7 +151,7 @@ def test_tags(key, subkey, arch,
     def tag_validator(event):
         assert defined_tags == event['data']['tags'], f'defined_tags are not equal'
 
-    registry_value_cud(key, subkey, wazuh_log_monitor, arch=arch,
+    registry_value_cud(key, subkey, fortishield_log_monitor, arch=arch,
                        time_travel=get_configuration['metadata']['fim_mode'] == 'scheduled',
                        min_timeout=global_parameters.default_timeout,
                        triggers_event=True,

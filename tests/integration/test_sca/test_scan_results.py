@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -17,7 +17,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-modulesd
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -26,7 +26,7 @@ os_version:
     - CentOS 8
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/sec-config-assessment/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/sec-config-assessment/index.html
 
 tags:
     - sca
@@ -34,11 +34,11 @@ tags:
 import os
 import pytest
 
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.sca import event_monitor as evm
-from wazuh_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.sca import event_monitor as evm
+from fortishield_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0)]
@@ -60,7 +60,7 @@ configurations = load_configuration_template(configurations_path, configuration_
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=case_ids)
 def test_sca_scan_results(configuration, metadata, prepare_cis_policies_file, truncate_monitored_files,
-                          set_wazuh_configuration, configure_local_internal_options_function, restart_wazuh_function,
+                          set_fortishield_configuration, configure_local_internal_options_function, restart_fortishield_function,
                           wait_for_sca_enabled):
     '''
     description: This test will check that a SCA scan is correctly executed on an agent, with a given policy file and
@@ -69,29 +69,29 @@ def test_sca_scan_results(configuration, metadata, prepare_cis_policies_file, tr
 
     test_phases:
         - Copy cis_sca ruleset file into agent.
-        - Restart wazuh.
+        - Restart fortishield.
         - Check in the log that the sca module started appears.
         - Check the regex engine used by the policy.
         - Get the result for each ID check
         - Check that the policy_id from the scan matches with the file used.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - prepare_cis_policies_file:
             type: fixture
             brief: copy test sca policy file. Delete it after test.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options_function:
             type: fixture
             brief: Configure the local_internal_options_file.
@@ -100,7 +100,7 @@ def test_sca_scan_results(configuration, metadata, prepare_cis_policies_file, tr
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - restart_modulesd_function:
             type: fixture
-            brief: Restart the wazuh-modulesd daemon.
+            brief: Restart the fortishield-modulesd daemon.
         - wait_for_sca_enabled:
             type: fixture
             brief: Wait for the sca Module to start before starting the test.
@@ -122,20 +122,20 @@ def test_sca_scan_results(configuration, metadata, prepare_cis_policies_file, tr
         - r'.*sca_send_alert.*Sending event: (.*)'
     '''
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Wait for the end of SCA scan
-    evm.check_sca_scan_started(wazuh_log_monitor)
+    evm.check_sca_scan_started(fortishield_log_monitor)
 
     # Check the regex engine used by SCA
-    engine = evm.get_scan_regex_engine(wazuh_log_monitor)
+    engine = evm.get_scan_regex_engine(fortishield_log_monitor)
     assert engine == metadata['regex_type'], f"Wrong regex-engine found: {engine}, expected: {metadata['regex_type']}"
 
     # Check all checks have been done
-    evm.get_sca_scan_rule_id_results(file_monitor=wazuh_log_monitor, results_num=int(metadata['results']))
+    evm.get_sca_scan_rule_id_results(file_monitor=fortishield_log_monitor, results_num=int(metadata['results']))
 
     # Get scan summary event and check it matches with the policy file used
-    summary = evm.get_sca_scan_summary(file_monitor=wazuh_log_monitor)
+    summary = evm.get_sca_scan_summary(file_monitor=fortishield_log_monitor)
     assert summary['policy_id'] == metadata['policy_file'][0:-5], f"Unexpected policy_id found. Got \
                                                                     {summary['policy_id']}, expected \
                                                                     {metadata['policy_file'][0:-5]}"

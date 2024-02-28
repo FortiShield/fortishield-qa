@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,9 +9,9 @@ type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if FIM limits the size of
-       the 'queue/diff/local' folder, where Wazuh stores the compressed files used to perform
+       the 'queue/diff/local' folder, where Fortishield stores the compressed files used to perform
        the 'diff' operation, to the default value when the 'report_changes' option is enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -45,8 +45,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#disk-quota
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#disk-quota
 
 pytest_args:
     - fim_mode:
@@ -63,13 +63,13 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import CB_DISK_QUOTA_LIMIT_CONFIGURED_VALUE, ERR_MSG_DISK_QUOTA_LIMIT
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing import global_parameters, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import CB_DISK_QUOTA_LIMIT_CONFIGURED_VALUE, ERR_MSG_DISK_QUOTA_LIMIT
+from fortishield_testing.modules.fim.utils import generate_params
 
 
 # Marks
@@ -77,11 +77,11 @@ from wazuh_testing.modules.fim.utils import generate_params
 pytestmark = [pytest.mark.tier(level=1)]
 
 # Variables
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 directory_str = ','.join(test_directories)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1 = test_directories[0]
 DEFAULT_SIZE = 1 * 1024 * 1024
 
@@ -90,7 +90,7 @@ DEFAULT_SIZE = 1 * 1024 * 1024
 conf_params, conf_metadata = generate_params(extra_params={'REPORT_CHANGES': {'report_changes': 'yes'},
                                                            'TEST_DIRECTORIES': directory_str})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 # Fixtures
@@ -106,13 +106,13 @@ def get_configuration(request):
 def test_disk_quota_default(get_configuration, configure_environment,
                             configure_local_internal_options_module, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon limits the size of the folder where the data used to perform
+    description: Check if the 'fortishield-syscheckd' daemon limits the size of the folder where the data used to perform
                  the 'diff' operations is stored to the default value. For this purpose, the test will monitor
                  a directory and, once the FIM is started, it will wait for the FIM event related to the maximum
                  disk quota to store 'diff' information. Finally, the test will verify that the value gotten from
                  that FIM event corresponds with the default value of the 'disk_quota' tag (1GB).
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -135,8 +135,8 @@ def test_disk_quota_default(get_configuration, configure_environment,
           to store 'diff' information to the default limit of the 'disk_quota' tag (1GB).
 
     input_description: A test case (ossec_conf_diff_default) is contained in external YAML
-                       file (wazuh_conf.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon and, these are combined with the
+                       file (fortishield_conf.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon and, these are combined with the
                        testing directory to be monitored defined in the module.
 
     expected_output:
@@ -147,7 +147,7 @@ def test_disk_quota_default(get_configuration, configure_environment,
         - scheduled
     '''
 
-    disk_quota_value = wazuh_log_monitor.start(
+    disk_quota_value = fortishield_log_monitor.start(
         timeout=global_parameters.default_timeout,
         callback=generate_monitoring_callback(CB_DISK_QUOTA_LIMIT_CONFIGURED_VALUE),
         error_message=ERR_MSG_DISK_QUOTA_LIMIT).result()

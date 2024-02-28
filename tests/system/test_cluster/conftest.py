@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import copy
@@ -8,7 +8,7 @@ from functools import reduce
 from operator import getitem
 
 import pytest
-from wazuh_testing.tools import PYTHON_PATH
+from fortishield_testing.tools import PYTHON_PATH
 
 
 @pytest.fixture(scope='module')
@@ -44,7 +44,7 @@ def update_cluster_json(request):
         host_manager.modify_file_content(host=host, path=cluster_json, content=json.dumps(cluster_conf, indent=4))
 
         # Restart manager.
-        host_manager.control_service(host=host, service='wazuh', state='restarted')
+        host_manager.control_service(host=host, service='fortishield', state='restarted')
 
     yield
 
@@ -52,4 +52,4 @@ def update_cluster_json(request):
     for host in backup_json:
         host_manager.modify_file_content(host=host, path=backup_json[host]['path'],
                                          content=json.dumps(backup_json[host]['content'], indent=4))
-        host_manager.control_service(host=host, service='wazuh-manager', state='restarted')
+        host_manager.control_service(host=host, service='fortishield-manager', state='restarted')

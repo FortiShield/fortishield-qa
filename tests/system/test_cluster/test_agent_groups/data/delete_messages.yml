@@ -1,5 +1,5 @@
 ---
-wazuh-master:
+fortishield-master:
   - regex: '.*DELETE /agents.*group.*" with parameters {} and body {.*s: 200'
     path: "/var/ossec/logs/api.log"
     timeout: 60
@@ -15,30 +15,30 @@ wazuh-master:
   - regex: '.*Master.*Local agent-groups.*Finished in.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker1.*Agent-groups send.*Starting.*'
+  - regex: '.*Worker fortishield-worker1.*Agent-groups send.*Starting.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker2.*Agent-groups send.*Starting.*'
+  - regex: '.*Worker fortishield-worker2.*Agent-groups send.*Starting.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker1.*Agent-groups send.*Sending chunks.*'
+  - regex: '.*Worker fortishield-worker1.*Agent-groups send.*Sending chunks.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker2.*Agent-groups send.*Sending chunks.*'
+  - regex: '.*Worker fortishield-worker2.*Agent-groups send.*Sending chunks.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker1.*Agent-groups send.*Finished in.*Updated.*chunks.*'
+  - regex: '.*Worker fortishield-worker1.*Agent-groups send.*Finished in.*Updated.*chunks.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker2.*Agent-groups send.*Finished in.*Updated.*chunks.*'
+  - regex: '.*Worker fortishield-worker2.*Agent-groups send.*Finished in.*Updated.*chunks.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
 
-wazuh-worker1:
+fortishield-worker1:
   - regex: '.*Agent-groups recv.*Starting.'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Agent-groups recv.*1/1 chunks updated in wazuh-db in.*'
+  - regex: '.*Agent-groups recv.*1/1 chunks updated in fortishield-db in.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
   - regex: '.*Agent-groups recv.*Obtained.*chunks of data in.*'

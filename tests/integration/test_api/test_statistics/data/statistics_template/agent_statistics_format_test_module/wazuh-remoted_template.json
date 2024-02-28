@@ -16,7 +16,7 @@
                   },
                   "name": {
                     "type": "string",
-                    "pattern": "^wazuh-remoted$"
+                    "pattern": "^fortishield-remoted$"
                   },
                   "agents": {
                     "type": "array",

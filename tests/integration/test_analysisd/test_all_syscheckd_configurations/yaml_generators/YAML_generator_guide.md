@@ -1,6 +1,6 @@
 # YAML generator guide
 
-It is important to have Wazuh running beforehand and the package `wazuh_testing` installed.
+It is important to have Fortishield running beforehand and the package `fortishield_testing` installed.
 
 ## Linux
 
@@ -37,7 +37,7 @@ python3 generate_linux_yaml.py -e 4098 -m 4088 -d DEBUG
 On Windows you need to run two scripts: one that will generate all the events on Windows (agent) and the other one, that
 will recollect all the alerts on Linux (manager).
 
-Having Wazuh running on Windows and Linux, first run `generate_windows_events.py`.
+Having Fortishield running on Windows and Linux, first run `generate_windows_events.py`.
 
 ```
 # python3 generate_windows_events.py -h

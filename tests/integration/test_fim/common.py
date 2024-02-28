@@ -1,13 +1,13 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
 import sys
 import hashlib
 
-from wazuh_testing.tools import PREFIX
-from wazuh_testing import WAZUH_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing import FORTISHIELD_PATH
 
 
 def generate_string(stringLength=10, character='0'):
@@ -71,9 +71,9 @@ def disable_file_max_size():
     new_content = ''
 
     if sys.platform == 'win32':
-        internal_options = os.path.join(WAZUH_PATH, 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'internal_options.conf')
     else:
-        internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
     with open(internal_options, 'r') as f:
         lines = f.readlines()
@@ -93,9 +93,9 @@ def restore_file_max_size():
     new_content = ''
 
     if sys.platform == 'win32':
-        internal_options = os.path.join(WAZUH_PATH, 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'internal_options.conf')
     else:
-        internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
     with open(internal_options, 'r') as f:
         lines = f.readlines()
@@ -115,9 +115,9 @@ def disable_rt_delay():
     new_content = ''
 
     if sys.platform == 'win32':
-        internal_options = os.path.join(WAZUH_PATH, 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'internal_options.conf')
     else:
-        internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
     with open(internal_options, 'r') as f:
         lines = f.readlines()
@@ -137,9 +137,9 @@ def restore_rt_delay():
     new_content = ''
 
     if sys.platform == 'win32':
-        internal_options = os.path.join(WAZUH_PATH, 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'internal_options.conf')
     else:
-        internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+        internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
     with open(internal_options, 'r') as f:
         lines = f.readlines()
@@ -174,6 +174,6 @@ def make_diff_file_path(folder='/testdir1', filename='regular_0'):
     sha_1.update(file_path.encode('utf-8'))
     file_sha1 = sha_1.hexdigest()
 
-    diff_file_path = os.path.join(WAZUH_PATH, 'queue', 'diff', 'file', file_sha1, 'last-entry.gz')
+    diff_file_path = os.path.join(FORTISHIELD_PATH, 'queue', 'diff', 'file', file_sha1, 'last-entry.gz')
 
     return diff_file_path

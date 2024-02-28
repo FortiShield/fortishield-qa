@@ -19,8 +19,8 @@ cluster.name: {{ indexer_cluster_name }}
 http.port: 9200-9299
 transport.tcp.port: 9300-9399
 node.max_local_storage_nodes: "3"
-path.data: /var/lib/wazuh-indexer
-path.logs: /var/log/wazuh-indexer
+path.data: /var/lib/fortishield-indexer
+path.logs: /var/log/fortishield-indexer
 
 
 ###############################################################################
@@ -30,23 +30,23 @@ path.logs: /var/log/wazuh-indexer
 #                                                                             #
 ###############################################################################
 
-plugins.security.ssl.http.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
-plugins.security.ssl.http.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
-plugins.security.ssl.http.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
-plugins.security.ssl.transport.pemcert_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}.pem
-plugins.security.ssl.transport.pemkey_filepath: /etc/wazuh-indexer/certs/{{ indexer_node_name }}-key.pem
-plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/wazuh-indexer/certs/root-ca.pem
+plugins.security.ssl.http.pemcert_filepath: /etc/fortishield-indexer/certs/{{ indexer_node_name }}.pem
+plugins.security.ssl.http.pemkey_filepath: /etc/fortishield-indexer/certs/{{ indexer_node_name }}-key.pem
+plugins.security.ssl.http.pemtrustedcas_filepath: /etc/fortishield-indexer/certs/root-ca.pem
+plugins.security.ssl.transport.pemcert_filepath: /etc/fortishield-indexer/certs/{{ indexer_node_name }}.pem
+plugins.security.ssl.transport.pemkey_filepath: /etc/fortishield-indexer/certs/{{ indexer_node_name }}-key.pem
+plugins.security.ssl.transport.pemtrustedcas_filepath: /etc/fortishield-indexer/certs/root-ca.pem
 plugins.security.ssl.http.enabled: true
 plugins.security.ssl.transport.enforce_hostname_verification: false
 plugins.security.ssl.transport.resolve_hostname: false
 
 plugins.security.authcz.admin_dn:
-- "CN=admin,OU=Wazuh,O=Wazuh,L=California,C=US"
+- "CN=admin,OU=Fortishield,O=Fortishield,L=California,C=US"
 plugins.security.check_snapshot_restore_write_privileges: true
 plugins.security.enable_snapshot_restore_privilege: true
 plugins.security.nodes_dn:
 {% for (key,value) in instances.items() %}
-- "CN={{ value.name }},OU=Wazuh,O=Wazuh,L=California,C=US"
+- "CN={{ value.name }},OU=Fortishield,O=Fortishield,L=California,C=US"
 {% endfor %}
 plugins.security.restapi.roles_enabled:
 - "all_access"

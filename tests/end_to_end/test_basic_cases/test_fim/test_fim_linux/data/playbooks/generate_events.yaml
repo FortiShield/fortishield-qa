@@ -25,7 +25,7 @@
     - name: Wait for expected alert
       block:
 
-        - name: Wait asynchronously for Filebeat to send data to Wazuh Indexer
+        - name: Wait asynchronously for Filebeat to send data to Fortishield Indexer
           become: true
           wait_for:
             path: /var/log/filebeat/filebeat
@@ -44,7 +44,7 @@
                            \"{{ rule_description }}\",\"id\":\"{{ rule_id }}\".*"
             timeout: 30
 
-        - name: Check if Filebeat has sent the alert data to Wazuh Indexer
+        - name: Check if Filebeat has sent the alert data to Fortishield Indexer
           become: true
           async_status:
             jid: "{{ async_waiter.ansible_job_id }}"

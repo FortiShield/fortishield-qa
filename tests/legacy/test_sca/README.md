@@ -1,19 +1,19 @@
 # SCA tests
 
-These tests are not part of the current testing framework for Wazuh, so they have to be executed manually. The necessary
+These tests are not part of the current testing framework for Fortishield, so they have to be executed manually. The necessary
 instructions are described below.
 
 ## Introduction
 ---------------
 
 A brief knowledge of SCA is recommended, the documentation covers it in detail
-in [How SCA works](https://documentation.wazuh.com/4.2/user-manual/capabilities/sec-config-assessment/how_it_works.html)
+in [How SCA works](https://documentation.fortishield.github.io/4.2/user-manual/capabilities/sec-config-assessment/how_it_works.html)
 . Also, there is a blog post
-about [Security Configuration Assessment](https://wazuh.com/blog/security-configuration-assessment/).
+about [Security Configuration Assessment](https://fortishield.github.io/blog/security-configuration-assessment/).
 
 Basically, the tests inside **data** folder contain different _.yml_ policies that will test the general capabilities
 of **SCA**. It will be necessary to install a Manager and register an agent. There is more information about this part
-of the process in the [Installation Guide](https://documentation.wazuh.com/4.0/installation-guide/index.html).
+of the process in the [Installation Guide](https://documentation.fortishield.github.io/4.0/installation-guide/index.html).
 
 ## Directory structure
 ----------------------
@@ -82,7 +82,7 @@ curl -k -X GET "https://localhost:55000/sca/001?pretty=true" -H "Authorization: 
         "total_checks": 24,
         "fail": 11,
         "references": "NULL",
-        "description": "This document includes file rules for testing purposes with the syntax rule of Wazuh v3.10.0",
+        "description": "This document includes file rules for testing purposes with the syntax rule of Fortishield v3.10.0",
         "start_scan": "2020-12-22T20:16:26Z",
         "hash_file": "8688d6b8ae1828f9512d3dc9b68b904d8d08cde1f8709d76cdb9954f382656f2",
         "name": "Test suite for conditions.",
@@ -102,7 +102,7 @@ The scan results and those described in the test must be equal
     id: sca_condition_test_suite
     file: sca_condition_test_suite.yml
     name: Test suite for conditions.
-    description: This document includes file rules for testing purposes with the syntax rule of Wazuh v3.10.0
+    description: This document includes file rules for testing purposes with the syntax rule of Fortishield v3.10.0
     ############### Expected results
     # Pass = 7
     # Fail = 11

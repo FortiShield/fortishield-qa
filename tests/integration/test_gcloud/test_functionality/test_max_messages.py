@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'gcp-pubsub' module uses it to fetch different kinds of events
+brief: The Fortishield 'gcp-pubsub' module uses it to fetch different kinds of events
        (Data access, Admin activity, System events, DNS queries, etc.) from the
-       Google Cloud infrastructure. Once events are collected, Wazuh processes
+       Google Cloud infrastructure. Once events are collected, Fortishield processes
        them using its threat detection rules. Specifically, these tests
        will check if the 'gcp-pubsub' module gets GCP messages up to the limit
        set in the 'max_messages' tag on the same operation when the number
@@ -25,8 +25,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -43,7 +43,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#max-messages
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#max-messages
 
 tags:
     - limits
@@ -54,14 +54,14 @@ import os
 import sys
 import pytest
 
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import generate_params
-from wazuh_testing.gcloud import callback_detect_start_fetching_logs, callback_received_messages_number
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools import get_service
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import generate_params
+from fortishield_testing.gcloud import callback_detect_start_fetching_logs, callback_received_messages_number
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools import get_service
 
 from google.cloud import pubsub_v1
 
@@ -76,17 +76,17 @@ pull_messages_timeout = global_parameters.default_timeout + 60
 pull_on_start = 'no'
 max_messages = 100
 logging = 'info'
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 force_restart_after_restoring = False
 
 # configurations
 
-if get_service() == 'wazuh-manager':
-    daemons_handler_configuration = {'daemons': ['wazuh-modulesd', 'wazuh-analysisd']}
+if get_service() == 'fortishield-manager':
+    daemons_handler_configuration = {'daemons': ['fortishield-modulesd', 'fortishield-analysisd']}
 else:
-    daemons_handler_configuration = {'daemons': ['wazuh-modulesd']}
+    daemons_handler_configuration = {'daemons': ['fortishield-modulesd']}
 
 monitoring_modes = ['scheduled']
 conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
@@ -98,7 +98,7 @@ conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
 p, m = generate_params(extra_params=conf_params,
                        modes=monitoring_modes)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 # Preparing
 
@@ -121,7 +121,7 @@ def get_configuration(request):
     ['- DEBUG - GCP message' for _ in range(100)],
     ['- DEBUG - GCP message' for _ in range(120)]
 ], indirect=True)
-@pytest.mark.xfail(reason='Unstable, further information in wazuh/wazuh#17245')
+@pytest.mark.xfail(reason='Unstable, further information in fortishield/fortishield#17245')
 def test_max_messages(get_configuration, configure_environment, reset_ossec_log, publish_messages,
                       daemons_handler_module, wait_for_gcp_start):
     '''
@@ -133,7 +133,7 @@ def test_max_messages(get_configuration, configure_environment, reset_ossec_log,
                  will be pulled in successive iterations, and if not, the module will pull all messages in
                  the same operation.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -147,7 +147,7 @@ def test_max_messages(get_configuration, configure_environment, reset_ossec_log,
         - publish_messages:
             type: list
             brief: List of testing GCP logs.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -161,7 +161,7 @@ def test_max_messages(get_configuration, configure_environment, reset_ossec_log,
           in the 'max_messages' tag when the number of them exceeds that limit, and
           the remaining ones are pulled in the successive operations.
 
-    input_description: A test case (ossec_conf) is contained in an external YAML file (wazuh_conf.yaml)
+    input_description: A test case (ossec_conf) is contained in an external YAML file (fortishield_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. That is
                        combined with the message limit defined in the module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
@@ -179,12 +179,12 @@ def test_max_messages(get_configuration, configure_environment, reset_ossec_log,
     time_interval = int(''.join(filter(str.isdigit, str_interval)))
 
     # Wait till the fetch starts
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout + time_interval,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout + time_interval,
                             callback=callback_detect_start_fetching_logs,
                             error_message='Did not receive expected '
                                           '"Starting fetching of logs" event')
 
-    numbers_pulled = wazuh_log_monitor.start(timeout=pull_messages_timeout,
+    numbers_pulled = fortishield_log_monitor.start(timeout=pull_messages_timeout,
                                              callback=callback_received_messages_number,
                                              error_message='Did not receive expected '
                                                            '- INFO - Received and acknowledged x messages').result()

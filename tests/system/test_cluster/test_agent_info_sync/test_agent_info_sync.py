@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import json
@@ -8,17 +8,17 @@ import re
 from time import sleep, time
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH, WAZUH_LOGS_PATH
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools import FORTISHIELD_PATH, FORTISHIELD_LOGS_PATH
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.cluster, pytest.mark.basic_cluster_env]
 
 # Hosts
-testinfra_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-test_infra_agents = ['wazuh-agent2', 'wazuh-agent3']
-master_host = 'wazuh-master'
+testinfra_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+test_infra_agents = ['fortishield-agent2', 'fortishield-agent3']
+master_host = 'fortishield-master'
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
                               'provisioning', 'basic_cluster', 'inventory.yml')
@@ -27,15 +27,15 @@ host_manager = HostManager(inventory_path)
 local_path = os.path.dirname(os.path.abspath(__file__))
 messages_path = os.path.join(local_path, 'data/messages.yml')
 messages_deletion_path = os.path.join(local_path, 'data/messages_deletion.yml')
-script_path = os.path.join(re.sub(r'^.*?wazuh-qa', '/wazuh-qa', local_path), '../utils/get_wdb_agent.py')
+script_path = os.path.join(re.sub(r'^.*?fortishield-qa', '/fortishield-qa', local_path), '../utils/get_wdb_agent.py')
 
 tmp_path = os.path.join(local_path, 'tmp')
-global_db_path = os.path.join(WAZUH_PATH, 'queue', 'db', 'global.db')
-client_keys_path = os.path.join(WAZUH_PATH, 'etc', 'client.keys')
+global_db_path = os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'global.db')
+client_keys_path = os.path.join(FORTISHIELD_PATH, 'etc', 'client.keys')
 
 label = 'test_label'
-modified_agent = 'wazuh-agent2'
-deleted_agent = 'wazuh-agent3'
+modified_agent = 'fortishield-agent2'
+deleted_agent = 'fortishield-agent3'
 while_time = 5
 time_to_sync = 21
 time_to_agent_reconnect = 180
@@ -49,24 +49,24 @@ queries = ['global sql select id from agent where name=\"{agent}\"',
 def clean_cluster_logs():
     """Remove old logs from all the existent managers."""
     for host in testinfra_hosts:
-        host_manager.clear_file(host=host, file_path=os.path.join(WAZUH_LOGS_PATH, 'cluster.log'))
-        host_manager.clear_file(host=host, file_path=os.path.join(WAZUH_LOGS_PATH, 'ossec.log'))
+        host_manager.clear_file(host=host, file_path=os.path.join(FORTISHIELD_LOGS_PATH, 'cluster.log'))
+        host_manager.clear_file(host=host, file_path=os.path.join(FORTISHIELD_LOGS_PATH, 'ossec.log'))
 
         # Its required to restart each node after clearing the log files
-        host_manager.get_host(host).ansible('command', 'service wazuh-manager restart', check=False)
+        host_manager.get_host(host).ansible('command', 'service fortishield-manager restart', check=False)
 
     for agent in test_infra_agents:
-        host_manager.clear_file(host=agent, file_path=os.path.join(WAZUH_LOGS_PATH, 'ossec.log'))
-        host_manager.get_host(agent).ansible('command', 'service wazuh-agent restart', check=False)
+        host_manager.clear_file(host=agent, file_path=os.path.join(FORTISHIELD_LOGS_PATH, 'ossec.log'))
+        host_manager.get_host(agent).ansible('command', 'service fortishield-agent restart', check=False)
 
 
 @pytest.fixture(scope='function')
 def remove_labels():
-    """Remove any label set to the modified wazuh-agent and restart it to apply the new config."""
+    """Remove any label set to the modified fortishield-agent and restart it to apply the new config."""
     yield
-    host_manager.add_block_to_file(host=modified_agent, path=f"{WAZUH_PATH}/etc/ossec.conf",
+    host_manager.add_block_to_file(host=modified_agent, path=f"{FORTISHIELD_PATH}/etc/ossec.conf",
                                    after='</client>', before='<client_buffer>', replace=os.linesep)
-    host_manager.get_host(modified_agent).ansible('command', 'service wazuh-agent restart', check=False)
+    host_manager.get_host(modified_agent).ansible('command', 'service fortishield-agent restart', check=False)
 
 
 def check_agent_status(status, master_token, agent):
@@ -106,20 +106,20 @@ def test_agent_info_sync(clean_cluster_logs, remove_labels):
     check_agent_status('active', master_token, modified_agent)
 
     # Add a label to one of the agents and restart it to apply the change
-    host_manager.add_block_to_file(host=modified_agent, path=f"{WAZUH_PATH}/etc/ossec.conf",
+    host_manager.add_block_to_file(host=modified_agent, path=f"{FORTISHIELD_PATH}/etc/ossec.conf",
                                    after='</client>', before='<client_buffer>',
                                    replace=f'<labels><label key="{label}">value</label></labels>')
-    host_manager.get_host(modified_agent).ansible('command', 'service wazuh-agent restart', check=False)
+    host_manager.get_host(modified_agent).ansible('command', 'service fortishield-agent restart', check=False)
 
     # Obtain the modified agent ID.
     modified_agent_id = host_manager.run_command(master_host,
-                                                 f"{WAZUH_PATH}/framework/python/bin/python3 "
+                                                 f"{FORTISHIELD_PATH}/framework/python/bin/python3 "
                                                  f"{script_path} '{queries[0].format(agent=modified_agent)}'")
 
     # Check that the agent label is updated in the master's database.
     sleep(time_to_sync)
     result = host_manager.run_command(master_host,
-                                      f"{WAZUH_PATH}/framework/python/bin/python3 "
+                                      f"{FORTISHIELD_PATH}/framework/python/bin/python3 "
                                       f"{script_path} \"{queries[1].format(label=label)}\"")
 
     assert modified_agent_id, \
@@ -140,20 +140,20 @@ def test_agent_info_sync_remove_agent(clean_cluster_logs):
     check_agent_status('active', master_token, deleted_agent)
 
     # Ensure the agent to be removed is present in the Worker's socket before attempting the test
-    agent_list = host_manager.run_command('wazuh-worker2',
-                                          f"{WAZUH_PATH}/framework/python/bin/python3 "
+    agent_list = host_manager.run_command('fortishield-worker2',
+                                          f"{FORTISHIELD_PATH}/framework/python/bin/python3 "
                                           f"{script_path} \"{queries[2]}\"")
 
-    assert deleted_agent in agent_list, f"{deleted_agent} was not found in wazuh-worker2\'s global.db"
+    assert deleted_agent in agent_list, f"{deleted_agent} was not found in fortishield-worker2\'s global.db"
 
     # Obtain the deleted agent ID
     deleted_agent_id = host_manager.run_command(master_host,
-                                                f"{WAZUH_PATH}/framework/python/bin/python3 "
+                                                f"{FORTISHIELD_PATH}/framework/python/bin/python3 "
                                                 f"{script_path} '{queries[0].format(agent=deleted_agent)}'")
     deleted_agent_id = json.loads(deleted_agent_id.replace('[', '').replace(']', '').replace("'", '"'))
 
     # Stop the agent to avoid agent auto-enrollment
-    host_manager.get_host(deleted_agent).ansible('command', 'service wazuh-agent stop', check=False)
+    host_manager.get_host(deleted_agent).ansible('command', 'service fortishield-agent stop', check=False)
 
     # Check if the agent is disconnected
     check_agent_status('disconnected', master_token, deleted_agent)
@@ -178,7 +178,7 @@ def test_agent_info_sync_remove_agent(clean_cluster_logs):
         assert not host_manager.run_command(manager, f"grep {deleted_agent} {client_keys_path}"), \
             f"{deleted_agent} was found in {manager}\'s client.keys file."
 
-    host_manager.get_host(deleted_agent).ansible('command', 'service wazuh-agent restart', check=False)
+    host_manager.get_host(deleted_agent).ansible('command', 'service fortishield-agent restart', check=False)
     check_agent_status('active', master_token, deleted_agent)
 
     HostMonitor(inventory_path=inventory_path, messages_path=messages_deletion_path, tmp_path=tmp_path).run()

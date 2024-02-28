@@ -23,19 +23,19 @@
 
 - name: "Get manager package"
   ansible.builtin.get_url:
-    url: "https://{{package_repository}}.wazuh.com/{{repository}}/apt/pool/main/w/wazuh-manager/wazuh-manager_{{package_version}}-{{package_revision}}_amd64.deb"
-    dest: /tmp/wazuh-manager.deb
+    url: "https://{{package_repository}}.fortishield.github.io/{{repository}}/apt/pool/main/w/fortishield-manager/fortishield-manager_{{package_version}}-{{package_revision}}_amd64.deb"
+    dest: /tmp/fortishield-manager.deb
 
 - name: "Install manager package"
   ansible.builtin.apt:
-    deb: /tmp/wazuh-manager.deb
+    deb: /tmp/fortishield-manager.deb
 
 - name: Copy ossec.conf file
   copy:
     src: ../files/ossec.conf
     dest: /var/ossec/etc/ossec.conf
-    owner: wazuh
-    group: wazuh
+    owner: fortishield
+    group: fortishield
     mode: '0644'
 
 - name: Set cluster key
@@ -45,14 +45,14 @@
     line: <key>{{ cluster_key }}</key>
     backrefs: true
 
-- name: Set Wazuh Worker name
+- name: Set Fortishield Worker name
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: <node_name>(.*)</node_name>
     line: <node_name>{{ worker_name }}</node_name>
     backrefs: true
 
-- name: Set Wazuh Worker IP
+- name: Set Fortishield Worker IP
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: <node>(.*)</node>
@@ -64,11 +64,11 @@
     path: /var/ossec/etc/local_internal_options.conf
     block: |
       authd.debug=2
-      wazuh_clusterd.debug=2
+      fortishield_clusterd.debug=2
       remoted.debug=2
 
-- name: Restart Wazuh
-  command: /var/ossec/bin/wazuh-control restart
+- name: Restart Fortishield
+  command: /var/ossec/bin/fortishield-control restart
 
 - name: Copy wdb-query.py script
   copy:

@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Integratord manages wazuh integrations with other applications such as Slack, Pagerduty, Shuffle, Yara or
+brief: Integratord manages fortishield integrations with other applications such as Slack, Pagerduty, Shuffle, Yara or
        Virustotal by feeding the integrated aplications with the alerts located in alerts.json file. Custom values for
        fields can be configured to be sent using the 'options' tag. This test modules aim to test how the shuffle
        integration works with different configurations, when the options tag is not present or when custom values are
@@ -20,7 +20,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-integratord
+    - fortishield-integratord
 
 os_platform:
     - Linux
@@ -30,8 +30,8 @@ os_version:
     - Ubuntu Focal
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/virustotal-scan/integration.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-integratord.htm
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/virustotal-scan/integration.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-integratord.htm
 
 pytest_args:
     - tier:
@@ -45,11 +45,11 @@ tags:
 import os
 import pytest
 
-from wazuh_testing import global_parameters
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.modules.integratord import event_monitor as evm
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.modules.integratord import event_monitor as evm
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.monitoring import FileMonitor
 
 
 # Marks
@@ -84,19 +84,19 @@ local_internal_options = {'integrator.debug': '2', 'analysisd.debug': '1', 'moni
 # Tests
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_configuration_metadata), ids=t1_case_ids)
-def test_pagerduty_no_option_tag(configuration, metadata, set_wazuh_configuration, truncate_monitored_files,
-                                 configure_local_internal_options_module, restart_wazuh_daemon_function,
+def test_pagerduty_no_option_tag(configuration, metadata, set_fortishield_configuration, truncate_monitored_files,
+                                 configure_local_internal_options_module, restart_fortishield_daemon_function,
                                  wait_for_start_module):
     '''
     description: Check that when the options tag is not present for the PagerDuty integration, the integration works
                  properly.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Set fortishield configuration and local_internal_options.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Check integration is enabled
             - Check no options JSON file is created
@@ -104,7 +104,7 @@ def test_pagerduty_no_option_tag(configuration, metadata, set_wazuh_configuratio
             - Check the response code is 200
         - teardown:
             - Restore configuration
-            - Stop wazuh
+            - Stop fortishield
 
     tier: 1
 
@@ -115,18 +115,18 @@ def test_pagerduty_no_option_tag(configuration, metadata, set_wazuh_configuratio
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
-        - restart_wazuh_daemon_function:
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart wazuh daemon before starting a test.
+            brief: Restart fortishield daemon before starting a test.
         - wait_for_start_module:
             type: fixture
             brief: Detect the start of the Integratord module
@@ -147,43 +147,43 @@ def test_pagerduty_no_option_tag(configuration, metadata, set_wazuh_configuratio
         - '.*OS_IntegratorD.*(JSON file for options  doesn't exist)'
         - '.*Response received.* [200].*'
     '''
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Check integration is enabled
-    evm.detect_integration_enabled(integration=metadata['integration'], file_monitor=wazuh_monitor)
+    evm.detect_integration_enabled(integration=metadata['integration'], file_monitor=fortishield_monitor)
 
     # Check no options JSON file is detected
-    evm.detect_options_json_file_does_not_exist(file_monitor=wazuh_monitor)
+    evm.detect_options_json_file_does_not_exist(file_monitor=fortishield_monitor)
 
     # Check the message is sent to the integration's server
-    evm.get_message_sent(integration='PagerDuty', file_monitor=wazuh_monitor)
+    evm.get_message_sent(integration='PagerDuty', file_monitor=fortishield_monitor)
 
     # Check the response code from the integration's server
-    evm.check_third_party_response(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+    evm.check_third_party_response(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)
 
 
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t2_configurations, t2_configuration_metadata), ids=t2_case_ids)
-def test_pagerduty_options(configuration, metadata, set_wazuh_configuration, truncate_monitored_files,
-                           configure_local_internal_options_module, restart_wazuh_daemon_function,
+def test_pagerduty_options(configuration, metadata, set_fortishield_configuration, truncate_monitored_files,
+                           configure_local_internal_options_module, restart_fortishield_daemon_function,
                            wait_for_start_module):
     '''
     description: Check that when configuring the options tag with differents values, the integration works as expected.
                  The test also checks that when it is supposed to fail, it fails.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Set fortishield configuration and local_internal_options.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Check integration is enabled
             - Check the integration is unable to run when expected
             - Check the integration sends the message and gets a response when expected
         - teardown:
             - Restore configuration
-            - Stop wazuh
+            - Stop fortishield
 
     tier: 1
 
@@ -194,18 +194,18 @@ def test_pagerduty_options(configuration, metadata, set_wazuh_configuration, tru
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
-        - restart_wazuh_daemon_function:
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart wazuh daemon before starting a test.
+            brief: Restart fortishield daemon before starting a test.
         - wait_for_start_module:
             type: fixture
             brief: Detect the start of the Integratord module
@@ -228,21 +228,21 @@ def test_pagerduty_options(configuration, metadata, set_wazuh_configuration, tru
         - '.*Response received.* [200].*'
 
     '''
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Check if the integration is enabled
-    evm.detect_integration_enabled(integration=metadata['integration'], file_monitor=wazuh_monitor)
+    evm.detect_integration_enabled(integration=metadata['integration'], file_monitor=fortishield_monitor)
 
     if not metadata['sends_message']:
         # Check the integration is unable to run when it should.
-        evm.detect_unable_to_run_integration(integration=metadata['integration'], file_monitor=wazuh_monitor)
+        evm.detect_unable_to_run_integration(integration=metadata['integration'], file_monitor=fortishield_monitor)
     else:
         # Verify that the message is sent
-        message = evm.get_message_sent(integration='PagerDuty', file_monitor=wazuh_monitor)
+        message = evm.get_message_sent(integration='PagerDuty', file_monitor=fortishield_monitor)
 
         # Verify that when the options JSON was not empty the sent information is in the response message.
         if metadata['added_option'] is not None:
             assert metadata['added_option'] in message, "The configured option is not present in the message sent"
 
         # Check the response code from the integration's server
-        evm.check_third_party_response(file_monitor=wazuh_monitor, timeout=global_parameters.default_timeout)
+        evm.check_third_party_response(file_monitor=fortishield_monitor, timeout=global_parameters.default_timeout)

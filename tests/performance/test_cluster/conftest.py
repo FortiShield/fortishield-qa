@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import pytest
@@ -65,7 +65,7 @@ class HTMLStyle(html):
 
 
 def pytest_html_report_title(report):
-    report.title = 'Wazuh cluster performance tests'
+    report.title = 'Fortishield cluster performance tests'
 
 
 def pytest_html_results_table_header(cells):

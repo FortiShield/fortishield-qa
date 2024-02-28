@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will verify that FIM ignores the elements
        set in the 'ignore' option using both regex and regular names for specifying them.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#ignore
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#ignore
 
 pytest_args:
     - fim_mode:
@@ -63,12 +63,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, callback_detect_event, callback_ignore, create_file, REGULAR, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, callback_detect_event, callback_ignore, create_file, REGULAR, \
     generate_params, check_time_travel
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -77,7 +77,7 @@ pytestmark = pytest.mark.tier(level=2)
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 configurations_path = os.path.join(test_data_path,
-                                   'wazuh_conf_win32.yaml' if sys.platform == 'win32' else 'wazuh_conf.yaml')
+                                   'fortishield_conf_win32.yaml' if sys.platform == 'win32' else 'fortishield_conf.yaml')
 
 test_directories = [os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir1', 'subdir'),
@@ -88,13 +88,13 @@ test_directories = [os.path.join(PREFIX, 'testdir1'),
                     ]
 testdir1, testdir1_sub, testdir1_ignore, testdir1_ignore_folder, testdir2, testdir2_sub = test_directories
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # configurations
 
 conf_params, conf_metadata = generate_params()
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=conf_params, metadata=conf_metadata)
 
 
 # fixtures
@@ -135,20 +135,20 @@ def get_configuration(request):
     (testdir1_ignore_folder, 'file2', "test", False, {'incomplete_regex'}),
     (testdir1, 'file1', "test", False, {'ignore_disk'})
 ])
-@pytest.mark.skip(reason="It will be blocked by wazuh/wazuh#9298, when it was solve we can enable again this test")
+@pytest.mark.skip(reason="It will be blocked by fortishield/fortishield#9298, when it was solve we can enable again this test")
 def test_ignore_subdirectory(folder, filename, content, triggers_event,
                              tags_to_apply, get_configuration,
                              configure_environment, restart_syscheckd,
                              wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon ignores the files that are in a monitored subdirectory
+    description: Check if the 'fortishield-syscheckd' daemon ignores the files that are in a monitored subdirectory
                  when using the 'ignore' option. It also ensures that events for files tha are not being ignored
                  are still detected. For this purpose, the test will monitor folders containing files to be ignored
                  using names or regular expressions. Then it will create these files and check if FIM events should
                  be generated. Finally, the test will verify that the generated FIM events correspond to the files
                  that must not be ignored.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -190,8 +190,8 @@ def test_ignore_subdirectory(folder, filename, content, triggers_event,
           that do not match the value of the 'ignore' option.
 
     input_description: Different test cases are contained in external YAML files
-                       (wazuh_conf.yaml or wazuh_conf_win32.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon and, these are combined with the testing directories
+                       (fortishield_conf.yaml or fortishield_conf_win32.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon and, these are combined with the testing directories
                        to be monitored defined in the module.
 
     inputs:
@@ -212,10 +212,10 @@ def test_ignore_subdirectory(folder, filename, content, triggers_event,
 
     scheduled = get_configuration['metadata']['fim_mode'] == 'scheduled'
     # Go ahead in time to let syscheck perform a new scan
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
     if triggers_event:
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout * 2,
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout * 2,
                                         callback=callback_detect_event,
                                         error_message='Did not receive expected '
                                                       '"Sending FIM event: ..." event').result()
@@ -223,7 +223,7 @@ def test_ignore_subdirectory(folder, filename, content, triggers_event,
         assert event['data']['path'] == os.path.join(folder, filename), 'Event path not equal'
     else:
         while True:
-            ignored_file = wazuh_log_monitor.start(timeout=global_parameters.default_timeout * 2,
+            ignored_file = fortishield_log_monitor.start(timeout=global_parameters.default_timeout * 2,
                                                    callback=callback_ignore).result()
             if ignored_file == os.path.join(folder, filename):
                 break

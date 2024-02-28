@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will verify that FIM generates events
        of type 'deleted' from the values contained in a registry key that is being deleted.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -38,8 +38,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -58,12 +58,12 @@ import sys
 from collections import Counter
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params, create_registry, modify_registry_value, delete_registry, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params, create_registry, modify_registry_value, delete_registry, \
     callback_value_event, check_time_travel, validate_registry_value_event, registry_parser, KEY_WOW64_32KEY, \
     KEY_WOW64_64KEY, REG_SZ, REG_MULTI_SZ, REG_DWORD
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -75,7 +75,7 @@ sub_key_1 = "SOFTWARE\\Classes\\testkey"
 sub_key_2 = "SOFTWARE\\testkey"
 
 test_regs = [os.path.join(key, sub_key_1), os.path.join(key, sub_key_2)]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 reg1, reg2 = test_regs
 
@@ -84,9 +84,9 @@ monitoring_modes = ['scheduled']
 # Configurations
 
 conf_params = {'WINDOWS_REGISTRY_1': reg1, 'WINDOWS_REGISTRY_2': reg2}
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_registry_both.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_registry_both.yaml')
 p, m = generate_params(extra_params=conf_params, modes=monitoring_modes)
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 registry_list = [(key, sub_key_1, KEY_WOW64_64KEY),
                  (key, sub_key_2, KEY_WOW64_32KEY),
@@ -113,13 +113,13 @@ def test_delete_registry(key, subkey, arch, value_list,
                          get_configuration, configure_environment,
                          restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects 'deleted' events from the values contained
+    description: Check if the 'fortishield-syscheckd' daemon detects 'deleted' events from the values contained
                  in a registry key that is being deleted. For this purpose, the test will monitor a registry
                  key and create several values inside it. Then, it will remove the registry key, and finally,
                  the test will verify that FIM 'deleted' events are generated for the values that were inside
                  the registry key.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -154,8 +154,8 @@ def test_delete_registry(key, subkey, arch, value_list,
           in a monitored registry key when removed.
 
     input_description: A test case (ossec_conf_2) is contained in an external YAML file
-                       (wazuh_conf_registry_both.yaml) which includes configuration settings for
-                       the 'wazuh-syscheckd' daemon. That is combined with the testing registry
+                       (fortishield_conf_registry_both.yaml) which includes configuration settings for
+                       the 'fortishield-syscheckd' daemon. That is combined with the testing registry
                        keys to be monitored defined in the module.
 
     expected_output:
@@ -175,8 +175,8 @@ def test_delete_registry(key, subkey, arch, value_list,
     modify_registry_value(key_h, value_list[1], REG_MULTI_SZ, "some content\0second string\0")
     modify_registry_value(key_h, value_list[2], REG_DWORD, 1234)
 
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    events = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_value_event,
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    events = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_value_event,
                                      accum_results=len(value_list),
                                      error_message='Did not receive expected "Sending FIM event: ..." event').result()
     for ev in events:
@@ -184,10 +184,10 @@ def test_delete_registry(key, subkey, arch, value_list,
 
     # Remove registry
     delete_registry(registry_parser[key], subkey, arch)
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
     # Expect deleted events
-    event_list = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_value_event,
+    event_list = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_value_event,
                                          error_message='Did not receive expected '
                                                        '"Sending FIM event: ..." event',
                                          accum_results=len(value_list)).result()

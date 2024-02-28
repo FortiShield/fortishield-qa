@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Security
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/reference.html#tag/Security
     - https://en.wikipedia.org/wiki/Role-based_access_control
 
 tags:
@@ -132,7 +132,7 @@ def test_admin_users(restart_api, wait_for_start, get_api_details):
     description: Check if the admin security users can be removed. For this purpose,
                  it tries to delete these users, expecting an error as a response.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -178,7 +178,7 @@ def test_admin_roles(restart_api, wait_for_start, get_api_details):
     description: Check if the admin security roles can be removed. For this purpose,
                  it tries to delete these roles, expecting an error as a response.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -227,7 +227,7 @@ def test_admin_policies(restart_api, wait_for_start, get_api_details):
     description: Check if the admin security policies can be removed. For this purpose,
                  it tries to delete these policies, expecting an error as a response.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -277,7 +277,7 @@ def test_admin_rules(restart_api, wait_for_start, get_api_details):
     description: Check if the admin security rules can be removed. For this purpose,
                  it tries to delete these rules, expecting an error as a response.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check if the 'nodiff' tag works correctly
        when environment variables are used to define the files whose changes will not be tracked.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks  configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks  configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -47,8 +47,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#diff
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#diff
 
 pytest_args:
     - fim_mode:
@@ -67,16 +67,16 @@ import sys
 
 import pytest
 from test_fim.common import make_diff_file_path
-from wazuh_testing import global_parameters, LOG_FILE_PATH
-from wazuh_testing.modules.fim.utils import regular_file_cud, generate_params
-from wazuh_testing.tools.configuration import load_wazuh_configurations, PREFIX
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters, LOG_FILE_PATH
+from fortishield_testing.modules.fim.utils import regular_file_cud, generate_params
+from fortishield_testing.tools.configuration import load_fortishield_configurations, PREFIX
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 pytestmark = pytest.mark.tier(level=2)
 
 # Variables and configuration
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 test_directories = [os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir2'),
@@ -101,13 +101,13 @@ environment_variables = [("TEST_NODIFF_ENV", multiple_env_var)]
 dir_config = ",".join(test_directories)
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_nodiff.yaml')
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_nodiff.yaml')
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 conf_params = {'TEST_DIRECTORIES': dir_config, 'TEST_ENV_VARIABLES': test_env, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixture
@@ -128,14 +128,14 @@ def get_configuration(request):
 def test_tag_nodiff(directory, filename, hidden_content, get_configuration, put_env_variables, configure_environment,
                     restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon truncates the content in the 'diff' files when testing files
+    description: Check if the 'fortishield-syscheckd' daemon truncates the content in the 'diff' files when testing files
                  are defined using environment variables via the 'nodiff' tag. For this purpose, the test will monitor
                  a directory using the 'report_changes=yes' attribute and some testing files will be defined in
                  the 'nodiff' tag using environment variables. Then, it will perform operations on the testing files
                  and check if the corresponding diff files have been created. Finally, the test will verify that
                  the 'diff' files of the testing files set in the 'nodiff' tag have their content truncated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -171,8 +171,8 @@ def test_tag_nodiff(directory, filename, hidden_content, get_configuration, put_
         - Verify that 'diff' files are its content truncated when files are specified
           via environment variables using the 'nodiff' tag.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf_nodiff.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, it is combined
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf_nodiff.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, it is combined
                        with the directories and testing files defined as environment variables in this module.
 
     expected_output:
@@ -202,6 +202,6 @@ def test_tag_nodiff(directory, filename, hidden_content, get_configuration, put_
             assert '<Diff truncated because nodiff option>' not in event['data'].get('content_changes'), \
                 'content_changes is truncated'
 
-    regular_file_cud(directory, wazuh_log_monitor, file_list=files,
+    regular_file_cud(directory, fortishield_log_monitor, file_list=files,
                      min_timeout=global_parameters.default_timeout*2, triggers_event=True,
                      validators_after_update=[report_changes_validator, no_diff_validator])

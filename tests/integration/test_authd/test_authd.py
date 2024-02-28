@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the 'wazuh-authd' daemon correctly handles the enrollment requests,
+brief: These tests will check if the 'fortishield-authd' daemon correctly handles the enrollment requests,
        generating consistent responses to the requests received on its IP v4 network socket.
-       The 'wazuh-authd' daemon can automatically add a Wazuh agent to a Wazuh manager and provide
+       The 'fortishield-authd' daemon can automatically add a Fortishield agent to a Fortishield manager and provide
        the key to the agent. It is used along with the 'agent-auth' application.
 
 components:
@@ -19,9 +19,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -38,8 +38,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-authd.html
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/agent_groups.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-authd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent_groups.html
 
 tags:
     - enrollment
@@ -49,8 +49,8 @@ import subprocess
 import time
 
 import pytest
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
 
 # Marks
 
@@ -61,15 +61,15 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 message_tests = read_yaml(os.path.join(test_data_path, 'enroll_messages.yaml'))
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=None, metadata=None)
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=None, metadata=None)
 
 # Variables
 log_monitor_paths = []
 
 receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2')]
 
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
@@ -93,15 +93,15 @@ def get_configuration(request):
 
 
 def test_ossec_auth_messages(get_configuration, set_up_groups, configure_environment, configure_sockets_environment,
-                             clean_client_keys_file_module, restart_wazuh_daemon, wait_for_authd_startup_module,
+                             clean_client_keys_file_module, restart_fortishield_daemon, wait_for_authd_startup_module,
                              connect_to_sockets_module):
     '''
     description:
-        Checks if when the `wazuh-authd` daemon receives different types of enrollment requests,
+        Checks if when the `fortishield-authd` daemon receives different types of enrollment requests,
         it responds appropriately to them. In this case, the enrollment requests are sent to
         an IP v4 network socket.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -121,10 +121,10 @@ def test_ossec_auth_messages(get_configuration, set_up_groups, configure_environ
             brief: Configure environment for sockets and MITM.
         - clean_client_keys_file_module:
             type: fixture
-            brief: Stops Wazuh and cleans any previous key in client.keys file at module scope.
+            brief: Stops Fortishield and cleans any previous key in client.keys file at module scope.
         - restart_authd:
             type: fixture
-            brief: Restart the 'wazuh-authd' daemon, clear the 'ossec.log' file and start a new file monitor.
+            brief: Restart the 'fortishield-authd' daemon, clear the 'ossec.log' file and start a new file monitor.
         - wait_for_authd_startup_module:
             type: fixture
             brief: Waits until Authd is accepting connections.

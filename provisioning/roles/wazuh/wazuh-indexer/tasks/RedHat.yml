@@ -1,16 +1,16 @@
 ---
 - block:
 
-  - name: RedHat/CentOS/Fedora | Add Wazuh indexer repo
+  - name: RedHat/CentOS/Fedora | Add Fortishield indexer repo
     yum_repository:
-      file: wazuh
-      name: wazuh_repo
-      description: Wazuh yum repository
-      baseurl: "{{ wazuh_repo.yum }}"
-      gpgkey: "{{ wazuh_repo.gpg }}"
+      file: fortishield
+      name: fortishield_repo
+      description: Fortishield yum repository
+      baseurl: "{{ fortishield_repo.yum }}"
+      gpgkey: "{{ fortishield_repo.gpg }}"
       gpgcheck: true
     changed_when: false
-    when: not wazuh_custom_packages_installation_indexer_enabled
+    when: not fortishield_custom_packages_installation_indexer_enabled
 
   - name: Amazon Linux | Install Amazon extras
     block:
@@ -43,16 +43,16 @@
       - wget
       - unzip
 
-  - name: Install Wazuh indexer
+  - name: Install Fortishield indexer
     package:
-      name: wazuh-indexer-{{ indexer_version }}
+      name: fortishield-indexer-{{ indexer_version }}
       state: present
     register: install
     tags: install
-    when: not wazuh_custom_packages_installation_indexer_enabled
+    when: not fortishield_custom_packages_installation_indexer_enabled
 
   tags:
   - install
 
 - include_tasks: "install_from_custom_package.yml"
-  when: wazuh_custom_packages_installation_indexer_enabled
+  when: fortishield_custom_packages_installation_indexer_enabled

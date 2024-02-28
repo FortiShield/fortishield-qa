@@ -1,5 +1,5 @@
 ---
-wazuh-manager:
+fortishield-manager:
   - regex: ".*New connection from AGENT_IP.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 60
@@ -11,7 +11,7 @@ wazuh-manager:
     timeout: 60
 
 
-wazuh-agent1:
+fortishield-agent1:
   - regex: ".*Requesting a key from server: MANAGER_ADDRESS"
     path: "/var/ossec/logs/ossec.log"
     timeout: 60

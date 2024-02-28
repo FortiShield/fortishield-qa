@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -18,7 +18,7 @@ components:
     - manager
 
 daemons:
-    - wazuh-authd
+    - fortishield-authd
 
 os_platform:
     - linux
@@ -43,8 +43,8 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/auth.html
-    - https://documentation.wazuh.com/current/user-manual/registering/key-request.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/auth.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/key-request.html
 
 tags:
     - key_request
@@ -52,11 +52,11 @@ tags:
 import os
 
 import pytest
-from wazuh_testing.fim import generate_params
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
-from wazuh_testing.authd import validate_authd_logs
+from fortishield_testing.fim import generate_params
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
+from fortishield_testing.authd import validate_authd_logs
 
 # Marks
 
@@ -67,7 +67,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 message_tests = read_yaml(os.path.join(test_data_path, 'test_key_request_limits.yaml'))
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
 local_internal_options = {'authd.debug': '2'}
 script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
 script_filename = 'fetch_keys_sleep.py'
@@ -81,15 +81,15 @@ for case in message_tests:
     conf_params['TIMEOUT'].append(case.get('TIMEOUT', DEFAULT_TIMEOUT))
 
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'] * len(message_tests))
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 # Variables
-kreq_sock_path = os.path.join(WAZUH_PATH, 'queue', 'sockets', 'krequest')
+kreq_sock_path = os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'krequest')
 log_monitor_paths = [LOG_FILE_PATH]
 receiver_sockets_params = [(kreq_sock_path, 'AF_UNIX', 'UDP')]
 test_case_ids = [f"{test_case['name'].lower().replace(' ', '-')}" for test_case in message_tests]
 
-monitored_sockets_params = [('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
 
@@ -113,7 +113,7 @@ def test_key_request_limits(configure_environment, get_current_test_case, copy_t
         Checks that every input message on the key request port with different limits 'timeout' and 'queue_size'
         configuration, along with a delayed script, shows the corresponding error in the manager logs.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - get_configuration:
@@ -133,7 +133,7 @@ def test_key_request_limits(configure_environment, get_current_test_case, copy_t
             brief: Configure the local internal options file.
         - restart_authd_function:
             type: fixture
-            brief: Stops the wazuh-authd daemon.
+            brief: Stops the fortishield-authd daemon.
         - wait_for_authd_startup_function:
             type: fixture
             brief: Waits until Authd is accepting connections.

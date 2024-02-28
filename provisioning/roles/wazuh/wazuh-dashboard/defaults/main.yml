@@ -1,32 +1,32 @@
 ---
 
 # Custom package installation
-wazuh_custom_packages_installation_indexer_enabled: false
-wazuh_custom_packages_installation_indexer_deb_url: ""
-wazuh_custom_packages_installation_indexer_rpm_url: ""
+fortishield_custom_packages_installation_indexer_enabled: false
+fortishield_custom_packages_installation_indexer_deb_url: ""
+fortishield_custom_packages_installation_indexer_rpm_url: ""
 
 # Dashboard configuration
 indexer_http_port: 9200
 indexer_api_protocol: https
-dashboard_conf_path: /etc/wazuh-dashboard/
+dashboard_conf_path: /etc/fortishield-dashboard/
 dashboard_node_name: node-1
 dashboard_server_host: "0.0.0.0"
 dashboard_server_port: "443"
 dashboard_server_name: "dashboard"
-wazuh_version: 4.8.0
+fortishield_version: 4.8.0
 indexer_cluster_nodes:
   - 127.0.0.1
 
-# The Wazuh dashboard package repository
+# The Fortishield dashboard package repository
 dashboard_version: "4.8.0"
 
 # API credentials
-wazuh_api_credentials:
+fortishield_api_credentials:
   - id: "default"
     url: "https://localhost"
     port: 55000
-    username: "wazuh"
-    password: "wazuh"
+    username: "fortishield"
+    password: "fortishield"
 
 # Dashboard Security
 dashboard_security: true

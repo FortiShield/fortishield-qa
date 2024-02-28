@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will check if FIM stops monitoring
        the target of a 'symbolic_link' found in the monitored directory when the attribute
        'follow_symbolic_link' is disabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -47,8 +47,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -65,13 +65,13 @@ tags:
 import os
 
 import pytest
-import wazuh_testing.fim as fim
+import fortishield_testing.fim as fim
 
 from test_fim.test_files.test_follow_symbolic_link.common import modify_symlink
-from wazuh_testing import global_parameters, logger
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters, logger
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -80,17 +80,17 @@ pytestmark = [pytest.mark.linux, pytest.mark.sunos5, pytest.mark.darwin, pytest.
 # variables
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 test_directories = [os.path.join(PREFIX, 'testdir_link'), os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir2')]
 testdir_link, testdir1, testdir2 = test_directories
 
-wazuh_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
 
 # configurations
 
 conf_params, conf_metadata = fim.generate_params(extra_params={'FOLLOW_MODE': 'yes'})
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=conf_params,
                                            metadata=conf_metadata
                                            )
@@ -114,7 +114,7 @@ def test_symbolic_monitor_directory_with_symlink(monitored_dir, non_monitored_di
                                                  sym_target, tags_to_apply, get_configuration, configure_environment,
                                                  restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects events when monitoring a directory with a symlink and
+    description: Check if the 'fortishield-syscheckd' daemon detects events when monitoring a directory with a symlink and
                  not the symlink itself. For this purpose, the test will create some files in a non-monitored folder
                  and will not expect any events. Then, it will create a 'symbolic link' inside the monitored folder
                  pointing to the non-monitored folder. The test will expect an FIM 'added' event with the path
@@ -122,7 +122,7 @@ def test_symbolic_monitor_directory_with_symlink(monitored_dir, non_monitored_di
                  the link target and will not expect any events. Finally, the test will change the link target,
                  and it will expect an FIM 'modified' event.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -160,8 +160,8 @@ def test_symbolic_monitor_directory_with_symlink(monitored_dir, non_monitored_di
           on a 'symbolic link' target in a monitored directory.
         - Verify that FIM events are generated when adding or modifying the 'symbolic link' itself.
 
-    input_description: A test case (non_monitored_dir) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these
+    input_description: A test case (non_monitored_dir) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these
                        are combined with the testing directories to be monitored defined in the module.
 
     expected_output:
@@ -187,29 +187,29 @@ def test_symbolic_monitor_directory_with_symlink(monitored_dir, non_monitored_di
     fim.create_file(fim.SYMLINK, monitored_dir, sl_name, target=target)
 
     # Create the symlink and expect its event, since it's withing the monitored directory
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                             error_message='Did not receive expected "Sending FIM event: ..." event')
 
     # Modify the target file and don't expect any event
     fim.modify_file(non_monitored_dir1, name1, new_content='Modify sample')
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
+        event = fortishield_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
         logger.error(f'Unexpected event {event.result()}')
         raise AttributeError(f'Unexpected event {event.result()}')
 
     # Modify the target of the symlink and expect the modify event
     modify_symlink(target=b_path, path=sl_path)
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    result = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    result = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                                      error_message='Did not receive expected '
                                                    '"Sending FIM event: ..." event').result()
     if 'modified' in result['data']['type']:
         logger.info("Received modified event. No more events will be expected.")
     elif 'deleted' in result['data']['type']:
         logger.info("Received deleted event. Now an added event will be expected.")
-        result = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
+        result = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=fim.callback_detect_event,
                                          error_message='Did not receive expected '
                                                        '"Sending FIM event: ..." event').result()
         assert 'added' in result['data']['type'], f"The event {result} should be of type 'added'"
@@ -219,8 +219,8 @@ def test_symbolic_monitor_directory_with_symlink(monitored_dir, non_monitored_di
     # Remove and restore the target file. Don't expect any events
     fim.delete_file(b_path, name2)
     fim.create_file(fim.REGULAR, non_monitored_dir1, name2, content='')
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
+        event = fortishield_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
         logger.error(f'Unexpected event {event.result()}')
         raise AttributeError(f'Unexpected event {event.result()}')

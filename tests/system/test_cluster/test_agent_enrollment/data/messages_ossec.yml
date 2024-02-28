@@ -1,10 +1,10 @@
 ---
-wazuh-master:
+fortishield-master:
   - regex: ".*Agent key generated for agent.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 60
 
-wazuh-worker1:
+fortishield-worker1:
   - regex: ".*Received request for a new agent.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 60
@@ -15,7 +15,7 @@ wazuh-worker1:
     path: "/var/ossec/logs/ossec.log"
     timeout: 60
 
-wazuh-agent1:
+fortishield-agent1:
   - regex: ".*Starting enrollment process to server.*"
     path: "/var/ossec/logs/ossec.log"
     timeout: 60

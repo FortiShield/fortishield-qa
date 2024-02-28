@@ -1,4 +1,4 @@
-- name: Clone Wazuh-QA repo | UNIX
+- name: Clone Fortishield-QA repo | UNIX
   git:
     repo: "{{ qa_repository_url }}"
     dest: "{{ build_dir }}"
@@ -10,7 +10,7 @@
   until: clone_result is success
   when: ansible_os_family != "Solaris"
 
-- name: Clone Wazuh-QA repo | Solaris
+- name: Clone Fortishield-QA repo | Solaris
   git:
     repo: "{{ qa_repository_url }}"
     dest: "{{ build_dir }}"

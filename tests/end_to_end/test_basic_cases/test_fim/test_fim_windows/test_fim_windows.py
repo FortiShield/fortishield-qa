@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -20,8 +20,8 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
-    - wazuh-analysisd
+    - fortishield-syscheckd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -32,8 +32,8 @@ os_version:
     - Windows Server 2019
 
 references:
-    - https://github.com/wazuh/wazuh-automation/wiki/Wazuh-demo:-Execution-guide#-fim
-    - https://documentation.wazuh.com/current/proof-of-concept-guide/poc-file-integrity-monitoring.html
+    - https://github.com/fortishield/fortishield-automation/wiki/Fortishield-demo:-Execution-guide#-fim
+    - https://documentation.fortishield.github.io/current/proof-of-concept-guide/poc-file-integrity-monitoring.html
 
 tags:
     - demo
@@ -44,11 +44,11 @@ import json
 import re
 import pytest
 
-import wazuh_testing as fw
-from wazuh_testing import end_to_end as e2e
-from wazuh_testing import event_monitor as evm
-from wazuh_testing.tools import configuration as config
-from wazuh_testing.modules import TIER0, WINDOWS
+import fortishield_testing as fw
+from fortishield_testing import end_to_end as e2e
+from fortishield_testing import event_monitor as evm
+from fortishield_testing.tools import configuration as config
+from fortishield_testing.modules import TIER0, WINDOWS
 
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
@@ -63,7 +63,7 @@ configurations, configuration_metadata, cases_ids = config.get_test_cases_data(t
 pytestmark = [TIER0, WINDOWS]
 
 
-@pytest.mark.skip(reason='https://github.com/wazuh/wazuh-qa/issues/3207')
+@pytest.mark.skip(reason='https://github.com/fortishield/fortishield-qa/issues/3207')
 @pytest.mark.filterwarnings('ignore::urllib3.exceptions.InsecureRequestWarning')
 @pytest.mark.parametrize('metadata', configuration_metadata, ids=cases_ids)
 def test_fim_windows(configure_environment, metadata, get_indexer_credentials, get_manager_ip, generate_events,
@@ -72,25 +72,25 @@ def test_fim_windows(configure_environment, metadata, get_indexer_credentials, g
     description: Check that an alert is generated and indexed for FIM events.
 
     test_phases:
-        - Set a custom Wazuh configuration.
+        - Set a custom Fortishield configuration.
         - Create, modify and delete a file to generate event.
         - Check in the alerts.json log that the expected alert has been triggered and get its timestamp.
         - Check that the obtained alert from alerts.json has been indexed.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
     parameters:
         - configurate_environment:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration playbook.
+            brief: Set the fortishield configuration according to the configuration playbook.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - get_indexer_credentials:
             type: fixture
-            brief: Get the wazuh indexer credentials.
+            brief: Get the fortishield indexer credentials.
         - generate_events:
             type: fixture
             brief: Generate events that will trigger the alert according to the generate_events playbook.

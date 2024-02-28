@@ -52,8 +52,8 @@ GENERIC_WRITE = 0x40000000  # GW
 GENERIC_EXECUTE = 0x20000000  # GE
 GENERIC_ALL = 0x10000000  # GA
 
-# Wazuh rules
-WAZUH_RULES = {'DELETE': 0x00010000,  # DE
+# Fortishield rules
+FORTISHIELD_RULES = {'DELETE': 0x00010000,  # DE
                'WRITE_DAC': 0x00040000,  # WDAC
                'FILE_WRITE_DATA': 0x00000002,  # WD
                'FILE_WRITE_ATTRIBUTES': 0x00000100}  # WA
@@ -64,10 +64,10 @@ FILE_GENERIC_READ = (FILE_READ_DATA |
                      READ_CONTROL |
                      SYNCHRONIZE)
 
-FILE_GENERIC_WRITE = (WAZUH_RULES['FILE_WRITE_DATA'] |
+FILE_GENERIC_WRITE = (FORTISHIELD_RULES['FILE_WRITE_DATA'] |
                       FILE_APPEND_DATA |
                       FILE_WRITE_EA |
-                      WAZUH_RULES['FILE_WRITE_ATTRIBUTES'] |
+                      FORTISHIELD_RULES['FILE_WRITE_ATTRIBUTES'] |
                       READ_CONTROL |
                       SYNCHRONIZE)
 
@@ -79,12 +79,12 @@ FILE_GENERIC_EXECUTE = (FILE_EXECUTE |
 FILE_ALL_ACCESS = 0x001F01FF
 
 FILE_MODIIFY_ACCESS = FILE_ALL_ACCESS & ~(FILE_DELETE_CHILD |
-                                          WAZUH_RULES['WRITE_DAC'] |
+                                          FORTISHIELD_RULES['WRITE_DAC'] |
                                           WRITE_OWNER)
 
 FILE_READ_EXEC_ACCESS = FILE_GENERIC_READ | FILE_GENERIC_EXECUTE
 
-FILE_DELETE_ACCESS = WAZUH_RULES['DELETE'] | SYNCHRONIZE
+FILE_DELETE_ACCESS = FORTISHIELD_RULES['DELETE'] | SYNCHRONIZE
 
 kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
 advapi32 = ctypes.WinDLL('advapi32', use_last_error=True)
@@ -156,11 +156,11 @@ def modify_sacl(lfss, mode, mask='DELETE'):
     if sd.ControlFlags & SE_SACL_PRESENT:
         for entry in sd.SACL:
             # Delete rule if it exists
-            if mode == 'delete' and WAZUH_RULES[mask] & entry.AccessMask == WAZUH_RULES[mask]:
-                entry.AccessMask &= ~WAZUH_RULES[mask]
+            if mode == 'delete' and FORTISHIELD_RULES[mask] & entry.AccessMask == FORTISHIELD_RULES[mask]:
+                entry.AccessMask &= ~FORTISHIELD_RULES[mask]
             # Add rule if it does not exist
-            elif mode == 'add' and WAZUH_RULES[mask] & entry.AccessMask == 0:
-                entry.AccessMask &= WAZUH_RULES[mask]
+            elif mode == 'add' and FORTISHIELD_RULES[mask] & entry.AccessMask == 0:
+                entry.AccessMask &= FORTISHIELD_RULES[mask]
             else:
                 raise ValueError
         lfss.SetSecurityDescriptor(sd)
@@ -185,7 +185,7 @@ def get_sacl(lfss) -> set:
     if sd.ControlFlags & SE_SACL_PRESENT:
         if sd.SACL:
             for entry in sd.SACL:
-                for name, mask in WAZUH_RULES.items():
+                for name, mask in FORTISHIELD_RULES.items():
                     if mask & entry.AccessMask == mask:
                         sacl_list.add(name)
         return sacl_list

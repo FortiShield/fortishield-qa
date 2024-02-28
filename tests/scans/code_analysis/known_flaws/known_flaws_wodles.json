@@ -43,7 +43,7 @@
             "test_name": "blacklist"
         },
         {
-            "code": "     try:\n         proc = subprocess.Popen([wazuh_control, option], stdout=subprocess.PIPE)\n         (stdout, stderr) = proc.communicate()\n",
+            "code": "     try:\n         proc = subprocess.Popen([fortishield_control, option], stdout=subprocess.PIPE)\n         (stdout, stderr) = proc.communicate()\n",
             "filename": "wodles/utils.py",
             "issue_confidence": "HIGH",
             "issue_severity": "LOW",

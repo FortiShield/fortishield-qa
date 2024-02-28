@@ -1,9 +1,9 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
-brief: Wazuh manager should be able to create merged.mg file in order to share files with group of agents.
+brief: Fortishield manager should be able to create merged.mg file in order to share files with group of agents.
        In order to do it, when new files are present in any directory in /var/ossec/share/,
        those files must be monitored and to be taken in consideration by merged.mg
 tier: 1, 2
@@ -13,25 +13,25 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-authd
-    - wazuh-agentd
+    - fortishield-authd
+    - fortishield-agentd
 os_platform:
     - linux
 os_version:
     - Debian Buster
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/centralized-configuration.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/centralized-configuration.html
 '''
 
 import os
 import pytest
 import time
-from wazuh_testing import T_1, T_10
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.file import read_yaml
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools.system import HostManager
-from wazuh_testing.tools.file import replace_regex_in_file
+from fortishield_testing import T_1, T_10
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.file import read_yaml
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools.system import HostManager
+from fortishield_testing.tools.file import replace_regex_in_file
 from system import (assign_agent_to_new_group, clean_cluster_logs, create_new_agent_group, delete_agent_group,
                     restart_cluster)
 
@@ -54,28 +54,28 @@ reset_files = {
     'TestGroup1': ['TestFileInTestGroup0', 'TestFileInTestGroup20', 'EmptyFileInGroup0', 'EmptyFileInGroup00',
                    'EmptyFileInGroup1', 'EmptyFileInGroup2', 'EmptyFileInGroup3', 'EmptyFileInGroup4',
                    'EmptyFileInGroup5', 'EmptyFileInGroup6']}
-testinfra_hosts = ['wazuh-manager', 'wazuh-agent1']
+testinfra_hosts = ['fortishield-manager', 'fortishield-agent1']
 
 
 @pytest.fixture()
 def environment_setting(test_case):
     create_new_agent_group(testinfra_hosts[0], 'TestGroup1', host_manager)
     assign_agent_to_new_group(testinfra_hosts[0], 'TestGroup1',
-                              host_manager.run_command('wazuh-manager',
-                                                       f'cut -c 1-3 {WAZUH_PATH}/etc/client.keys'), host_manager)
+                              host_manager.run_command('fortishield-manager',
+                                                       f'cut -c 1-3 {FORTISHIELD_PATH}/etc/client.keys'), host_manager)
 
     if test_case['metadata']['test_type'] == 'on_start':
-        host_manager.run_command(testinfra_hosts[0], f'{WAZUH_PATH}/bin/wazuh-control stop')
+        host_manager.run_command(testinfra_hosts[0], f'{FORTISHIELD_PATH}/bin/fortishield-control stop')
     time.sleep(T_1)
 
     yield
 
     for file in reset_files['default']:
-        host_manager.run_command(testinfra_hosts[0], f'rm {WAZUH_PATH}/etc/shared/default/{file}.txt -f')
+        host_manager.run_command(testinfra_hosts[0], f'rm {FORTISHIELD_PATH}/etc/shared/default/{file}.txt -f')
     for file in reset_files['TestGroup1']:
-        host_manager.run_command(testinfra_hosts[0], f'rm {WAZUH_PATH}/etc/shared/TestGroup1/{file}.txt -f')
+        host_manager.run_command(testinfra_hosts[0], f'rm {FORTISHIELD_PATH}/etc/shared/TestGroup1/{file}.txt -f')
     delete_agent_group(testinfra_hosts[0], 'TestGroup1', host_manager, 'api')
-    host_manager.run_command(testinfra_hosts[0], f'rm -r {WAZUH_PATH}/etc/shared/TestGroup1 -f')
+    host_manager.run_command(testinfra_hosts[0], f'rm -r {FORTISHIELD_PATH}/etc/shared/TestGroup1 -f')
     clean_cluster_logs(testinfra_hosts, host_manager)
 
 
@@ -84,7 +84,7 @@ def environment_setting(test_case):
 def test_correct_merged_file_generation(test_case, environment_setting):
     '''
         description: Checking correct merged file generation.
-        wazuh_min_version: 4.6.0
+        fortishield_min_version: 4.6.0
         parameters:
             - test_case:
                 type: list
@@ -114,21 +114,21 @@ def test_correct_merged_file_generation(test_case, environment_setting):
 
     # Main action of the test
     if action == "remove":
-        host_manager.run_command(testinfra_hosts[0], f'rm {WAZUH_PATH}/etc/shared/default/merged.mg -f')
+        host_manager.run_command(testinfra_hosts[0], f'rm {FORTISHIELD_PATH}/etc/shared/default/merged.mg -f')
     if action == "add_files":
         for number in range(number_files):
             files_list.append(f'{file_name}{number}')
         for file in files_list:
-            host_manager.run_command(testinfra_hosts[0], f"touch {WAZUH_PATH}/etc/shared/{folder}/{file}.txt")
+            host_manager.run_command(testinfra_hosts[0], f"touch {FORTISHIELD_PATH}/etc/shared/{folder}/{file}.txt")
             if file_content != 'zero':
                 host_manager.modify_file_content(host=testinfra_hosts[0],
-                                                 path=f"{WAZUH_PATH}/etc/shared/{folder}/{file}.txt",
+                                                 path=f"{FORTISHIELD_PATH}/etc/shared/{folder}/{file}.txt",
                                                  content=file_content)
 
     if test_type == 'on_start' and action == 'remove':
 
         assert 'merged.mg' not in host_manager.run_command(testinfra_hosts[0],
-                                                           f'ls {WAZUH_PATH}/etc/shared/default -la | grep merged')
+                                                           f'ls {FORTISHIELD_PATH}/etc/shared/default -la | grep merged')
 
     # Restart or wait
     if test_type == 'on_start':
@@ -143,11 +143,11 @@ def test_correct_merged_file_generation(test_case, environment_setting):
         if number_files >= 1:
             counter_files = 0
             for file in files_list:
-                if file in host_manager.run_command(testinfra_hosts[0], f"ls {WAZUH_PATH}/etc/shared/{folder}"):
+                if file in host_manager.run_command(testinfra_hosts[0], f"ls {FORTISHIELD_PATH}/etc/shared/{folder}"):
                     counter_files = counter_files + 1
             assert counter_files == number_files
 
-    assert 'merged.mg' in host_manager.run_command(testinfra_hosts[0], f"ls {WAZUH_PATH}/etc/shared/{folder}")
+    assert 'merged.mg' in host_manager.run_command(testinfra_hosts[0], f"ls {FORTISHIELD_PATH}/etc/shared/{folder}")
 
     # Check content of merged.mg
 
@@ -158,7 +158,7 @@ def test_correct_merged_file_generation(test_case, environment_setting):
             else:
                 merged_value = f'!0 {file}.txt'
             assert merged_value in host_manager.run_command(testinfra_hosts[0],
-                                                            f"cat {WAZUH_PATH}/etc/shared/{folder}/merged.mg")
+                                                            f"cat {FORTISHIELD_PATH}/etc/shared/{folder}/merged.mg")
 
     # Check logs
     if file_content == 'zero':

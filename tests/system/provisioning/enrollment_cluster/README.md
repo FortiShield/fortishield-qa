@@ -1,6 +1,6 @@
-# wazuh-qa
+# fortishield-qa
 
-Wazuh - Basic cluster provisioning
+Fortishield - Basic cluster provisioning
 
 ## Setting up the provisioning
 
@@ -75,7 +75,7 @@ The base environment defined for Docker provisioning is
 
 - A master node
 - Two workers nodes
-- One agent ready to start the enrollment process with the `worker1` node when `wazuh-agent` starts.
+- One agent ready to start the enrollment process with the `worker1` node when `fortishield-agent` starts.
 
 ## Environment management
 

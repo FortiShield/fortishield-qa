@@ -1,7 +1,7 @@
-Ansible Playbook - Wazuh agent
+Ansible Playbook - Fortishield agent
 ==============================
 
-This role will install and configure a Wazuh Agent.
+This role will install and configure a Fortishield Agent.
 
 OS Requirements
 ----------------
@@ -17,26 +17,26 @@ This role is compatible with:
 Role Variables
 --------------
 
-* `wazuh_managers`: Collection of Wazuh Managers' IP address, port, and protocol used by the agent
-* `wazuh_agent_authd`: Collection with the settings to register an agent using authd.
+* `fortishield_managers`: Collection of Fortishield Managers' IP address, port, and protocol used by the agent
+* `fortishield_agent_authd`: Collection with the settings to register an agent using authd.
 
 Playbook example
 ----------------
 
 The following is an example of how this role can be used:
 
-     - hosts: all:!wazuh-manager
+     - hosts: all:!fortishield-manager
        roles:
-         - ansible-wazuh-agent
+         - ansible-fortishield-agent
        vars:
-         wazuh_managers:
+         fortishield_managers:
            - address: 127.0.0.1
              port: 1514
              protocol: tcp
              api_port: 55000
              api_proto: 'http'
              api_user: 'ansible'
-         wazuh_agent_authd:
+         fortishield_agent_authd:
            registration_address: 127.0.0.1
            enable: true
            port: 1515
@@ -47,12 +47,12 @@ The following is an example of how this role can be used:
 License and copyright
 ---------------------
 
-WAZUH Copyright (C) 2016, Wazuh Inc. (License GPLv3)
+FORTISHIELD Copyright (C) 2016, Fortishield Inc. (License GPLv3)
 
 ### Based on previous work from dj-wasabi
 
   - https://github.com/dj-wasabi/ansible-ossec-server
 
-### Modified by Wazuh
+### Modified by Fortishield
 
-The playbooks have been modified by Wazuh, including some specific requirements, templates and configuration to improve integration with Wazuh ecosystem.
+The playbooks have been modified by Fortishield, including some specific requirements, templates and configuration to improve integration with Fortishield ecosystem.

@@ -22,7 +22,7 @@ The test needs to receive three parameters in order to be run. If these paramete
     ├── master
     │   ├── data
     │   │   ├── *
-    │   │   │   ├── wazuh-clusterd.csv
+    │   │   │   ├── fortishield-clusterd.csv
     │   │   ├── *
     │   │   │   ├── agent-info_sync.csv
     │   │   │   ├── integrity_check.csv
@@ -30,7 +30,7 @@ The test needs to receive three parameters in order to be run. If these paramete
     ├── worker_x
     │   ├── data
     │   │   ├── *
-    │   │   │   ├── wazuh-clusterd.csv
+    │   │   │   ├── fortishield-clusterd.csv
     │   │   ├── *
     │   │   │   ├── agent-info_sync.csv
     │   │   │   ├── integrity_check.csv
@@ -45,7 +45,7 @@ The test needs to receive three parameters in order to be run. If these paramete
 python3 -m pytest test_cluster_performance.py --artifacts_path='/tmp/artifacts/cluster_performance/74' --n_workers=10 --n_agents=50000 --html=report.html --self-contained-html
 ============================================================================================ test session starts ============================================================================================
 platform linux -- Python 3.8.10, pytest-5.0.0, py-1.8.2, pluggy-0.13.1
-rootdir: /home/selu/Git/wazuh-qa/tests/performance/test_cluster
+rootdir: /home/selu/Git/fortishield-qa/tests/performance/test_cluster
 plugins: metadata-1.10.0, html-3.1.1, testinfra-5.0.0, tavern-1.2.2, pep8-1.0.6, cov-2.10.0, asyncio-0.14.0
 collected 1 item                                                                                                                                                                                            
 
@@ -120,7 +120,7 @@ test_cluster_performance.py:101: AssertionError
 ------------------------------------------------------------------------------------------- Captured stdout call --------------------------------------------------------------------------------------------
 Setup phase took 0:10:11s (2021/10/15 15:39:41 - 2021/10/15 15:49:52).
 Stable phase took 0:13:47s (2021/10/15 15:49:52 - 2021/10/15 16:03:39).
------------------------------------------------------- generated html file: file:///home/selu/Git/wazuh-qa/tests/performance/test_cluster/report.html -------------------------------------------------------
+------------------------------------------------------ generated html file: file:///home/selu/Git/fortishield-qa/tests/performance/test_cluster/report.html -------------------------------------------------------
 ========================================================================================= 1 failed in 0.45 seconds ==========================================================================================
 
 ```
@@ -129,7 +129,7 @@ Stable phase took 0:13:47s (2021/10/15 15:49:52 - 2021/10/15 16:03:39).
 New thresholds files can be added inside the `data` folder of the test. The filename must follow this structure:
 - `<number_of_workers>w_<number_of_agents>a_thresholds.yaml`
 
-The content must be a yaml with two main keys, `tasks` and `resources`. Each of them must contain the same information that is produced when executing the `ClusterCSVTasksParser` and `ClusterCSVResourcesParser` tools of `wazuh_testing.tools.performance.csv_parser`.
+The content must be a yaml with two main keys, `tasks` and `resources`. Each of them must contain the same information that is produced when executing the `ClusterCSVTasksParser` and `ClusterCSVResourcesParser` tools of `fortishield_testing.tools.performance.csv_parser`.
 
 ### Tests information
 

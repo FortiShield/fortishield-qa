@@ -16,7 +16,7 @@
                   },
                   "name": {
                     "type": "string",
-                    "pattern": "^wazuh-analysisd$"
+                    "pattern": "^fortishield-analysisd$"
                   },
                   "agents": {
                     "type": "array",

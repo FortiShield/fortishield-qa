@@ -26,19 +26,19 @@
         networks:
           - name: "{{ docker_network }}"
 
-- name: Wazuh Manager
-  hosts: wazuh-manager
+- name: Fortishield Manager
+  hosts: fortishield-manager
   vars:
-    master_hostname: "wazuh-manager"
+    master_hostname: "fortishield-manager"
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/manager-role"
 
-- name: Wazuh Agent1
-  hosts: wazuh-agent1
+- name: Fortishield Agent1
+  hosts: fortishield-agent1
   vars:
-    manager_hostname: wazuh-manager
+    manager_hostname: fortishield-manager
     agent_id: "{{ agent1_id }}"
     agent_hostname: "{{ agent1_hostname }}"
     agent_key: "{{ agent1_key }}"

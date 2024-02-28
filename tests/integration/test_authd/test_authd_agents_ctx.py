@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the 'wazuh-authd' daemon correctly handles the enrollment requests
-       from agents with pre-existing IP addresses or names. The 'wazuh-authd' daemon can automatically
-       add a Wazuh agent to a Wazuh manager and provide the key to the agent. It is used along with
+brief: These tests will check if the 'fortishield-authd' daemon correctly handles the enrollment requests
+       from agents with pre-existing IP addresses or names. The 'fortishield-authd' daemon can automatically
+       add a Fortishield agent to a Fortishield manager and provide the key to the agent. It is used along with
        the 'agent-auth' application.
 
 components:
@@ -19,9 +19,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -38,8 +38,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-authd.html
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/agent_groups.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-authd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/agent_groups.html
 
 tags:
     - enrollment
@@ -49,13 +49,13 @@ import subprocess
 import time
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file, remove_file, recursive_directory_creation
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service, check_daemon_status
-from wazuh_testing.api import remove_groups, set_up_groups
-from wazuh_testing.tools.wazuh_manager import remove_all_agents
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file, remove_file, recursive_directory_creation
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service, check_daemon_status
+from fortishield_testing.api import remove_groups, set_up_groups
+from fortishield_testing.tools.fortishield_manager import remove_all_agents
 
 
 # Marks
@@ -66,17 +66,17 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 # Configurations
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=None, metadata=None)
-CLIENT_KEYS_PATH = os.path.join(WAZUH_PATH, 'etc', 'client.keys')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=None, metadata=None)
+CLIENT_KEYS_PATH = os.path.join(FORTISHIELD_PATH, 'etc', 'client.keys')
 
 # Variables
 log_monitor_paths = []
 
-ls_sock_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'auth'))
+ls_sock_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'auth'))
 receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2'), (ls_sock_path, 'AF_UNIX', 'TCP')]
 
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 groups_infra = ['001','002', '003', '004']
@@ -120,7 +120,7 @@ def clean_keys():
 
 
 def clean_diff():
-    diff_folder = os.path.join(WAZUH_PATH, 'queue', 'diff')
+    diff_folder = os.path.join(FORTISHIELD_PATH, 'queue', 'diff')
     try:
         remove_file(diff_folder)
         recursive_directory_creation(diff_folder)
@@ -130,7 +130,7 @@ def clean_diff():
 
 
 def clean_rids():
-    rids_folder = os.path.join(WAZUH_PATH, 'queue', 'rids')
+    rids_folder = os.path.join(FORTISHIELD_PATH, 'queue', 'rids')
     for filename in os.listdir(rids_folder):
         file_path = os.path.join(rids_folder, filename)
         if "sender_counter" not in file_path:
@@ -141,7 +141,7 @@ def clean_rids():
 
 
 def clean_agents_timestamp():
-    timestamp_path = os.path.join(WAZUH_PATH, 'queue', 'agents-timestamp')
+    timestamp_path = os.path.join(FORTISHIELD_PATH, 'queue', 'agents-timestamp')
     truncate_file(timestamp_path)
 
 
@@ -156,7 +156,7 @@ def check_agent_groups(id, expected, timeout=30):
 
 
 def check_diff(name, expected, timeout=30):
-    diff_path = os.path.join(WAZUH_PATH, 'queue', 'diff', name)
+    diff_path = os.path.join(FORTISHIELD_PATH, 'queue', 'diff', name)
     wait = time.time() + timeout
     while time.time() < wait:
         ret = os.path.exists(diff_path)
@@ -185,7 +185,7 @@ def check_client_keys(id, expected):
 
 
 def check_agent_timestamp(id, name, ip, expected):
-    timestamp_path = os.path.join(WAZUH_PATH, 'queue', 'agents-timestamp')
+    timestamp_path = os.path.join(FORTISHIELD_PATH, 'queue', 'agents-timestamp')
     line = "{} {} {}".format(id, name, ip)
     found = False
     try:
@@ -204,7 +204,7 @@ def check_agent_timestamp(id, name, ip, expected):
 
 
 def check_rids(id, expected):
-    agent_info_path = os.path.join(WAZUH_PATH, 'queue', 'rids', id)
+    agent_info_path = os.path.join(FORTISHIELD_PATH, 'queue', 'rids', id)
     if expected == os.path.exists(agent_info_path):
         return True
     else:
@@ -212,7 +212,7 @@ def check_rids(id, expected):
 
 
 def create_rids(id):
-    rids_path = os.path.join(WAZUH_PATH, 'queue', 'rids', id)
+    rids_path = os.path.join(FORTISHIELD_PATH, 'queue', 'rids', id)
     try:
         file = open(rids_path, 'w')
         file.close()
@@ -223,7 +223,7 @@ def create_rids(id):
 
 def create_diff(name):
     SIGID = '533'
-    diff_folder = os.path.join(WAZUH_PATH, 'queue', 'diff', name)
+    diff_folder = os.path.join(FORTISHIELD_PATH, 'queue', 'diff', name)
     try:
         os.mkdir(diff_folder)
     except IOError:
@@ -369,15 +369,15 @@ def duplicate_name_agent_delete_test(server):
 
 @pytest.mark.parametrize("server_type",["main", "local"])
 def test_ossec_authd_agents_ctx(get_configuration, configure_environment, configure_sockets_environment,
-                                     connect_to_sockets_module, restart_wazuh, server_type):
+                                     connect_to_sockets_module, restart_fortishield, server_type):
     '''
     description:
-        Check if when the 'wazuh-authd' daemon receives an enrollment request from an agent
+        Check if when the 'fortishield-authd' daemon receives an enrollment request from an agent
         that has an IP address or name that is already registered, 'authd' creates a record
         for the new agent and deletes the old one. In this case, the enrollment requests
         are sent to an IP v4 network socket.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -396,23 +396,23 @@ def test_ossec_authd_agents_ctx(get_configuration, configure_environment, config
         - Verify that agents using an already registered name can successfully enroll.
 
     input_description:
-        Different test cases are contained in an external YAML file (wazuh_conf.yaml)
-        which includes configuration settings for the 'wazuh-authd' daemon.
+        Different test cases are contained in an external YAML file (fortishield_conf.yaml)
+        which includes configuration settings for the 'fortishield-authd' daemon.
 
     expected_output:
-        - r'Accepting connections on port 1515' (When the 'wazuh-authd' daemon is ready to accept enrollments)
+        - r'Accepting connections on port 1515' (When the 'fortishield-authd' daemon is ready to accept enrollments)
         - r'OSSEC K:' (When the agent has enrolled in the manager)
     tags:
         - keys
         - ssl
     '''
     control_service('stop')
-    check_daemon_status(running_condition=False, target_daemon='wazuh-authd')
+    check_daemon_status(running_condition=False, target_daemon='fortishield-authd')
     time.sleep(1)
     clean_logs()
     clean_agents_ctx()
     control_service('start')
-    check_daemon_status(running_condition=True, target_daemon='wazuh-authd')
+    check_daemon_status(running_condition=True, target_daemon='fortishield-authd')
     wait_server_connection()
     time.sleep(1)
     set_up_groups([test_group])
@@ -420,5 +420,5 @@ def test_ossec_authd_agents_ctx(get_configuration, configure_environment, config
     duplicate_name_agent_delete_test(server_type)
 
     clean_agents_ctx()
-    remove_all_agents('wazuhdb')
+    remove_all_agents('fortishielddb')
     remove_groups()

@@ -10,4 +10,4 @@
               - aws_profile:
                   value: qa
               - name:
-                  value: wazuh-cloudtrail-integration-tests
+                  value: fortishield-cloudtrail-integration-tests

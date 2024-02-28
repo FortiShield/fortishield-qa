@@ -19,7 +19,7 @@
                   },
                   "name": {
                     "type": "string",
-                    "pattern": "^wazuh-db$"
+                    "pattern": "^fortishield-db$"
                   },
                   "metrics": {
                     "type": "object",
@@ -525,10 +525,10 @@
                                   "tables"
                                 ]
                               },
-                              "wazuhdb": {
+                              "fortishielddb": {
                                 "type": "integer"
                               },
-                              "wazuhdb_breakdown": {
+                              "fortishielddb_breakdown": {
                                 "type": "object",
                                 "properties": {
                                   "db": {
@@ -557,8 +557,8 @@
                               "mitre_breakdown",
                               "task",
                               "task_breakdown",
-                              "wazuhdb",
-                              "wazuhdb_breakdown"
+                              "fortishielddb",
+                              "fortishielddb_breakdown"
                             ]
                           }
                         },
@@ -1068,10 +1068,10 @@
                                   "tables"
                                 ]
                               },
-                              "wazuhdb": {
+                              "fortishielddb": {
                                 "type": "integer"
                               },
-                              "wazuhdb_breakdown": {
+                              "fortishielddb_breakdown": {
                                 "type": "object",
                                 "properties": {
                                   "db": {
@@ -1100,8 +1100,8 @@
                               "mitre_breakdown",
                               "task",
                               "task_breakdown",
-                              "wazuhdb",
-                              "wazuhdb_breakdown"
+                              "fortishielddb",
+                              "fortishielddb_breakdown"
                             ]
                           }
                         },

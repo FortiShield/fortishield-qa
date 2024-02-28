@@ -39,13 +39,13 @@
     - name: Assign the right permissions and owner to the file
       become: true
       shell: |
-        chown wazuh:wazuh /var/ossec/etc/lists/blacklist-alienvault
+        chown fortishield:fortishield /var/ossec/etc/lists/blacklist-alienvault
         chmod 660 /var/ossec/etc/lists/blacklist-alienvault
 
     - name: Configure ossec.conf
       include_role:
-        name: manage_wazuh_configurations
-        tasks_from: write_wazuh_config.yaml
+        name: manage_fortishield_configurations
+        tasks_from: write_fortishield_config.yaml
       vars:
         config_block: |
           <localfile>
@@ -81,7 +81,7 @@
 
     - name: Configure local rules
       include_role:
-        name: manage_wazuh_configurations
+        name: manage_fortishield_configurations
         tasks_from: write_local_rules.yaml
       vars:
         config_block: |
@@ -93,10 +93,10 @@
           </rule>
           </group>
 
-    - name: Restart wazuh-manager
+    - name: Restart fortishield-manager
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux
 
@@ -108,4 +108,4 @@
       win_lineinfile:
         path: C:\Windows\System32\drivers\etc\hosts
         line: |
-          {{ hostvars['centos-manager']['ansible_host'] }} wazuh-manager
+          {{ hostvars['centos-manager']['ansible_host'] }} fortishield-manager

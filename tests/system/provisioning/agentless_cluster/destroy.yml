@@ -2,14 +2,14 @@
 - hosts: localhost
   tasks:
   - docker_container:
-      name: wazuh-master
+      name: fortishield-master
       state: absent
       force_kill: yes
   - docker_container:
-      name: wazuh-worker1
+      name: fortishield-worker1
       state: absent
       force_kill: yes
   - docker_container:
-      name: wazuh-worker2
+      name: fortishield-worker2
       state: absent
       force_kill: yes

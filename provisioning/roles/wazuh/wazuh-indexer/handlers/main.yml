@@ -1,5 +1,5 @@
 ---
-- name: restart wazuh-indexer
+- name: restart fortishield-indexer
   service:
-    name: wazuh-indexer
+    name: fortishield-indexer
     state: restarted

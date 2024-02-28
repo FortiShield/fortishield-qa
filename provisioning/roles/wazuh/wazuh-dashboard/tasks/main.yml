@@ -29,69 +29,69 @@
   template:
     src: "templates/opensearch_dashboards.yml.j2"
     dest: "{{ dashboard_conf_path }}/opensearch_dashboards.yml"
-    group: wazuh-dashboard
-    owner: wazuh-dashboard
+    group: fortishield-dashboard
+    owner: fortishield-dashboard
     mode: 0640
     force: yes
-  notify: restart wazuh-dashboard
+  notify: restart fortishield-dashboard
   tags:
     - install
     - configure
 
-- name: Ensuring Wazuh dashboard directory owner
+- name: Ensuring Fortishield dashboard directory owner
   file:
     # noqa 208
-    path: "/usr/share/wazuh-dashboard"
+    path: "/usr/share/fortishield-dashboard"
     state: directory
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
+    owner: fortishield-dashboard
+    group: fortishield-dashboard
     recurse: yes
 
-- name: Wait for Wazuh-Indexer port
+- name: Wait for Fortishield-Indexer port
   wait_for: host={{ indexer_network_host }} port={{ indexer_http_port }}
 
 - name: Select correct API protocol
   set_fact:
     indexer_api_protocol: "{% if dashboard_security is defined and dashboard_security %}https{% else %}http{% endif %}"
 
-- name: Attempting to delete legacy Wazuh index if exists
+- name: Attempting to delete legacy Fortishield index if exists
   uri:
-    url: "{{ indexer_api_protocol }}://{{ indexer_network_host }}:{{ indexer_http_port }}/.wazuh"
+    url: "{{ indexer_api_protocol }}://{{ indexer_network_host }}:{{ indexer_http_port }}/.fortishield"
     method: DELETE
     user: "admin"
     password: "{{ indexer_admin_password }}"
     validate_certs: no
     status_code: 200, 404
 
-- name: Create Wazuh Plugin config directory
+- name: Create Fortishield Plugin config directory
   file:
-    path: /usr/share/wazuh-dashboard/data/wazuh/config/
+    path: /usr/share/fortishield-dashboard/data/fortishield/config/
     state: directory
     recurse: yes
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
+    owner: fortishield-dashboard
+    group: fortishield-dashboard
     mode: 0751
   changed_when: False
 
-- name: Configure Wazuh Dashboard Plugin
+- name: Configure Fortishield Dashboard Plugin
   template:
-    src: wazuh.yml.j2
-    dest: /usr/share/wazuh-dashboard/data/wazuh/config/wazuh.yml
-    owner: wazuh-dashboard
-    group: wazuh-dashboard
+    src: fortishield.yml.j2
+    dest: /usr/share/fortishield-dashboard/data/fortishield/config/fortishield.yml
+    owner: fortishield-dashboard
+    group: fortishield-dashboard
     mode: 0751
   changed_when: False
 
 - name: Configure opensearch.password in opensearch_dashboards.keystore
   shell: >-
-    echo '{{ dashboard_password }}' | /usr/share/wazuh-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
+    echo '{{ dashboard_password }}' | /usr/share/fortishield-dashboard/bin/opensearch-dashboards-keystore --allow-root add -f --stdin opensearch.password
   args:
     executable: /bin/bash
   become: yes
 
-- name: Ensure Wazuh dashboard started and enabled
+- name: Ensure Fortishield dashboard started and enabled
   service:
-    name: wazuh-dashboard
+    name: fortishield-dashboard
     enabled: true
     state: started
 

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -19,8 +19,8 @@ components:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-clusterd
+    - fortishield-authd
+    - fortishield-clusterd
 
 os_platform:
     - linux
@@ -49,11 +49,11 @@ tags:
 import os
 
 import pytest
-from wazuh_testing.cluster import FERNET_KEY, CLUSTER_DATA_HEADER_SIZE, cluster_msg_build
-from wazuh_testing.tools import WAZUH_PATH, CLUSTER_LOGS_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import ManInTheMiddle
-from wazuh_testing.tools.file import read_yaml
+from fortishield_testing.cluster import FERNET_KEY, CLUSTER_DATA_HEADER_SIZE, cluster_msg_build
+from fortishield_testing.tools import FORTISHIELD_PATH, CLUSTER_LOGS_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import ManInTheMiddle
+from fortishield_testing.tools.file import read_yaml
 
 # Marks
 
@@ -78,7 +78,7 @@ class WorkerMID(ManInTheMiddle):
             message = data[CLUSTER_DATA_HEADER_SIZE:]
             response = cluster_msg_build(command=b'send_sync', counter=2, payload=bytes(self.cluster_output.encode()),
                                          encrypt=False)[0]
-            print(f'Received message from wazuh-authd: {message}')
+            print(f'Received message from fortishield-authd: {message}')
             print(f'Response to send: {self.cluster_output}')
             self.pause()
             return response
@@ -94,23 +94,23 @@ class WorkerMID(ManInTheMiddle):
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 message_tests = read_yaml(os.path.join(test_data_path, 'key_request_worker_messages.yaml'))
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
 params = [{'FERNET_KEY': FERNET_KEY}]
 metadata = [{'fernet_key': FERNET_KEY}]
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 script_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'files')
 script_filename = 'fetch_keys.py'
 
 # Variables
 log_monitor_paths = [CLUSTER_LOGS_PATH]
-cluster_socket_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'cluster', 'c-internal.sock'))
-kreq_sock_path = os.path.join(WAZUH_PATH, 'queue', 'sockets', 'krequest')
+cluster_socket_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'cluster', 'c-internal.sock'))
+kreq_sock_path = os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'krequest')
 receiver_sockets_params = [(kreq_sock_path, 'AF_UNIX', 'UDP')]
 test_case_ids = [f"{test_case['name'].lower().replace(' ', '-')}" for test_case in message_tests]
 
 mitm_master = WorkerMID(address=cluster_socket_path, family='AF_UNIX', connection_protocol='TCP')
 
-monitored_sockets_params = [('wazuh-clusterd', mitm_master, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-clusterd', mitm_master, True), ('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
 
@@ -137,7 +137,7 @@ def test_authd_key_request_worker(configure_environment, configure_sockets_envir
         Checks that every message from the worker is correctly formatted for master,
         and every master response is correctly parsed for worker.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.4.0
 
     parameters:

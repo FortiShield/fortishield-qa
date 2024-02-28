@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: These tests will check if the 'DOS' (Denial-of-service attack) blocking feature of the API handled
-       by the 'wazuh-apid' daemon is working properly. The Wazuh API is an open source 'RESTful' API
-       that allows for interaction with the Wazuh manager from a web browser, command line tool
+       by the 'fortishield-apid' daemon is working properly. The Fortishield API is an open source 'RESTful' API
+       that allows for interaction with the Fortishield manager from a web browser, command line tool
        like 'cURL' or any script or program that can make web requests.
 
 components:
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/configuration.html#access
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/configuration.html#access
     - https://en.wikipedia.org/wiki/Denial-of-service_attack
 
 tags:
@@ -53,7 +53,7 @@ import time
 
 import pytest
 import requests
-from wazuh_testing.tools.configuration import check_apply_test, get_api_conf
+from fortishield_testing.tools.configuration import check_apply_test, get_api_conf
 
 # Marks
 
@@ -88,7 +88,7 @@ def test_DOS_blocking_system(tags_to_apply, get_configuration, configure_api_env
                  For this purpose, the test causes an IP blocking, makes a request within
                  the same minute, makes a request after the minute.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 

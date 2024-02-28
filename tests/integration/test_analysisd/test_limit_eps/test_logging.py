@@ -3,12 +3,12 @@ import os
 import pytest
 import time
 
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing import T_10
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.run_simulator import syslog_simulator
-from wazuh_testing.tools.thread_executor import ThreadExecutor
-from wazuh_testing.modules.analysisd import event_monitor as evm
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing import T_10
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.run_simulator import syslog_simulator
+from fortishield_testing.tools.thread_executor import ThreadExecutor
+from fortishield_testing.modules.analysisd import event_monitor as evm
 
 
 # Reference paths
@@ -32,19 +32,19 @@ t1_configurations = load_configuration_template(t1_configurations_path, t1_confi
 
 @pytest.mark.tier(level=1)
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_configuration_metadata), ids=t1_case_ids)
-def test_dropping_events(configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration,
+def test_dropping_events(configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration,
                          configure_local_internal_options_function, truncate_monitored_files,
-                         restart_wazuh_daemon_function):
+                         restart_fortishield_daemon_function):
     """
     description: Check that after the event analysis block, if the events queue is full, the events are dropped.
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Send events until queue is full and dropping events.
             - Check that "Queues are full and no EPS credits, dropping events" log appears in WARNING mode.
@@ -55,10 +55,10 @@ def test_dropping_events(configuration, metadata, load_wazuh_basic_configuration
             - Wait timeframe to release the events queue usage and send an event.
             - Check that "Queues back to normal and EPS credits, no dropping events" log appears in DEBUG mode.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -67,10 +67,10 @@ def test_dropping_events(configuration, metadata, load_wazuh_basic_configuration
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -78,10 +78,10 @@ def test_dropping_events(configuration, metadata, load_wazuh_basic_configuration
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that "Queues are full and no EPS credits, dropping events" log appears in WARNING mode.

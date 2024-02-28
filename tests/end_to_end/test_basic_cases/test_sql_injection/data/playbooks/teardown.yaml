@@ -9,9 +9,9 @@
         marker: <!-- {mark} ANSIBLE MANAGED BLOCK -->
         block: ''
 
-    - name: Restart wazuh-agent
+    - name: Restart fortishield-agent
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux

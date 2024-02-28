@@ -9,10 +9,10 @@
         marker: <!-- {mark} ANSIBLE MANAGED BLOCK -->
         state: absent
 
-    - name: Restart wazuh-manager
+    - name: Restart fortishield-manager
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux
 
@@ -26,10 +26,10 @@
         dest: C:\Program Files (x86)\ossec-agent
         remote_src: true
 
-    - name: Restart wazuh-agent
+    - name: Restart fortishield-agent
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: windows
 

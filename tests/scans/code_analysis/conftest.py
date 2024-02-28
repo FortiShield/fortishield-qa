@@ -30,8 +30,8 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope='session', autouse=True)
-def clone_wazuh_repository(pytestconfig):
-    """Fixture that clones a Wazuh repository in a temporary directory and checkout to the branch given by parameter.
+def clone_fortishield_repository(pytestconfig):
+    """Fixture that clones a Fortishield repository in a temporary directory and checkout to the branch given by parameter.
     Remove the temporary directory once the test session using this fixture has finished.
 
     Args:
@@ -40,7 +40,7 @@ def clone_wazuh_repository(pytestconfig):
     Yields:
         Union[str, None]: The temporary directory name or None if the clone or checkout actions were not successful.
     """
-    # Get Wazuh repository and branch
+    # Get Fortishield repository and branch
     repository_name = pytestconfig.getoption('repo')
     reference = pytestconfig.getoption('reference')
 
@@ -51,12 +51,12 @@ def clone_wazuh_repository(pytestconfig):
         # Clone into temporary dir
         # depth=1 creates a shallow clone with a history truncated to 1 commit. Implies single_branch=True.
         try:
-            Repo.clone_from(f"https://github.com/wazuh/{repository_name}.git",
+            Repo.clone_from(f"https://github.com/fortishield/{repository_name}.git",
                             repository_path,
                             depth=1,
                             branch=reference)
         except GitCommandError:
-            repo = Repo.clone_from(f"https://github.com/wazuh/{repository_name}.git",
+            repo = Repo.clone_from(f"https://github.com/fortishield/{repository_name}.git",
                                    repository_path, branch='master', no_single_branch=True)
 
             # Get all branches that contains the commit

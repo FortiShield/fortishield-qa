@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: These tests will check if the 'who-data' feature of the File Integrity Mo
        works properly. 'who-data' information contains the user who made the changes on the monitored
        files and also the program name or process used to carry them out. In particular, it will be
        verified that the value of the 'whodata' attribute prevails over the 'realtime' one.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,9 +40,9 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/auditing-whodata/who-linux.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/auditing-whodata/who-linux.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -59,13 +59,13 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH, REGULAR
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.file import create_file, delete_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.event_monitor import callback_detect_event
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import global_parameters, LOG_FILE_PATH, REGULAR
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.file import create_file, delete_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.event_monitor import callback_detect_event
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 # Marks
@@ -93,7 +93,7 @@ configurations = load_configuration_template(configurations_path, configuration_
 # Test
 @pytest.mark.parametrize('test_folders', [test_directories], scope="module", ids='')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_configuration, test_folders,
+def test_whodata_prevails_over_realtime(configuration, metadata, set_fortishield_configuration, test_folders,
                                         create_monitored_folders_module, configure_local_internal_options_function,
                                         restart_syscheck_function, wait_syscheck_start):
     '''
@@ -107,9 +107,9 @@ def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_confi
 
     test_phases:
         - setup:
-            - Set wazuh configuration and local_internal_options.
+            - Set fortishield configuration and local_internal_options.
             - Create custom folder for monitoring
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Create file and detect event creation event
             - Validate mode is whodata
@@ -118,9 +118,9 @@ def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_confi
         - teardown:
             - Delete custom monitored folder
             - Restore configuration
-            - Stop wazuh
+            - Stop fortishield
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -134,7 +134,7 @@ def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_confi
         - test_folders:
             type: dict
             brief: List of folders to be created for monitoring.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - create_monitored_folders_module:
@@ -164,11 +164,11 @@ def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_confi
     tags:
         - who_data
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
     filename = "testfile"
 
     create_file(REGULAR, test_directories[0], filename, content="")
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                     callback=callback_detect_event).result()
 
     assert event['data']['mode'] == 'whodata', f"Unexpected event mode found:{event['data']['mode']}, expected whodata"
@@ -176,7 +176,7 @@ def test_whodata_prevails_over_realtime(configuration, metadata, set_wazuh_confi
     assert os.path.join(test_directories[0], filename) in event['data']['path'], 'Unexpected file path found'
 
     delete_file(os.path.join(test_directories[0], filename))
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                     callback=callback_detect_event).result()
 
     assert event['data']['mode'] == 'whodata', f"Unexpected event mode found:{event['data']['mode']}, expected whodata"

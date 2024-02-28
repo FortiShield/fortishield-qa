@@ -1,16 +1,16 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
 
 import pytest
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.agentless_cluster_env]
 
-test_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
+test_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                               'provisioning', 'agentless_cluster', 'inventory.yml')
 default_api_conf = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'api_configurations', 'default.yaml')
@@ -22,7 +22,7 @@ host_manager = HostManager(inventory_path)
     # User-roles based login
     {},
     # Auth context login
-    {'user': 'wazuh-wui', 'password': 'wazuh-wui', 'auth_context': {"username": "elastic"}}
+    {'user': 'fortishield-wui', 'password': 'fortishield-wui', 'auth_context': {"username": "elastic"}}
 ])
 @pytest.mark.parametrize('revoke_host', test_hosts)
 def test_revoke_all_tokens_with_api(login_endpoint, revoke_host, set_default_api_conf):

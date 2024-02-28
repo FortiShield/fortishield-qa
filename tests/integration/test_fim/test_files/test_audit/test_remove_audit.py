@@ -1,19 +1,19 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the 'wazuh-syscheckd' and 'auditd' daemons work together properly.
+brief: These tests will check if the 'fortishield-syscheckd' and 'auditd' daemons work together properly.
        In particular, it will be verified that when there is no 'auditd' package installed on
        the system, the directories monitored with 'who-data' mode are monitored with 'realtime'.
        The 'who-data' feature of the of the File Integrity Monitoring (FIM) system uses
        the Linux Audit subsystem to get the information about who made the changes in a monitored directory.
        These changes produce audit events that are processed by 'syscheck' and reported to the manager.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -26,7 +26,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,9 +44,9 @@ os_version:
 
 references:
     - https://man7.org/linux/man-pages/man8/auditd.8.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/auditing-whodata/who-linux.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/auditing-whodata/who-linux.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -67,13 +67,13 @@ import subprocess
 import pytest
 from distro import id
 
-from wazuh_testing.tools import PREFIX, LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.utils import retry
-from wazuh_testing.modules.fim import TEST_DIR_1
-from wazuh_testing.modules.fim.event_monitor import callback_audit_cannot_start
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.tools import PREFIX, LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.utils import retry
+from fortishield_testing.modules.fim import TEST_DIR_1
+from fortishield_testing.modules.fim.event_monitor import callback_audit_cannot_start
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 # Marks
@@ -142,7 +142,7 @@ def uninstall_install_audit():
 # Test
 @pytest.mark.parametrize('test_folders', [test_directories], scope="module", ids='')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_move_folders_to_realtime(configuration, metadata, set_wazuh_configuration, create_monitored_folders,
+def test_move_folders_to_realtime(configuration, metadata, set_fortishield_configuration, create_monitored_folders,
                                   configure_local_internal_options_function, uninstall_install_audit,
                                   restart_syscheck_function):
     '''
@@ -159,15 +159,15 @@ def test_move_folders_to_realtime(configuration, metadata, set_wazuh_configurati
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
             - Remove auditd
-            - Truncate wazuh logs.
-            - Restart wazuh-syscheck daemon to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-syscheck daemon to apply configuration changes.
         - test:
             - Check that whodata cannot start and monitoring of configured folder is changed to realtime mode.
         - teardown:
             - Install auditd
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -178,7 +178,7 @@ def test_move_folders_to_realtime(configuration, metadata, set_wazuh_configurati
         - metadata:
             type: dict
             brief: Test case data.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - create_monitored_folders_module
@@ -199,7 +199,7 @@ def test_move_folders_to_realtime(configuration, metadata, set_wazuh_configurati
           if the 'authd' package is not installed.
 
     input_description: A test case is contained in external YAML file (configuration_remove_audit.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon
                        and, it is combined with the testing directories to be monitored
                        defined in this module.
 
@@ -210,7 +210,7 @@ def test_move_folders_to_realtime(configuration, metadata, set_wazuh_configurati
         - realtime
         - who_data
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-    wazuh_log_monitor.start(timeout=20, callback=callback_audit_cannot_start,
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor.start(timeout=20, callback=callback_audit_cannot_start,
                             error_message='Did not receive expected "Who-data engine could not start. '
                                           'Switching who-data to real-time" event')

@@ -1,12 +1,12 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
-       Specifically, this test will check if 'wazuh-remoted' sends the #pong message.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
+       Specifically, this test will check if 'fortishield-remoted' sends the #pong message.
 
 components:
     - remoted
@@ -17,7 +17,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -38,7 +38,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-remoted.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
 
 tags:
     - remoted
@@ -46,9 +46,9 @@ tags:
 import os
 import pytest
 
-import wazuh_testing.remote as rm
-from wazuh_testing import TCP_UDP
-from wazuh_testing.tools.configuration import load_wazuh_configurations
+import fortishield_testing.remote as rm
+from fortishield_testing import TCP_UDP
+from fortishield_testing.tools.configuration import load_fortishield_configurations
 
 
 # Marks
@@ -56,7 +56,7 @@ pytestmark = pytest.mark.tier(level=0)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_socket_communication.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_socket_communication.yaml')
 
 parameters = [
     {'PROTOCOL': 'UDP', 'PORT': 1514},
@@ -112,7 +112,7 @@ metadata = [
     {'protocol': 'udp,udp', 'port': 56000},
 ]
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"{x['PROTOCOL']}_{x['PORT']}" for x in parameters]
 
 
@@ -125,9 +125,9 @@ def get_configuration(request):
 
 def test_ping_pong_message(get_configuration, configure_environment, restart_remoted):
     '''
-    description: Check if 'wazuh-remoted' sends the #pong message
+    description: Check if 'fortishield-remoted' sends the #pong message
     
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -140,14 +140,14 @@ def test_ping_pong_message(get_configuration, configure_environment, restart_rem
             brief: Configure a custom environment for testing.
         - restart_remoted:
             type: fixture
-            brief: Restart 'wazuh-remoted' daemon in manager.
+            brief: Restart 'fortishield-remoted' daemon in manager.
     
     assertions:
         - Verify the #pong message is sent correctly.
     
     input_description: A configuration template (test_ping_pong_message) is contained in an external YAML file,
-                       (wazuh_socket_communication.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-remoted' daemon
+                       (fortishield_socket_communication.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-remoted' daemon
                        and agents info.
     
     expected_output:
@@ -166,7 +166,7 @@ def test_ping_pong_message(get_configuration, configure_environment, restart_rem
 
     log_callback = rm.callback_detect_remoted_started(port=config['port'], protocol=protocol)
 
-    wazuh_log_monitor.start(timeout=5, callback=log_callback, error_message="Wazuh remoted didn't start as expected.")
+    fortishield_log_monitor.start(timeout=5, callback=log_callback, error_message="Fortishield remoted didn't start as expected.")
 
     if test_multiple_pings:
         assert b'#pong' == rm.send_ping_pong_messages(manager_address="localhost", protocol=rm.UDP, port=config['port'])

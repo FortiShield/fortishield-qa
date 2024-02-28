@@ -1,3 +1,3 @@
 ---
-- name: restart wazuh-dashboard
-  service: name=wazuh-dashboard state=restarted
+- name: restart fortishield-dashboard
+  service: name=fortishield-dashboard state=restarted

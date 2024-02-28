@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will verify that FIM generates events
        for file operations in a monitored directory hierarchy using multiple deep levels set in
        the 'recursion_level' attribute.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -51,8 +51,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -70,12 +70,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH
-from wazuh_testing.fim import callback_audit_event_too_long
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.utils import regular_file_cud, generate_params
+from fortishield_testing import global_parameters, LOG_FILE_PATH
+from fortishield_testing.fim import callback_audit_event_too_long
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.utils import regular_file_cud, generate_params
 
 # Marks
 
@@ -101,9 +101,9 @@ test_directories = [dir_no_recursion, dir_recursion_1, dir_recursion_5, dir_recu
                     dir_recursion_1_space, dir_recursion_5_space, dir_recursion_max_space]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-conf_name = "wazuh_recursion_windows.yaml" if sys.platform == "win32" else "wazuh_recursion.yaml"
+conf_name = "fortishield_recursion_windows.yaml" if sys.platform == "win32" else "fortishield_recursion.yaml"
 configurations_path = os.path.join(test_data_path, conf_name)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # configurations
 
@@ -113,7 +113,7 @@ inode_params, inode_metadata = generate_params(extra_params={'CHECK': {'check_in
 
 params = common_params if sys.platform == "win32" else common_params + inode_params
 metadata = common_metadata if sys.platform == "win32" else common_metadata + inode_metadata
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # Functions
@@ -178,12 +178,12 @@ def recursion_test(dirname, subdirname, recursion_level, timeout=1, edge_limit=2
             if ((recursion_level < edge_limit * 2) or
                     (recursion_level >= edge_limit * 2 and n < edge_limit) or
                     (recursion_level >= edge_limit * 2 and n > recursion_level - edge_limit)):
-                regular_file_cud(path, wazuh_log_monitor, time_travel=is_scheduled, min_timeout=timeout)
+                regular_file_cud(path, fortishield_log_monitor, time_travel=is_scheduled, min_timeout=timeout)
 
         # Check False (exceeding the specified recursion_level)
         for n in range(recursion_level, recursion_level + ignored_levels):
             path = os.path.join(path, subdirname + str(n + 1))
-            regular_file_cud(path, wazuh_log_monitor, time_travel=is_scheduled, min_timeout=timeout,
+            regular_file_cud(path, fortishield_log_monitor, time_travel=is_scheduled, min_timeout=timeout,
                              triggers_event=False)
 
     except TimeoutError:
@@ -223,18 +223,18 @@ def get_configuration(request):
     (dir_recursion_max, subdir, max_recursion),
     (dir_recursion_max_space, subdir_space, max_recursion)
 ])
-@pytest.mark.skip(reason="It will be blocked by wazuh/wazuh#9298, when it was solve we can enable again this test")
+@pytest.mark.skip(reason="It will be blocked by fortishield/fortishield#9298, when it was solve we can enable again this test")
 def test_recursion_level(dirname, subdirname, recursion_level, get_configuration, configure_environment,
                          restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects events in a monitored directories hierarchy with
+    description: Check if the 'fortishield-syscheckd' daemon detects events in a monitored directories hierarchy with
                  deep limited by the 'recursion_level' attribute using 'scheduled', 'realtime', and 'whodata'
                  monitoring modes. For this purpose, the test will monitor a testing folder and create a directory
                  hierarchy inside it. Once FIM starts, it will make file operations in each level of that hierarchy.
                  Finally, the test will verify that the FIM events are generated up to the deep level limit, and no
                  FIM events are generated in the ignored levels.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -267,8 +267,8 @@ def test_recursion_level(dirname, subdirname, recursion_level, get_configuration
         - Verify that no FIM events are generated in the ignored directories within a monitored directory hierarchy.
 
     input_description: A test case (test_recursion_level) is contained in external YAML files
-                       (wazuh_recursion.yaml or wazuh_recursion_windows.yaml) which includes
-                       configuration settings for the 'wazuh-syscheckd' daemon and the directories
+                       (fortishield_recursion.yaml or fortishield_recursion_windows.yaml) which includes
+                       configuration settings for the 'fortishield-syscheckd' daemon and the directories
                        to be monitored. These are combined with the recursion levels defined in the module.
 
     expected_output:

@@ -1,14 +1,14 @@
-# Copyright (C) 2015-2023, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2023, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import pytest
 
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.modules.fim.event_monitor import detect_initial_scan, detect_realtime_start, detect_whodata_start
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.modules.fim.event_monitor import detect_initial_scan, detect_realtime_start, detect_whodata_start
 
 
 @pytest.fixture(scope='module')
@@ -16,11 +16,11 @@ def restart_syscheckd(get_configuration, request):
     """
     Reset ossec.log and start a new monitor.
     """
-    control_service('stop', daemon='wazuh-syscheckd')
+    control_service('stop', daemon='fortishield-syscheckd')
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
-    control_service('start', daemon='wazuh-syscheckd')
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
+    control_service('start', daemon='fortishield-syscheckd')
 
 
 @pytest.fixture(scope='module')

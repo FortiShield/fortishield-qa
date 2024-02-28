@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these files
-       are modified. Specifically, these tests will check if the 'wazuh-syscheckd' daemon runs the scans
+       are modified. Specifically, these tests will check if the 'fortishield-syscheckd' daemon runs the scans
        on a specific day of the week and time, set them in the 'scan_day' and 'scan_time' tags.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,9 +44,9 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#scan-day
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#scan-time
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#scan-day
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#scan-time
 
 pytest_args:
     - fim_mode:
@@ -66,12 +66,12 @@ from calendar import monthrange
 from datetime import datetime, timedelta
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, callback_detect_end_scan, generate_params, check_time_travel
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.time import reformat_time
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, callback_detect_end_scan, generate_params, check_time_travel
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.time import reformat_time
 
 # Marks
 
@@ -80,12 +80,12 @@ pytestmark = [pytest.mark.tier(level=1)]
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 
 directory_str = ','.join(test_directories)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 scan_days = ['thursday', 'wednesday', 'saturday', 'monday']
 scan_times = ['9PM', '20:00', '12am', '12pm']
 
@@ -94,7 +94,7 @@ scan_times = ['9PM', '20:00', '12am', '12pm']
 p, m = generate_params(extra_params={'TEST_DIRECTORIES': directory_str, 'SCAN_DAY': scan_days, 'SCAN_TIME': scan_times},
                        modes=['scheduled'] * len(scan_days))
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # functions
@@ -144,13 +144,13 @@ def test_scan_day_and_time(tags_to_apply,
                            get_configuration, configure_environment,
                            restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' performs a scan on the day of the week and the time specified in
+    description: Check if the 'fortishield-syscheckd' performs a scan on the day of the week and the time specified in
                  the 'scan_day' and 'scan_time' tags. For this purpose, the test will monitor a testing folder and
                  modify the system date to the moment of the scan that should be performed. Then, it will check
                  if an FIM event, indicating that the scan is ended, is generated. Finally, the test will verify
                  that scans are not performed on a different day or time specified in the test case.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -176,8 +176,8 @@ def test_scan_day_and_time(tags_to_apply,
           the day of the week and the time specified for the scan.
         - Verify that scan is not performed on a different day or time than scheduled.
 
-    input_description: A test case (scan_both) is contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon. These are combined
+    input_description: A test case (scan_both) is contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon. These are combined
                        with the testing directory to be monitored and the scan dates defined in the module.
 
     expected_output:
@@ -213,7 +213,7 @@ def test_scan_day_and_time(tags_to_apply,
     if scan_today:
         if (scan_time - current_day).days == 0:
             check_time_travel(time_travel=True, interval=scan_time - current_day + timedelta(minutes=1))
-            wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan,
+            fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan,
                                     error_message='Did not receive expected '
                                                   '"File integrity monitoring scan ended" event')
             return
@@ -224,16 +224,16 @@ def test_scan_day_and_time(tags_to_apply,
         check_time_travel(time_travel=True, interval=timedelta(days=day_diff - 1))
         current_day = datetime.now()
         with pytest.raises(TimeoutError):
-            event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+            event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                             callback=callback_detect_end_scan)
             raise AttributeError(f'Unexpected event {event}')
 
     check_time_travel(time_travel=True, interval=scan_time - current_day - timedelta(minutes=5))
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan)
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan)
         raise AttributeError(f'Unexpected event {event}')
 
     check_time_travel(time_travel=True, interval=timedelta(minutes=6))
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_end_scan,
                             error_message='Did not receive expected '
                                           '"File integrity monitoring scan ended" event')

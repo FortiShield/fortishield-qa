@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, these tests will check that the manager communicates with several agents
        simultaneously with different protocols.
 
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -35,8 +35,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html
 
 tags:
     - remoted
@@ -44,14 +44,14 @@ tags:
 import os
 import pytest
 
-import wazuh_testing.remote as rd
-import wazuh_testing.tools.agent_simulator as ag
-import wazuh_testing.tools.monitoring as mo
+import fortishield_testing.remote as rd
+import fortishield_testing.tools.agent_simulator as ag
+import fortishield_testing.tools.monitoring as mo
 
 from time import sleep
-from wazuh_testing import TCP, UDP, TCP_UDP
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.thread_executor import ThreadExecutor
+from fortishield_testing import TCP, UDP, TCP_UDP
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.thread_executor import ThreadExecutor
 
 
 
@@ -61,7 +61,7 @@ pytestmark = pytest.mark.tier(level=2)
 # Variables
 current_test_path = os.path.dirname(os.path.realpath(__file__))
 test_data_path = os.path.join(current_test_path, 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_multi_agent_protocols_communication.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_multi_agent_protocols_communication.yaml')
 
 # Set configuration
 parameters = [
@@ -92,7 +92,7 @@ agent_info = {
 configuration_ids = [f"{item['PROTOCOL'].upper()}_{item['PORT']}" for item in parameters]
 
 # Configuration data
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 def validate_agent_manager_protocol_communication(num_agents=2, manager_port=1514, protocol=TCP):
@@ -170,14 +170,14 @@ def get_configuration(request):
     return request.param
 
 
-def test_multi_agents_protocols_communication(get_configuration, configure_environment, restart_wazuh):
+def test_multi_agents_protocols_communication(get_configuration, configure_environment, restart_fortishield):
     '''
     description: Check agent-manager communication with several agents simultaneously via TCP, UDP or both.
                  For this purpose, the test will create all the agents and select the protocol using Round-Robin. Then,
                  an event and a message will be created for each agent created. Finally, it will search for
                  those events within the messages sent to the manager.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -187,18 +187,18 @@ def test_multi_agents_protocols_communication(get_configuration, configure_envir
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
-        - restart_wazuh:
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
+        - restart_fortishield:
             type: fixture
-            brief: Stop Wazuh, reset ossec.log and start a new monitor. Then start Wazuh.
+            brief: Stop Fortishield, reset ossec.log and start a new monitor. Then start Fortishield.
 
     assertions:
         - Verify that the custom events created has been logged correctly.
 
     input_description: A configuration template (test_multi_agent_protocols_communication) is contained in an external
-                       YAML file, (wazuh_multi_agent_protocols_communication.yaml). That template is combined with
+                       YAML file, (fortishield_multi_agent_protocols_communication.yaml). That template is combined with
                        different test cases defined in the module. Those include configuration settings for the
-                       'wazuh-remoted' daemon and agents info.
+                       'fortishield-remoted' daemon and agents info.
 
     expected_output:
         - r".* test message from agent .*"

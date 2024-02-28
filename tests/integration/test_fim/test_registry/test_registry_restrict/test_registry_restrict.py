@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will verify that FIM generates events
        only for registry entry operations in monitored keys that do not match the 'restrict_key'
        or the 'restrict_value' attributes.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,8 +39,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -58,12 +58,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, create_registry, modify_registry_value, registry_parser, KEY_WOW64_32KEY, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, create_registry, modify_registry_value, registry_parser, KEY_WOW64_32KEY, \
     KEY_WOW64_64KEY, callback_restricted, generate_params, callback_detect_event, delete_registry_value, \
     check_time_travel, delete_registry, REG_SZ
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -77,7 +77,7 @@ sub_key_2 = "SOFTWARE\\testkey"
 test_regs = [os.path.join(key, sub_key_1),
              os.path.join(key, sub_key_2)]
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 reg1, reg2 = test_regs
 
 valid_subkey = "key_restrict"
@@ -91,9 +91,9 @@ conf_params = {'WINDOWS_REGISTRY_1': reg1,
                'RESTRICT_VALUE': 'value_restrict$',
                'RESTRICT_KEY': 'key_restrict$'}
 
-configurations_path = os.path.join(test_data_path, 'wazuh_restrict_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_restrict_conf.yaml')
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -118,14 +118,14 @@ def test_restrict_value(key, subkey, arch, value_name, triggers_event, tags_to_a
                         get_configuration, configure_environment, restart_syscheckd,
                         wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects or ignores events in monitored registry entries
+    description: Check if the 'fortishield-syscheckd' daemon detects or ignores events in monitored registry entries
                  depending on the value set in the 'restrict_value' attribute. This attribute limit checks to
                  values that match the entered string or regex and its name. For this purpose, the test will
                  monitor a key, create testing values inside it, and make operations on that values. Finally,
                  the test will verify that FIM 'added' and 'modified' events are generated only for the testing
                  values that are not restricted.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -167,8 +167,8 @@ def test_restrict_value(key, subkey, arch, value_name, triggers_event, tags_to_a
         - Verify that FIM 'ignoring' events are generated for monitored values that are restricted.
 
     input_description: A test case (value_restrict) is contained in external YAML file
-                       (wazuh_restrict_conf.yaml) which includes configuration settings
-                       for the 'wazuh-syscheckd' daemon. That is combined with the testing
+                       (fortishield_restrict_conf.yaml) which includes configuration settings
+                       for the 'fortishield-syscheckd' daemon. That is combined with the testing
                        registry keys to be monitored defined in this module.
 
     expected_output:
@@ -185,9 +185,9 @@ def test_restrict_value(key, subkey, arch, value_name, triggers_event, tags_to_a
     # Create values
     modify_registry_value(key_h, value_name, REG_SZ, "added")
     # Go ahead in time to let syscheck perform a new scan
-    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=wazuh_log_monitor)
+    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=fortishield_log_monitor)
 
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                     callback=callback_detect_event, accum_results=2 if triggers_event else 1).result()
 
     if triggers_event:
@@ -205,7 +205,7 @@ def test_restrict_value(key, subkey, arch, value_name, triggers_event, tags_to_a
         assert event['data']['arch'] == '[x32]' if arch == KEY_WOW64_32KEY else '[x64]', 'Key event arch not equal'
 
         while True:
-            ignored_value = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+            ignored_value = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                                     callback=callback_restricted,
                                                     error_message='Did not receive expected '
                                                                   '"Sending FIM event: ..." event').result()
@@ -214,8 +214,8 @@ def test_restrict_value(key, subkey, arch, value_name, triggers_event, tags_to_a
 
     delete_registry_value(key_h, value_name)
     # Go ahead in time to let syscheck perform a new scan
-    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=wazuh_log_monitor)
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=fortishield_log_monitor)
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                     callback=callback_detect_event, accum_results=2 if triggers_event else 1).result()
 
     if triggers_event:
@@ -246,14 +246,14 @@ def test_restrict_key(key, subkey, test_subkey, arch, triggers_event, tags_to_ap
                       get_configuration, configure_environment, restart_syscheckd,
                       wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects or ignores events in monitored registry entries
+    description: Check if the 'fortishield-syscheckd' daemon detects or ignores events in monitored registry entries
                  depending on the value set in the 'restrict_key' attribute. This attribute limit checks to
                  keys that match the entered string or regex and its name. For this purpose, the test will
                  monitor a key, create testing subkeys inside it, and make operations on those subkeys. Finally,
                  the test will verify that FIM 'added' and 'deleted' events are generated only for the testing
                  subkeys that are not restricted.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -295,8 +295,8 @@ def test_restrict_key(key, subkey, test_subkey, arch, triggers_event, tags_to_ap
         - Verify that FIM 'ignoring' events are generated for monitored keys that are restricted.
 
     input_description: A test case (key_restrict) is contained in external YAML file
-                       (wazuh_restrict_conf.yaml) which includes configuration settings
-                       for the 'wazuh-syscheckd' daemon. That is combined with the testing
+                       (fortishield_restrict_conf.yaml) which includes configuration settings
+                       for the 'fortishield-syscheckd' daemon. That is combined with the testing
                        registry keys to be monitored defined in this module.
 
     expected_output:
@@ -312,10 +312,10 @@ def test_restrict_key(key, subkey, test_subkey, arch, triggers_event, tags_to_ap
     create_registry(registry_parser[key], test_key, arch)
 
     # Go ahead in time to let syscheck perform a new scan
-    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=wazuh_log_monitor)
+    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=fortishield_log_monitor)
 
     if triggers_event:
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=callback_detect_event, accum_results=1).result()
         assert event['data']['type'] == 'added', 'Event type not equal'
         assert event['data']['path'] == os.path.join(key, test_key), 'Event path not equal'
@@ -323,7 +323,7 @@ def test_restrict_key(key, subkey, test_subkey, arch, triggers_event, tags_to_ap
 
     else:
         while True:
-            ignored_key = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+            ignored_key = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                                   callback=callback_restricted,
                                                   error_message='Did not receive expected '
                                                                 '"Sending FIM event: ..." event').result()
@@ -332,10 +332,10 @@ def test_restrict_key(key, subkey, test_subkey, arch, triggers_event, tags_to_ap
 
     delete_registry(registry_parser[key], test_key, arch)
     # Go ahead in time to let syscheck perform a new scan
-    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=wazuh_log_monitor)
+    check_time_travel(get_configuration['metadata']['fim_mode'] == 'scheduled', monitor=fortishield_log_monitor)
 
     if triggers_event:
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=callback_detect_event, accum_results=1).result()
 
         assert event['data']['type'] == 'deleted', 'key event not equal'

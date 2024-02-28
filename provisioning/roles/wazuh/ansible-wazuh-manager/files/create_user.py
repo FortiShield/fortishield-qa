@@ -13,8 +13,8 @@ SPECIAL_CHARS = "@$!%*?&-_"
 
 
 try:
-    from wazuh.rbac.orm import create_rbac_db
-    from wazuh.security import (
+    from fortishield.rbac.orm import create_rbac_db
+    from fortishield.security import (
         create_user,
         get_users,
         get_roles,
@@ -22,7 +22,7 @@ try:
         update_user,
     )
 except Exception as e:
-    logging.error("No module 'wazuh' found.")
+    logging.error("No module 'fortishield' found.")
     sys.exit(1)
 
 
@@ -88,7 +88,7 @@ if __name__ == "__main__":
             ],
         )
     else:
-        # modify an existing user ("wazuh" or "wazuh-wui")
+        # modify an existing user ("fortishield" or "fortishield-wui")
         uid = initial_users[username]
         update_user(
             user_id=[
@@ -97,6 +97,6 @@ if __name__ == "__main__":
             password=password,
         )
     # disable unused default users
-    #for def_user in ['wazuh', 'wazuh-wui']:
+    #for def_user in ['fortishield', 'fortishield-wui']:
     #    if def_user != username:
     #        disable_user(initial_users[def_user])

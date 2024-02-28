@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logtest' tool allows the testing and verification of rules and decoders against provided log examples
-       remotely inside a sandbox in 'wazuh-analysisd'. This functionality is provided by the manager, whose work
+brief: The 'fortishield-logtest' tool allows the testing and verification of rules and decoders against provided log examples
+       remotely inside a sandbox in 'fortishield-analysisd'. This functionality is provided by the manager, whose work
        parameters are configured in the ossec.conf file in the XML rule_test section. Test logs can be evaluated through
-       the 'wazuh-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
+       the 'fortishield-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
        configuration is valid. Also checks rules, decoders, decoders, alerts matching logs correctly.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -39,9 +39,9 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - logtest_configuration
@@ -52,7 +52,7 @@ from yaml import safe_load
 from shutil import copy
 from json import loads
 
-from wazuh_testing.tools import WAZUH_PATH
+from fortishield_testing.tools import FORTISHIELD_PATH
 
 # Marks
 
@@ -67,7 +67,7 @@ with open(messages_path) as f:
 
 # Variables
 
-logtest_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'logtest'))
+logtest_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'logtest'))
 receiver_sockets_params = [(logtest_path, 'AF_UNIX', 'TCP')]
 
 
@@ -79,7 +79,7 @@ def configure_local_rules(get_configuration, request):
 
     # configuration for testing
     file_test = os.path.join(test_data_path, get_configuration['rules'])
-    target_file_test = os.path.join(WAZUH_PATH, 'etc', 'rules', get_configuration['rules'])
+    target_file_test = os.path.join(FORTISHIELD_PATH, 'etc', 'rules', get_configuration['rules'])
     copy(file_test, target_file_test)
 
     yield
@@ -101,11 +101,11 @@ def test_invalid_rule_syntax(get_configuration, configure_local_rules,
                              wait_for_logtest_startup,
                              connect_to_sockets_function):
     '''
-    description: Check if `wazuh-logtest` correctly detects and handles errors when processing a rules file.
+    description: Check if `fortishield-logtest` correctly detects and handles errors when processing a rules file.
                  To do this, it sends a logtest request(via AF_UNIX socket) using the input configurations and parses
                  the logtest reply received looking for errors.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -115,11 +115,11 @@ def test_invalid_rule_syntax(get_configuration, configure_local_rules,
             brief: Get configuration from the module.
         - configure_local_rules:
             type: fixture
-            brief: Configure a custom rule in local_rules.xml for testing. Restart Wazuh is needed for applying the
+            brief: Configure a custom rule in local_rules.xml for testing. Restart Fortishield is needed for applying the
                    configuration.
         - restart_required_logtest_daemons:
             type: fixture
-            brief: Wazuh logtests daemons handler.
+            brief: Fortishield logtests daemons handler.
         - wait_for_logtest_startup:
             type: fixture
             brief: Wait until logtest has begun.
@@ -128,7 +128,7 @@ def test_invalid_rule_syntax(get_configuration, configure_local_rules,
             brief: Function scope version of 'connect_to_sockets' which connects to the specified sockets for the test.
 
     assertions:
-        - Verify that `wazuh-logtest` retrieves errors when the loaded rules are invalid.
+        - Verify that `fortishield-logtest` retrieves errors when the loaded rules are invalid.
 
     input_description: Some test cases are defined in the module. These include some input configurations stored in
                        the 'invalid_rules_syntax.yaml'.

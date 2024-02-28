@@ -4,18 +4,18 @@ import time
 import os
 import yaml
 
-from wazuh_testing import logger
-from wazuh_testing.tools import LOG_FILE_PATH, CLIENT_KEYS_PATH, API_LOG_FILE_PATH
-from wazuh_testing.wazuh_db import insert_agent_in_db, clean_agents_from_db
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor, make_callback, AUTHD_DETECTOR_PREFIX
-from wazuh_testing.tools.configuration import write_wazuh_conf, get_wazuh_conf, set_section_wazuh_conf,\
-                                              load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.authd import DAEMON_NAME
-from wazuh_testing.api import get_api_details_dict
-from wazuh_testing.tools.wazuh_manager import remove_agents
-from wazuh_testing.modules.api import event_monitor as evm
+from fortishield_testing import logger
+from fortishield_testing.tools import LOG_FILE_PATH, CLIENT_KEYS_PATH, API_LOG_FILE_PATH
+from fortishield_testing.fortishield_db import insert_agent_in_db, clean_agents_from_db
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor, make_callback, AUTHD_DETECTOR_PREFIX
+from fortishield_testing.tools.configuration import write_fortishield_conf, get_fortishield_conf, set_section_fortishield_conf,\
+                                              load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.authd import DAEMON_NAME
+from fortishield_testing.api import get_api_details_dict
+from fortishield_testing.tools.fortishield_manager import remove_agents
+from fortishield_testing.modules.api import event_monitor as evm
 
 
 AUTHD_STARTUP_TIMEOUT = 30
@@ -100,7 +100,7 @@ def tear_down():
     Roll back the daemon and client.keys state after the test ends.
     """
     yield
-    # Stop Wazuh
+    # Stop Fortishield
     control_service('stop')
     truncate_file(CLIENT_KEYS_PATH)
     control_service('start')
@@ -131,10 +131,10 @@ def format_configuration(get_current_test_case, request):
 
     # Configuration for testing
     temp = create_force_config_block(configuration, request.module.configurations_path)
-    conf = load_wazuh_configurations(temp, test_name)
+    conf = load_fortishield_configurations(temp, test_name)
     os.remove(temp)
 
-    test_config = set_section_wazuh_conf(conf[0]['sections'])
+    test_config = set_section_fortishield_conf(conf[0]['sections'])
 
     return test_config
 
@@ -142,18 +142,18 @@ def format_configuration(get_current_test_case, request):
 @pytest.fixture(scope='function')
 def override_authd_force_conf(format_configuration):
     """
-    Re-writes Wazuh configuration file with new configurations from the test case.
+    Re-writes Fortishield configuration file with new configurations from the test case.
     """
     # Save current configuration
-    backup_config = get_wazuh_conf()
+    backup_config = get_fortishield_conf()
 
     # Set new configuration
-    write_wazuh_conf(format_configuration)
+    write_fortishield_conf(format_configuration)
 
     yield
 
     # Restore previous configuration
-    write_wazuh_conf(backup_config)
+    write_fortishield_conf(backup_config)
 
 
 @pytest.fixture(scope='module')
@@ -163,7 +163,7 @@ def get_api_details():
 
 @pytest.fixture(scope='module')
 def restart_api_module():
-    # Stop Wazuh and Wazuh API
+    # Stop Fortishield and Fortishield API
     control_service('stop')
     truncate_file(API_LOG_FILE_PATH)
     control_service('start')

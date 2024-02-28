@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will check if FIM disables the synchronization
        of file/registry on Windows systems when the 'enabled' tag of the synchronization option is
        set to 'no'.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,8 +39,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -57,16 +57,16 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters, LOG_FILE_PATH, REGULAR, DATA
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import create_file
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules.fim import (TEST_DIR_1, WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, TEST_DIRECTORIES,
+from fortishield_testing import global_parameters, LOG_FILE_PATH, REGULAR, DATA
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import create_file
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules.fim import (TEST_DIR_1, WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, TEST_DIRECTORIES,
                                        YAML_CONF_SYNC_WIN32, TEST_REGISTRIES, SYNCHRONIZATION_ENABLED,
                                        SYNCHRONIZATION_REGISTRY_ENABLED)
-from wazuh_testing.modules.fim.event_monitor import CB_INTEGRITY_CONTROL_MESSAGE
-from wazuh_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim.event_monitor import CB_INTEGRITY_CONTROL_MESSAGE
+from fortishield_testing.modules.fim.utils import generate_params
 
 # Marks
 pytestmark = [pytest.mark.win32, pytest.mark.tier(level=1)]
@@ -80,7 +80,7 @@ configurations_path = os.path.join(test_data_path, YAML_CONF_SYNC_WIN32)
 test_directories = [os.path.join(PREFIX, TEST_DIR_1)]
 test_regs = [os.path.join(WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY)]
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 conf_params = {TEST_DIRECTORIES: test_directories[0],
                TEST_REGISTRIES: test_regs[0],
@@ -91,7 +91,7 @@ conf_params = {TEST_DIRECTORIES: test_directories[0],
 
 parameters, metadata = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 # fixtures
@@ -111,12 +111,12 @@ def create_a_file(get_configuration):
 def test_sync_disabled(get_configuration, configure_environment, create_a_file, restart_syscheckd,
                        wait_for_fim_start_sync):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon uses the value of the 'enabled' tag to start/stop
+    description: Check if the 'fortishield-syscheckd' daemon uses the value of the 'enabled' tag to start/stop
                  the file/registry synchronization. For this purpose, the test will monitor a directory/key.
                  Finally, it will verify that no FIM 'integrity' event is generated when the synchronization
                  is disablede.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -136,8 +136,8 @@ def test_sync_disabled(get_configuration, configure_environment, create_a_file, 
     assertions:
         - Verify that no FIM 'integrity' events are generated when the value
           of the 'enabled' tag is set to 'no' (synchronization disabled).
-    input_description: Different test cases are contained in external YAML file (wazuh_sync_conf_win32.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined with
+    input_description: Different test cases are contained in external YAML file (fortishield_sync_conf_win32.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined with
                        the testing directory/key to be monitored defined in this module.
     expected_output:
         - r'.*Sending integrity control message'
@@ -149,6 +149,6 @@ def test_sync_disabled(get_configuration, configure_environment, create_a_file, 
     '''
     # The file synchronization event shouldn't be triggered
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=generate_monitoring_callback(CB_INTEGRITY_CONTROL_MESSAGE),
                                         update_position=True).result()

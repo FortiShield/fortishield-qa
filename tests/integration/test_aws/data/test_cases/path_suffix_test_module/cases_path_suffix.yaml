@@ -2,11 +2,11 @@
   description: CloudTrail path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: cloudtrail
-    BUCKET_NAME: wazuh-cloudtrail-integration-tests
+    BUCKET_NAME: fortishield-cloudtrail-integration-tests
     PATH_SUFFIX: test_suffix
   metadata:
     bucket_type: cloudtrail
-    bucket_name: wazuh-cloudtrail-integration-tests
+    bucket_name: fortishield-cloudtrail-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: test_suffix
     expected_results: 1
@@ -15,11 +15,11 @@
   description: CloudTrail path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: cloudtrail
-    BUCKET_NAME: wazuh-cloudtrail-integration-tests
+    BUCKET_NAME: fortishield-cloudtrail-integration-tests
     PATH_SUFFIX: empty_suffix
   metadata:
     bucket_type: cloudtrail
-    bucket_name: wazuh-cloudtrail-integration-tests
+    bucket_name: fortishield-cloudtrail-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: empty_suffix
     expected_results: 0
@@ -28,11 +28,11 @@
   description: CloudTrail path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: cloudtrail
-    BUCKET_NAME: wazuh-cloudtrail-integration-tests
+    BUCKET_NAME: fortishield-cloudtrail-integration-tests
     PATH_SUFFIX: inexistent_suffix
   metadata:
     bucket_type: cloudtrail
-    bucket_name: wazuh-cloudtrail-integration-tests
+    bucket_name: fortishield-cloudtrail-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: inexistent_suffix
     expected_results: 0
@@ -41,11 +41,11 @@
   description: VPC path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: vpcflow
-    BUCKET_NAME: wazuh-vpcflow-integration-tests
+    BUCKET_NAME: fortishield-vpcflow-integration-tests
     PATH_SUFFIX: test_suffix
   metadata:
     bucket_type: vpcflow
-    bucket_name: wazuh-vpcflow-integration-tests
+    bucket_name: fortishield-vpcflow-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: test_suffix
     expected_results: 1
@@ -54,11 +54,11 @@
   description: Config path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: config
-    BUCKET_NAME: wazuh-config-integration-tests
+    BUCKET_NAME: fortishield-config-integration-tests
     PATH_SUFFIX: test_suffix
   metadata:
     bucket_type: config
-    bucket_name: wazuh-config-integration-tests
+    bucket_name: fortishield-config-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: test_suffix
     expected_results: 1
@@ -67,11 +67,11 @@
   description: VPC path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: vpcflow
-    BUCKET_NAME: wazuh-vpcflow-integration-tests
+    BUCKET_NAME: fortishield-vpcflow-integration-tests
     PATH_SUFFIX: empty_suffix
   metadata:
     bucket_type: vpcflow
-    bucket_name: wazuh-vpcflow-integration-tests
+    bucket_name: fortishield-vpcflow-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: empty_suffix
     expected_results: 0
@@ -80,11 +80,11 @@
   description: Config path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: config
-    BUCKET_NAME: wazuh-config-integration-tests
+    BUCKET_NAME: fortishield-config-integration-tests
     PATH_SUFFIX: empty_suffix
   metadata:
     bucket_type: config
-    bucket_name: wazuh-config-integration-tests
+    bucket_name: fortishield-config-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: empty_suffix
     expected_results: 0
@@ -93,11 +93,11 @@
   description: VPC path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: vpcflow
-    BUCKET_NAME: wazuh-vpcflow-integration-tests
+    BUCKET_NAME: fortishield-vpcflow-integration-tests
     PATH_SUFFIX: inexistent_suffix
   metadata:
     bucket_type: vpcflow
-    bucket_name: wazuh-vpcflow-integration-tests
+    bucket_name: fortishield-vpcflow-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: inexistent_suffix
     expected_results: 0
@@ -106,11 +106,11 @@
   description: Config path_suffix configurations
   configuration_parameters:
     BUCKET_TYPE: config
-    BUCKET_NAME: wazuh-config-integration-tests
+    BUCKET_NAME: fortishield-config-integration-tests
     PATH_SUFFIX: inexistent_suffix
   metadata:
     bucket_type: config
-    bucket_name: wazuh-config-integration-tests
+    bucket_name: fortishield-config-integration-tests
     only_logs_after: 2022-NOV-20
     path_suffix: inexistent_suffix
     expected_results: 0

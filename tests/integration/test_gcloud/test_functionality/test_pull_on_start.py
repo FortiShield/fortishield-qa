@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'gcp-pubsub' module uses it to fetch different kinds of events
+brief: The Fortishield 'gcp-pubsub' module uses it to fetch different kinds of events
        (Data access, Admin activity, System events, DNS queries, etc.) from the
-       Google Cloud infrastructure. Once events are collected, Wazuh processes
+       Google Cloud infrastructure. Once events are collected, Fortishield processes
        them using its threat detection rules. Specifically, these tests
        will check if the 'gcp-pubsub' module gets GCP messages when it starts
        if the 'pull_on_start' tag is set to 'yes', and sleeps otherwise.
@@ -24,8 +24,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -42,7 +42,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#pull-on-start
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#pull-on-start
 
 tags:
     - pull
@@ -54,12 +54,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import generate_params
-from wazuh_testing.gcloud import callback_detect_start_fetching_logs, callback_detect_start_gcp_sleep
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import generate_params
+from fortishield_testing.gcloud import callback_detect_start_fetching_logs, callback_detect_start_gcp_sleep
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -71,14 +71,14 @@ interval = '30s'
 pull_on_start = ['yes', 'no']
 max_messages = 100
 logging = "info"
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 force_restart_after_restoring = False
 
 # configurations
 
-daemons_handler_configuration = {'daemons': ['wazuh-modulesd']}
+daemons_handler_configuration = {'daemons': ['fortishield-modulesd']}
 monitoring_modes = ['scheduled']
 conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
                'SUBSCRIPTION_NAME': global_parameters.gcp_subscription_name,
@@ -89,7 +89,7 @@ p, m = generate_params(extra_params=conf_params,
                        apply_to_all=({'PULL_ON_START': pull_on_start_value} for pull_on_start_value in pull_on_start),
                        modes=monitoring_modes)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -112,7 +112,7 @@ def test_pull_on_start(get_configuration, configure_environment,
                  will wait for the 'fetching' event if the pull on start opction is enabled. Otherwise,
                  the test will verify that the 'sleep' event is generated, and the 'fetching' event is not.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -123,7 +123,7 @@ def test_pull_on_start(get_configuration, configure_environment,
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -136,7 +136,7 @@ def test_pull_on_start(get_configuration, configure_environment,
         - Verify that the 'gcp-pubsub' module sleeps up to the next interval when it starts
           if the 'pull_on_start' tag is set to 'no'.
 
-    input_description: A test case (ossec_conf) is contained in an external YAML file (wazuh_conf.yaml)
+    input_description: A test case (ossec_conf) is contained in an external YAML file (fortishield_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. That is
                        combined with the 'pull_on_start' values defined in the module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
@@ -154,22 +154,22 @@ def test_pull_on_start(get_configuration, configure_environment,
     time_interval = int(''.join(filter(str.isdigit, str_interval)))
 
     if pull_start:
-        wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                 callback=callback_detect_start_fetching_logs,
                                 accum_results=1,
                                 error_message='Did not receive expected '
                                               '"Starting fetching of logs" event').result()
     else:
-        wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                 callback=callback_detect_start_gcp_sleep,
                                 error_message='Did not receive expected '
                                               '"Sleeping until ..." event')
         with pytest.raises(TimeoutError):
-            event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+            event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                             callback=callback_detect_start_fetching_logs)
             raise AttributeError(f'Unexpected event {event}')
 
-        wazuh_log_monitor.start(timeout=global_parameters.default_timeout + time_interval,
+        fortishield_log_monitor.start(timeout=global_parameters.default_timeout + time_interval,
                                 callback=callback_detect_start_fetching_logs,
                                 accum_results=1,
                                 error_message='Did not receive expected '

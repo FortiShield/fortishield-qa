@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, these tests will send the shared configuration to the agent and check if
        the configuration is completely pushed.
 
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -35,8 +35,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html
 
 tags:
     - remoted
@@ -45,10 +45,10 @@ import os
 from time import sleep
 
 import pytest
-import wazuh_testing.tools.agent_simulator as ag
-from wazuh_testing import UDP, TCP, TCP_UDP
-from wazuh_testing.remote import check_push_shared_config, REMOTED_GLOBAL_TIMEOUT
-from wazuh_testing.tools.configuration import load_wazuh_configurations
+import fortishield_testing.tools.agent_simulator as ag
+from fortishield_testing import UDP, TCP, TCP_UDP
+from fortishield_testing.remote import check_push_shared_config, REMOTED_GLOBAL_TIMEOUT
+from fortishield_testing.tools.configuration import load_fortishield_configurations
 
 # Marks
 
@@ -56,7 +56,7 @@ pytestmark = pytest.mark.tier(level=1)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_shared_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_shared_configuration.yaml')
 agent_conf_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'agent.conf')
 
 parameters = [
@@ -78,7 +78,7 @@ agent_info = {
     'disable_all_modules': True
 }
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 config_ids = [x['PROTOCOL'] for x in parameters]
 
 
@@ -96,12 +96,12 @@ def test_push_shared_config(get_configuration, configure_environment, remove_sha
                  For this purpose, the test will create an agent for each protocol within the module test cases. Then,
                  it will try to send the shared configuration to the agent and then, check if the configuration is
                  completely pushed.
-                 For example, if Wazuh Manager sends new shared files from group shared folder when the merged.mg
+                 For example, if Fortishield Manager sends new shared files from group shared folder when the merged.mg
                  checksum is received from an agent is different than the stored one.
                  As the test has nothing to do with shared configuration files, we removed those rootcheck txt files
                  from default agent group to reduce the time required by the test to make the checks.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -111,7 +111,7 @@ def test_push_shared_config(get_configuration, configure_environment, remove_sha
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - remove_shared_files:
             type: fixture
             brief: Temporary removes txt files from default agent group shared files.
@@ -128,8 +128,8 @@ def test_push_shared_config(get_configuration, configure_environment, remove_sha
         - Verify that the same config is not pushed two times.
 
     input_description: A configuration template (test_shared_configuration) is contained in an external YAML file,
-                       (wazuh_shared_configuration.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-remoted' daemon and agents
+                       (fortishield_shared_configuration.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-remoted' daemon and agents
                        info.
 
     expected_output:

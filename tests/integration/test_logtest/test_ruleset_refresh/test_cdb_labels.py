@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logtest' tool allows the testing and verification of rules and decoders against provided log examples
-       remotely inside a sandbox in 'wazuh-analysisd'. This functionality is provided by the manager, whose work
+brief: The 'fortishield-logtest' tool allows the testing and verification of rules and decoders against provided log examples
+       remotely inside a sandbox in 'fortishield-analysisd'. This functionality is provided by the manager, whose work
        parameters are configured in the ossec.conf file in the XML rule_test section. Test logs can be evaluated through
-       the 'wazuh-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
+       the 'fortishield-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
        configuration is valid. Also checks rules, decoders, decoders, alerts matching logs correctly.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -39,12 +39,12 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/index.html
-    - https://documentation.wazuh.com/current/user-manual/ruleset/testing.html?highlight=logtest
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/logtest-configuration.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
-    - https://documentation.wazuh.com/current/user-manual/ruleset/cdb-list.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/ruleset/testing.html?highlight=logtest
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/logtest-configuration.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/ruleset/cdb-list.html
 
 tags:
     - logtest_configuration
@@ -52,7 +52,7 @@ tags:
 import os
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH
+from fortishield_testing.tools import FORTISHIELD_PATH
 from yaml import safe_load
 from shutil import copy
 from json import loads
@@ -68,7 +68,7 @@ with open(messages_path) as f:
     test_cases = safe_load(f)
 
 # Variables
-logtest_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'logtest'))
+logtest_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'logtest'))
 receiver_sockets_params = [(logtest_path, 'AF_UNIX', 'TCP')]
 receiver_sockets = None
 
@@ -78,11 +78,11 @@ receiver_sockets = None
 def configure_cdbs_list(get_configuration, request):
     """Configure a custom cdbs for testing.
 
-    Restarting Wazuh is not needed for applying the configuration, it is optional.
+    Restarting Fortishield is not needed for applying the configuration, it is optional.
     """
 
     # cdb configuration for testing
-    cdb_dir = os.path.join(WAZUH_PATH, get_configuration['cdb_dir'])
+    cdb_dir = os.path.join(FORTISHIELD_PATH, get_configuration['cdb_dir'])
     if not os.path.exists(cdb_dir):
         os.makedirs(cdb_dir)
 
@@ -92,7 +92,7 @@ def configure_cdbs_list(get_configuration, request):
     copy(file_cdb_test, file_cdb_dst)
 
     # rule configuration for testing
-    rule_dir = os.path.join(WAZUH_PATH, get_configuration['rule_dir'])
+    rule_dir = os.path.join(FORTISHIELD_PATH, get_configuration['rule_dir'])
     if not os.path.exists(rule_dir):
         os.makedirs(rule_dir)
 
@@ -126,20 +126,20 @@ def test_cdb_list(restart_required_logtest_daemons, get_configuration,
                  new logtest sessions without having to reset the manager. To do this, it sends a request to logtest
                  socket with the test case and it checks that the result matches with the test case result.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - restart_required_logtest_daemons:
             type: fixture
-            brief: Wazuh logtests daemons handler.
+            brief: Fortishield logtests daemons handler.
         - get_configuration:
             type: fixture
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - configure_cdbs_list:
             type: fixture
             brief: Configure a custom cdbs for testing.

@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 type: system
 brief: sys
@@ -11,23 +11,23 @@ components:
     - manager
     - agent
 daemons:
-    - wazuh-authd
-    - wazuh-agentd
+    - fortishield-authd
+    - fortishield-agentd
 os_platform:
     - linux
 os_version:
     - Debian Buster
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/agent-enrollment.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/agent-enrollment.html
 '''
 
 import os
 import pytest
 import re
 import time
-from wazuh_testing import T_1, T_3
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing import T_1, T_3
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.system import HostManager
 from system import restart_cluster
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -37,12 +37,12 @@ local_path = os.path.dirname(os.path.abspath(__file__))
 agent_conf_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..',
                                'provisioning', 'big_cluster_40_agents', 'roles', 'agent-role', 'files', 'ossec.conf')
 
-testinfra_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-workers = ['wazuh-worker1', 'wazuh-worker2']
+testinfra_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+workers = ['fortishield-worker1', 'fortishield-worker2']
 agents = []
 number_agents = 40
 for number_agent in range(number_agents):
-    agents.append(f'wazuh-agent{number_agent+1}')
+    agents.append(f'fortishield-agent{number_agent+1}')
 
 pytestmark = [pytest.mark.cluster, pytest.mark.big_cluster_40_agents_env]
 
@@ -59,13 +59,13 @@ def restart_all_agents():
 @pytest.fixture()
 def stop_gracefully_all_agents():
     for agent in agents:
-        host_manager.run_command(agent, f'{WAZUH_PATH}/bin/wazuh-control stop')
+        host_manager.run_command(agent, f'{FORTISHIELD_PATH}/bin/fortishield-control stop')
 
 
 def test_shut_down_message_gracefully_stopped_agent(restart_all_agents, stop_gracefully_all_agents):
     '''
         description: Checking shutdown message when socket is closed.
-        wazuh_min_version: 4.6.0
+        fortishield_min_version: 4.6.0
         parameters:
             - restart_all_agents:
                 type: function
@@ -84,6 +84,6 @@ def test_shut_down_message_gracefully_stopped_agent(restart_all_agents, stop_gra
     time.sleep(T_3)
 
     matches = re.findall(r"Disconnected", host_manager.run_command(testinfra_hosts[0],
-                                                                   f'{WAZUH_PATH}/bin/agent_control -l'))
+                                                                   f'{FORTISHIELD_PATH}/bin/agent_control -l'))
 
     assert len(matches) == number_agents

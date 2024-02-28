@@ -31,10 +31,10 @@ The test needs to receive one parameter (artifacts) in order to be run. If this 
 ```shell
 python3.9 -m pytest ../../tests/reliability/test_cluster/test_cluster_logs/test_cluster_task_order/test_cluster_task_order.py --artifacts_path=/docs/final2_agent_groups/artifacts -sxvv --self-contained-html --html=report.html 
 =============================================================================================== test session starts ===============================================================================================
-platform linux -- Python 3.9.5, pytest-6.2.2, py-1.10.0, pluggy-0.13.1 -- /home/yanazaeva/git/wazuh-qa/wazuh_qa_env/bin/python3.9
+platform linux -- Python 3.9.5, pytest-6.2.2, py-1.10.0, pluggy-0.13.1 -- /home/yanazaeva/git/fortishield-qa/fortishield_qa_env/bin/python3.9
 cachedir: .pytest_cache
 metadata: {'Python': '3.9.5', 'Platform': 'Linux-5.15.15-76051515-generic-x86_64-with-glibc2.31', 'Packages': {'pytest': '6.2.2', 'py': '1.10.0', 'pluggy': '0.13.1'}, 'Plugins': {'testinfra': '5.0.0', 'metadata': '1.11.0', 'html': '3.1.1'}}
-rootdir: /home/yanazaeva/git/wazuh-qa
+rootdir: /home/yanazaeva/git/fortishield-qa
 plugins: testinfra-5.0.0, metadata-1.11.0, html-3.1.1
 collected 1 item                                                                                                                                                                                                  
 
@@ -107,7 +107,7 @@ E           Failed: Concatenated tasks 'Local agent-groups' and 'Agent-groups se
 E           	The following worker(s) did not performed the expected task: {'CLUSTER-Workload_benchmarks_metrics_B122_manager_1'}
 
 ../../tests/reliability/test_cluster/test_cluster_logs/test_cluster_task_order/test_cluster_task_order.py:76: Failed
-------------------------------------------------------------- generated html file: file:///home/yanazaeva/git/wazuh-qa/deps/wazuh_testing/report.html -------------------------------------------------------------
+------------------------------------------------------------- generated html file: file:///home/yanazaeva/git/fortishield-qa/deps/fortishield_testing/report.html -------------------------------------------------------------
 ============================================================================================= short test summary info =============================================================================================
 FAILED ../../tests/reliability/test_cluster/test_cluster_logs/test_cluster_task_order/test_cluster_task_order.py::test_cluster_task_order - Failed: Concatenated tasks 'Local agent-groups' and 'Agent-groups se...
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! stopping after 1 failures !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

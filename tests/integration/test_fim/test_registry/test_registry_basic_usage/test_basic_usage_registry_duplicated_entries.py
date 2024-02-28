@@ -1,10 +1,10 @@
 import os
 
 import pytest
-from wazuh_testing import global_parameters
-import wazuh_testing.fim as fim
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.utils import get_version
+from fortishield_testing import global_parameters
+import fortishield_testing.fim as fim
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.utils import get_version
 
 
 # Helper functions
@@ -41,12 +41,12 @@ monitoring_modes = ['scheduled']
 
 conf_params = {'WINDOWS_DUPLICATED_REGISTRY_1': registry_1,
                'WINDOWS_DUPLICATED_REGISTRY_2': registry_2}
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_duplicated_registry.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_duplicated_registry.yaml')
 parameters, metadata = fim.generate_params(extra_params=conf_params, modes=monitoring_modes)
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 registry_list = [(key, sub_key_1, fim.KEY_WOW64_64KEY), (key, sub_key_2, fim.KEY_WOW64_64KEY)]
-daemons_handler_configuration = {'daemons': ['wazuh-syscheckd']}
+daemons_handler_configuration = {'daemons': ['fortishield-syscheckd']}
 local_internal_options = {'syscheck.debug': '2', 'monitord.rotate_log': '0'}
 
 
@@ -59,7 +59,7 @@ def get_configuration(request):
 
 
 # Test
-@pytest.mark.skipif(get_version() != 'v4.2.3', reason="This test fails by wazuh/wazuh#6797, It was fixed on v4.2.3")
+@pytest.mark.skipif(get_version() != 'v4.2.3', reason="This test fails by fortishield/fortishield#6797, It was fixed on v4.2.3")
 @pytest.mark.parametrize('key, subkey1, subkey2, arch', [(key, sub_key_1, sub_key_2, fim.KEY_WOW64_32KEY)])
 def test_registry_duplicated_entry(key, subkey1, subkey2, arch, get_configuration, configure_environment,
                                    file_monitoring, configure_local_internal_options_module, daemons_handler_module,

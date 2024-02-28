@@ -24,12 +24,12 @@
 
 - name: "Get agent package"
   ansible.builtin.get_url:
-    url: "https://{{package_repository}}.wazuh.com/{{repository}}/apt/pool/main/w/wazuh-agent/wazuh-agent_{{package_version}}-{{package_revision}}_amd64.deb"
-    dest: /tmp/wazuh-agent.deb
+    url: "https://{{package_repository}}.fortishield.github.io/{{repository}}/apt/pool/main/w/fortishield-agent/fortishield-agent_{{package_version}}-{{package_revision}}_amd64.deb"
+    dest: /tmp/fortishield-agent.deb
 
 - name: "Install agent package"
   ansible.builtin.apt:
-    deb: /tmp/wazuh-agent.deb
+    deb: /tmp/fortishield-agent.deb
 
 - name: Copy ossec.conf file
   copy:
@@ -44,7 +44,7 @@
     path: /var/ossec/etc/client.keys
     state: absent
 
-- name: Set Wazuh Manager IP
+- name: Set Fortishield Manager IP
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: '<address>(.*)</address>'

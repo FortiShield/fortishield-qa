@@ -1,17 +1,17 @@
 ---
 
-wazuh_manager_version: 4.8.0
+fortishield_manager_version: 4.8.0
 
-wazuh_manager_fqdn: "wazuh-server"
-wazuh_manager_package_state: present
+fortishield_manager_fqdn: "fortishield-server"
+fortishield_manager_package_state: present
 
 # Custom packages installation
-wazuh_custom_packages_installation_manager_enabled: false
-wazuh_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
-wazuh_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.wazuh.com/"
+fortishield_custom_packages_installation_manager_enabled: false
+fortishield_custom_packages_installation_manager_deb_url: "https://s3-us-west-1.amazonaws.com/packages-dev.fortishield.github.io/"
+fortishield_custom_packages_installation_manager_rpm_url: "https://s3-us-west-1.amazonaws.com/packages-dev.fortishield.github.io/"
 
 # Sources installation
-wazuh_manager_sources_installation:
+fortishield_manager_sources_installation:
   enabled: false
   branch: "v4.4.4"
   user_language: "en"
@@ -36,50 +36,50 @@ wazuh_manager_sources_installation:
   user_ca_store: null
   threads: "2"
 
-wazuh_dir: "/var/ossec"
+fortishield_dir: "/var/ossec"
 
 ##########################################
-### Wazuh-OSSEC
+### Fortishield-OSSEC
 ##########################################
 
 # groups to create
 agent_groups: []
 
 ## Global
-wazuh_manager_json_output: 'yes'
-wazuh_manager_alerts_log: 'yes'
-wazuh_manager_logall: 'no'
-wazuh_manager_logall_json: 'no'
+fortishield_manager_json_output: 'yes'
+fortishield_manager_alerts_log: 'yes'
+fortishield_manager_logall: 'no'
+fortishield_manager_logall_json: 'no'
 
-wazuh_manager_email_notification: 'no'
-wazuh_manager_mailto:
+fortishield_manager_email_notification: 'no'
+fortishield_manager_mailto:
   - 'admin@example.net'
 
-wazuh_manager_email_smtp_server: smtp.example.wazuh.com
-wazuh_manager_email_from: wazuh@example.wazuh.com
-wazuh_manager_email_maxperhour: 12
-wazuh_manager_email_queue_size: 131072
-wazuh_manager_email_log_source: 'alerts.log'
+fortishield_manager_email_smtp_server: smtp.example.fortishield.github.io
+fortishield_manager_email_from: fortishield@example.fortishield.github.io
+fortishield_manager_email_maxperhour: 12
+fortishield_manager_email_queue_size: 131072
+fortishield_manager_email_log_source: 'alerts.log'
 
-wazuh_manager_globals:
+fortishield_manager_globals:
   - '127.0.0.1'
   - '^localhost.localdomain$'
   - '127.0.0.53'
 
-wazuh_manager_agent_disconnection_time: '20s'
-wazuh_manager_agents_disconnection_alert_time: '100s'
+fortishield_manager_agent_disconnection_time: '20s'
+fortishield_manager_agents_disconnection_alert_time: '100s'
 
 ## Alerts
-wazuh_manager_log_level: 3
-wazuh_manager_email_level: 12
+fortishield_manager_log_level: 3
+fortishield_manager_email_level: 12
 
 ## Logging
-wazuh_manager_log_format: 'plain'
+fortishield_manager_log_format: 'plain'
 
 ## Email alerts
-wazuh_manager_extra_emails:
+fortishield_manager_extra_emails:
   - enable: false
-    mail_to: 'recipient@example.wazuh.com'
+    mail_to: 'recipient@example.fortishield.github.io'
     format: full
     level: 7
     event_location: null
@@ -90,18 +90,18 @@ wazuh_manager_extra_emails:
 
 
 ## Remote
-wazuh_manager_connection:
+fortishield_manager_connection:
   - type: 'secure'
     port: '1514'
     protocol: 'tcp'
     queue_size: 131072
 
 ## Reports
-wazuh_manager_reports:
+fortishield_manager_reports:
   - enable: false
     category: 'syscheck'
     title: 'Daily report: File changes'
-    email_to: 'recipient@example.wazuh.com'
+    email_to: 'recipient@example.fortishield.github.io'
     location: null
     group: null
     rule: null
@@ -111,16 +111,16 @@ wazuh_manager_reports:
     showlogs: null
 
 ## Woodles
-wazuh_manager_rootcheck:
+fortishield_manager_rootcheck:
   frequency: 43200
 
-wazuh_manager_openscap:
+fortishield_manager_openscap:
   disable: 'yes'
   timeout: 1800
   interval: '1d'
   scan_on_start: 'yes'
 
-wazuh_manager_ciscat:
+fortishield_manager_ciscat:
   disable: 'yes'
   install_java: 'yes'
   timeout: 1800
@@ -129,14 +129,14 @@ wazuh_manager_ciscat:
   java_path: '/usr/lib/jvm/java-1.8.0-openjdk-amd64/jre/bin'
   ciscat_path: 'wodles/ciscat'
 
-wazuh_manager_osquery:
+fortishield_manager_osquery:
   disable: 'yes'
   run_daemon: 'yes'
   log_path: '/var/log/osquery/osqueryd.results.log'
   config_path: '/etc/osquery/osquery.conf'
   ad_labels: 'yes'
 
-wazuh_manager_syscollector:
+fortishield_manager_syscollector:
   disable: 'no'
   interval: '1h'
   scan_on_start: 'yes'
@@ -147,7 +147,7 @@ wazuh_manager_syscollector:
   ports_no: 'yes'
   processes: 'yes'
 
-wazuh_manager_monitor_aws:
+fortishield_manager_monitor_aws:
   disabled: 'yes'
   interval: '10m'
   run_on_start: 'yes'
@@ -161,7 +161,7 @@ wazuh_manager_monitor_aws:
       secret_key: null
 
 ## SCA
-wazuh_manager_sca:
+fortishield_manager_sca:
   enabled: 'yes'
   scan_on_start: 'yes'
   interval: '12h'
@@ -171,16 +171,16 @@ wazuh_manager_sca:
   time: ''
 
 ## Vulnerability Detector
-wazuh_manager_vulnerability_detector:
+fortishield_manager_vulnerability_detector:
   enabled: 'no'
   index_status: 'no'
   feed_update_interval: '60m'
 
-wazuh_manager_indexer:
+fortishield_manager_indexer:
   enabled: 'no'
 
 ## Syscheck
-wazuh_manager_syscheck:
+fortishield_manager_syscheck:
   disable: 'no'
   frequency: 43200
   scan_on_start: 'yes'
@@ -223,12 +223,12 @@ wazuh_manager_syscheck:
   sync_max_eps: 10
 
 ## Command
-wazuh_manager_commands:
+fortishield_manager_commands:
   - name: 'disable-account'
     executable: 'disable-account'
     timeout_allowed: 'yes'
-  - name: 'restart-wazuh'
-    executable: 'restart-wazuh'
+  - name: 'restart-fortishield'
+    executable: 'restart-fortishield'
   - name: 'firewall-drop'
     executable: 'firewall-drop'
     expect: 'srcip'
@@ -247,7 +247,7 @@ wazuh_manager_commands:
     timeout_allowed: 'yes'
 
 ## Localfile
-wazuh_manager_localfiles:
+fortishield_manager_localfiles:
   common:
     - format: 'command'
       command: df -P
@@ -260,7 +260,7 @@ wazuh_manager_localfiles:
       command: 'last -n 20'
       frequency: '360'
     - format: 'syslog'
-      location: "{{ wazuh_dir }}/logs/active-responses.log"
+      location: "{{ fortishield_dir }}/logs/active-responses.log"
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -281,13 +281,13 @@ wazuh_manager_localfiles:
       location: '/var/log/audit/audit.log'
 
 ## Syslog outputs
-wazuh_manager_syslog_outputs:
+fortishield_manager_syslog_outputs:
   - server: null
     port: null
     format: null
 
 ## Integrations
-wazuh_manager_integrations:
+fortishield_manager_integrations:
   # slack
   - name: null
     hook_url: '<hook_url>'
@@ -300,14 +300,14 @@ wazuh_manager_integrations:
     alert_level: 12
 
 ## Labels
-wazuh_manager_labels:
+fortishield_manager_labels:
   enable: false
   list:
     - key: Env
       value: Production
 
 ## Ruleset
-wazuh_manager_ruleset:
+fortishield_manager_ruleset:
   rules_path: 'custom_ruleset/rules/'
   decoders_path: 'custom_ruleset/decoders/'
   cdb_lists:
@@ -315,11 +315,11 @@ wazuh_manager_ruleset:
     - 'security-eventchannel'
     - 'amazon/aws-eventnames'
 
-wazuh_manager_rule_exclude:
+fortishield_manager_rule_exclude:
   - '0215-policy_rules.xml'
 
 ## Auth
-wazuh_manager_authd:
+fortishield_manager_authd:
   enable: true
   port: 1515
   use_source_ip: 'no'
@@ -338,9 +338,9 @@ wazuh_manager_authd:
   ssl_auto_negotiate: 'no'
 
 ## Cluster
-wazuh_manager_cluster:
+fortishield_manager_cluster:
   disable: 'yes'
-  name: 'wazuh'
+  name: 'fortishield'
   node_name: 'manager_01'
   node_type: 'master'
   key: 'ugdtAnd7Pi9myP7CVts4qZaZQEQcRYZa'
@@ -350,8 +350,8 @@ wazuh_manager_cluster:
     - 'manager'
   hidden: 'no'
 
-## Wazuh API setup
-wazuh_manager_api:
+## Fortishield API setup
+fortishield_manager_api:
   bind_addr: 0.0.0.0
   port: 55000
   behind_proxy_server: no
@@ -378,62 +378,62 @@ wazuh_manager_api:
   remote_commands_localfile_exceptions: []
   remote_commands_wodle: yes
   remote_commands_wodle_exceptions: []
-# wazuh_api_users:
+# fortishield_api_users:
 #   - username: custom-user
 #     password: .S3cur3Pa55w0rd*- # Must comply with requirements (8+ length, uppercase, lowercase, specials chars)
 
-# NOTE: As wazuh_manager_config is built dynamically per playbooks and ansible.cfg provided in the repo,
+# NOTE: As fortishield_manager_config is built dynamically per playbooks and ansible.cfg provided in the repo,
 # we should also cover the case for partial settings in inventory variables overlayed on top of role's
 # defaults with merge hash_behaviour. If you do a full replace instead of the hash_behaviour, set this to false.
 #
 # Please do notice this behaviour is deprecated in 2.13 and role will move away from it in future versions:
 # https://docs.ansible.com/ansible/latest/reference_appendices/config.html#default-hash-behaviour
 #
-wazuh_manager_config_overlay: true
+fortishield_manager_config_overlay: true
 
 ## Other/Wrappers
-wazuh_manager_config_defaults:
-  repo: '{{ wazuh_repo }}'
-  json_output: '{{ wazuh_manager_json_output }}'
-  alerts_log: '{{ wazuh_manager_alerts_log }}'
-  logall: '{{ wazuh_manager_logall }}'
-  logall_json: '{{ wazuh_manager_logall_json }}'
-  log_format: '{{ wazuh_manager_log_format }}'
-  api: '{{ wazuh_manager_api }}'
-  cluster: '{{ wazuh_manager_cluster }}'
-  connection: '{{ wazuh_manager_connection }}'
-  authd: '{{ wazuh_manager_authd }}'
-  email_notification: '{{ wazuh_manager_email_notification }}'
-  mail_to: '{{ wazuh_manager_mailto }}'
-  mail_smtp_server: '{{ wazuh_manager_email_smtp_server }}'
-  mail_from: '{{ wazuh_manager_email_from }}'
-  mail_maxperhour: '{{ wazuh_manager_email_maxperhour }}'
-  mail_queue_size: '{{ wazuh_manager_email_queue_size }}'
-  email_log_source: '{{ wazuh_manager_email_log_source }}'
-  extra_emails: '{{ wazuh_manager_extra_emails }}'
-  reports: '{{ wazuh_manager_reports}}'
-  syscheck: '{{ wazuh_manager_syscheck }}'
-  rootcheck: '{{ wazuh_manager_rootcheck }}'
-  openscap: '{{ wazuh_manager_openscap }}'
-  cis_cat: '{{ wazuh_manager_ciscat }}'
-  osquery: '{{ wazuh_manager_osquery }}'
-  syscollector: '{{ wazuh_manager_syscollector }}'
-  sca: '{{ wazuh_manager_sca }}'
-  vulnerability_detector: '{{ wazuh_manager_vulnerability_detector }}'
-  indexer: '{{ wazuh_manager_indexer }}'
-  log_level: '{{ wazuh_manager_log_level }}'
-  email_level: '{{ wazuh_manager_email_level }}'
-  localfiles: '{{ wazuh_manager_localfiles }}'
-  globals: '{{ wazuh_manager_globals }}'
-  commands: '{{ wazuh_manager_commands }}'
-  ruleset: '{{ wazuh_manager_ruleset }}'
-  rule_exclude: '{{ wazuh_manager_rule_exclude }}'
-  syslog_outputs: '{{ wazuh_manager_syslog_outputs }}'
-  integrations: '{{ wazuh_manager_integrations }}'
-  monitor_aws: '{{ wazuh_manager_monitor_aws }}'
-  labels: '{{ wazuh_manager_labels }}'
-  agents_disconnection_time: '{{ wazuh_manager_agent_disconnection_time }}'
-  agents_disconnection_alert_time: '{{ wazuh_manager_agents_disconnection_alert_time }}'
+fortishield_manager_config_defaults:
+  repo: '{{ fortishield_repo }}'
+  json_output: '{{ fortishield_manager_json_output }}'
+  alerts_log: '{{ fortishield_manager_alerts_log }}'
+  logall: '{{ fortishield_manager_logall }}'
+  logall_json: '{{ fortishield_manager_logall_json }}'
+  log_format: '{{ fortishield_manager_log_format }}'
+  api: '{{ fortishield_manager_api }}'
+  cluster: '{{ fortishield_manager_cluster }}'
+  connection: '{{ fortishield_manager_connection }}'
+  authd: '{{ fortishield_manager_authd }}'
+  email_notification: '{{ fortishield_manager_email_notification }}'
+  mail_to: '{{ fortishield_manager_mailto }}'
+  mail_smtp_server: '{{ fortishield_manager_email_smtp_server }}'
+  mail_from: '{{ fortishield_manager_email_from }}'
+  mail_maxperhour: '{{ fortishield_manager_email_maxperhour }}'
+  mail_queue_size: '{{ fortishield_manager_email_queue_size }}'
+  email_log_source: '{{ fortishield_manager_email_log_source }}'
+  extra_emails: '{{ fortishield_manager_extra_emails }}'
+  reports: '{{ fortishield_manager_reports}}'
+  syscheck: '{{ fortishield_manager_syscheck }}'
+  rootcheck: '{{ fortishield_manager_rootcheck }}'
+  openscap: '{{ fortishield_manager_openscap }}'
+  cis_cat: '{{ fortishield_manager_ciscat }}'
+  osquery: '{{ fortishield_manager_osquery }}'
+  syscollector: '{{ fortishield_manager_syscollector }}'
+  sca: '{{ fortishield_manager_sca }}'
+  vulnerability_detector: '{{ fortishield_manager_vulnerability_detector }}'
+  indexer: '{{ fortishield_manager_indexer }}'
+  log_level: '{{ fortishield_manager_log_level }}'
+  email_level: '{{ fortishield_manager_email_level }}'
+  localfiles: '{{ fortishield_manager_localfiles }}'
+  globals: '{{ fortishield_manager_globals }}'
+  commands: '{{ fortishield_manager_commands }}'
+  ruleset: '{{ fortishield_manager_ruleset }}'
+  rule_exclude: '{{ fortishield_manager_rule_exclude }}'
+  syslog_outputs: '{{ fortishield_manager_syslog_outputs }}'
+  integrations: '{{ fortishield_manager_integrations }}'
+  monitor_aws: '{{ fortishield_manager_monitor_aws }}'
+  labels: '{{ fortishield_manager_labels }}'
+  agents_disconnection_time: '{{ fortishield_manager_agent_disconnection_time }}'
+  agents_disconnection_alert_time: '{{ fortishield_manager_agents_disconnection_alert_time }}'
 
 # shared-agent.conf
 
@@ -466,7 +466,7 @@ wazuh_manager_config_defaults:
 #       - format: 'apache'
 #         location: '/var/log/httpd/access_log'
 #       - format: 'apache'
-#         location: "{{ wazuh_dir }}/logs/active-responses.log"
+#         location: "{{ fortishield_dir }}/logs/active-responses.log"
 #   - type: os
 #     type_value: Windows
 #     syscheck:

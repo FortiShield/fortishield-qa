@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'gcp-pubsub' module uses it to fetch different kinds of events
+brief: The Fortishield 'gcp-pubsub' module uses it to fetch different kinds of events
        (Data access, Admin activity, System events, DNS queries, etc.) from the
-       Google Cloud infrastructure. Once events are collected, Wazuh processes
+       Google Cloud infrastructure. Once events are collected, Fortishield processes
        them using its threat detection rules. Specifically, these tests
        will check if the remote configuration used by GCP matches
        the local one set in the 'ossec.conf' file.
@@ -24,8 +24,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -42,7 +42,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html
 
 tags:
     - config
@@ -54,11 +54,11 @@ import json
 import socket
 import sys
 
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import generate_params
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH, get_service
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, SocketController
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import generate_params
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH, get_service
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, SocketController
 
 # Marks
 
@@ -73,15 +73,15 @@ interval = '2h'
 day = 9
 wday = 'tuesday'
 time = '08:00'
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 component = "wmodules"
 configuration = "wmodules"
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_remote_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_remote_conf.yaml')
 
 # configurations
 
-daemons_handler_configuration = {'daemons': ['wazuh-modulesd'], 'ignore_errors': True}
+daemons_handler_configuration = {'daemons': ['fortishield-modulesd'], 'ignore_errors': True}
 monitoring_modes = ['scheduled']
 conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
                'SUBSCRIPTION_NAME': global_parameters.gcp_subscription_name,
@@ -91,7 +91,7 @@ conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
                'TIME': time, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params,
                        modes=monitoring_modes)
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 force_restart_after_restoring = False
 
 
@@ -106,7 +106,7 @@ def get_configuration(request):
 # tests
 
 def get_remote_configuration(component_name, config):
-    socket_path = os.path.join(WAZUH_PATH, 'queue', 'sockets')
+    socket_path = os.path.join(FORTISHIELD_PATH, 'queue', 'sockets')
     dest_socket = os.path.join(socket_path, component_name)
     command = f"getconfig {config}"
 
@@ -147,7 +147,7 @@ def test_remote_configuration(get_configuration, configure_environment, reset_os
                  Then, it will verify that the default and custom local options match. It will also verify that,
                  when repeated options are used in the configuration, the last one detected is the one applied.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -158,7 +158,7 @@ def test_remote_configuration(get_configuration, configure_environment, reset_os
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -168,7 +168,7 @@ def test_remote_configuration(get_configuration, configure_environment, reset_os
     assertions:
         - Verify that the remote configuration used by GCP matches the local one set in the 'ossec.conf' file.
 
-    input_description: Different test cases are contained in an external YAML file (wazuh_remote_conf.yaml)
+    input_description: Different test cases are contained in an external YAML file (fortishield_remote_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
 
@@ -189,9 +189,9 @@ def test_remote_configuration(get_configuration, configure_environment, reset_os
         ind_xml += 1
 
     # default path of credentials file
-    if WAZUH_PATH not in gcp_xml[xml_list.index('credentials_file')]['credentials_file']['value']:
+    if FORTISHIELD_PATH not in gcp_xml[xml_list.index('credentials_file')]['credentials_file']['value']:
         credentials_path = gcp_xml[xml_list.index('credentials_file')]['credentials_file']['value']
-        gcp_xml[xml_list.index('credentials_file')]['credentials_file']['value'] = os.path.join(WAZUH_PATH,
+        gcp_xml[xml_list.index('credentials_file')]['credentials_file']['value'] = os.path.join(FORTISHIELD_PATH,
                                                                                                 credentials_path)
     # default interval for 'wday' and 'time' to seconds
     if 'day' in xml_list and 'interval' in xml_list:

@@ -1,6 +1,6 @@
 # Security Configuration assessment
 # Testing suite for directory checks (v3.9.0)
-# Copyright (C) 2015-2019, Wazuh Inc.
+# Copyright (C) 2015-2019, Fortishield Inc.
 #
 # This program is a free software; you can redistribute it
 # and/or modify it under the terms of the GNU General Public
@@ -10,7 +10,7 @@ policy:
   id: repeated_global_ids_2
   file: sca_repeated_global_ids_2.yml
   name: Test suite for repeated rules
-  description: This document includes rules with repeated ids for testing purposes with the syntax rule of Wazuh v3.10.0
+  description: This document includes rules with repeated ids for testing purposes with the syntax rule of Fortishield v3.10.0
 
 checks:
 

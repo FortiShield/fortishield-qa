@@ -6,13 +6,13 @@
       shell: echo $EUID
       register: euid
 
-    - name: Create wazuh audit rules file
+    - name: Create fortishield audit rules file
       become: true
       copy:
-        dest: /etc/audit/rules.d/wazuh.rules
+        dest: /etc/audit/rules.d/fortishield.rules
         content: |
-          -a exit,always -F euid={{euid.stdout}} -F arch=b32 -S execve -k audit-wazuh-c
-          -a exit,always -F euid={{euid.stdout}} -F arch=b64 -S execve -k audit-wazuh-c
+          -a exit,always -F euid={{euid.stdout}} -F arch=b32 -S execve -k audit-fortishield-c
+          -a exit,always -F euid={{euid.stdout}} -F arch=b64 -S execve -k audit-fortishield-c
 
     - name: Delete previous audit rules
       become: true
@@ -20,4 +20,4 @@
 
     - name: Load audit rules
       become: true
-      shell: auditctl -R /etc/audit/rules.d/wazuh.rules
+      shell: auditctl -R /etc/audit/rules.d/fortishield.rules

@@ -1,18 +1,18 @@
-# Wazuh - Filebeat configuration file
+# Fortishield - Filebeat configuration file
 filebeat.modules:
-  - module: wazuh
+  - module: fortishield
     alerts:
       enabled: true
     archives:
       enabled: false
 
 setup.template.json.enabled: true
-setup.template.json.path: '/etc/filebeat/wazuh-template.json'
-setup.template.json.name: 'wazuh'
+setup.template.json.path: '/etc/filebeat/fortishield-template.json'
+setup.template.json.name: 'fortishield'
 setup.template.overwrite: true
 setup.ilm.enabled: false
 
-# Send events directly to Wazuh indexer
+# Send events directly to Fortishield indexer
 output.elasticsearch:
   hosts:
 {% for item in filebeat_output_indexer_hosts %}
@@ -29,7 +29,7 @@ output.elasticsearch:
   ssl.key: "{{ filebeat_ssl_dir }}/{{ filebeat_node_name }}-key.pem"
 {% endif %}
 
-# Optional. Send events to Logstash instead of Wazuh indexer
+# Optional. Send events to Logstash instead of Fortishield indexer
 #output.logstash.hosts: ["YOUR_LOGSTASH_SERVER_IP:5000"]
 
 logging.metrics.enabled: false

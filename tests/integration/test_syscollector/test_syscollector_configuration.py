@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Wazuh gathers information about the agent system (OS, hardware, packages, etc.) periodically in a DB and sends
+brief: Fortishield gathers information about the agent system (OS, hardware, packages, etc.) periodically in a DB and sends
        it to the manager, which finally stores this information in a DB. These tests check the different syscollector
        configurations and the complete scan process.
 
@@ -21,9 +21,9 @@ targets:
     - agent
 
 daemons:
-    - wazuh-modulesd
-    - wazuh-analysisd
-    - wazuh-db
+    - fortishield-modulesd
+    - fortishield-analysisd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -38,19 +38,19 @@ os_version:
     - Windows Server 2019
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/syscollector.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/wodle-syscollector.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/syscollector.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/wodle-syscollector.html
 '''
 import os
 import sys
 
 import pytest
-from wazuh_testing import ANALYSISD_DAEMON, DB_DAEMON, MODULES_DAEMON, LOG_FILE_PATH, T_10, T_60
-from wazuh_testing.modules import TIER0, SERVER, AGENT, LINUX, MACOS, WINDOWS
-from wazuh_testing.tools import get_service
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.syscollector import event_monitor as evm
+from fortishield_testing import ANALYSISD_DAEMON, DB_DAEMON, MODULES_DAEMON, LOG_FILE_PATH, T_10, T_60
+from fortishield_testing.modules import TIER0, SERVER, AGENT, LINUX, MACOS, WINDOWS
+from fortishield_testing.tools import get_service
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.syscollector import event_monitor as evm
 
 
 # Marks
@@ -62,8 +62,8 @@ CONFIGURATIONS_PATH = os.path.join(TEST_DATA_PATH, 'configuration')
 TEST_CASES_PATH = os.path.join(TEST_DATA_PATH, 'test_cases')
 
 # Variables
-local_internal_options = {'wazuh_modules.debug': 2}
-if get_service() == 'wazuh-manager':
+local_internal_options = {'fortishield_modules.debug': 2}
+if get_service() == 'fortishield-manager':
     daemons_handler_configuration = {'daemons': [ANALYSISD_DAEMON, DB_DAEMON, MODULES_DAEMON], 'ignore_errors': True}
 elif sys.platform == 'win32':
     daemons_handler_configuration = {'all_daemons': True, 'ignore_errors': True}
@@ -105,7 +105,7 @@ t5_configurations = load_configuration_template(t5_config_path, t5_config_parame
 
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_config_metadata), ids=t1_case_ids)
-def test_syscollector_deactivation(configuration, metadata, set_wazuh_configuration,
+def test_syscollector_deactivation(configuration, metadata, set_fortishield_configuration,
                                    configure_local_internal_options_module, truncate_monitored_files,
                                    daemons_handler_function):
     '''
@@ -120,12 +120,12 @@ def test_syscollector_deactivation(configuration, metadata, set_wazuh_configurat
         - test:
             - Check if Syscollector was disabled.
         - teardown:
-            - Restore Wazuh configuration.
+            - Restore Fortishield configuration.
             - Restore local internal options.
             - Truncate all the log files and json alerts files.
             - Stop the necessary daemons.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -136,9 +136,9 @@ def test_syscollector_deactivation(configuration, metadata, set_wazuh_configurat
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration using the configuration template.
+            brief: Set fortishield configuration using the configuration template.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
@@ -147,7 +147,7 @@ def test_syscollector_deactivation(configuration, metadata, set_wazuh_configurat
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons for each test case.
+            brief: Handler of Fortishield daemons for each test case.
 
     assertions:
         - Check if the syscollector module is disabled.
@@ -161,7 +161,7 @@ def test_syscollector_deactivation(configuration, metadata, set_wazuh_configurat
 
 
 @pytest.mark.parametrize('configuration, metadata', zip(t2_configurations, t2_config_metadata), ids=t2_case_ids)
-def test_syscollector_all_scans_disabled(configuration, metadata, set_wazuh_configuration,
+def test_syscollector_all_scans_disabled(configuration, metadata, set_fortishield_configuration,
                                          configure_local_internal_options_module, truncate_monitored_files,
                                          daemons_handler_function):
     '''
@@ -176,12 +176,12 @@ def test_syscollector_all_scans_disabled(configuration, metadata, set_wazuh_conf
         - test:
             - Check that no scan is triggered.
         - teardown:
-            - Restore Wazuh configuration.
+            - Restore Fortishield configuration.
             - Restore local internal options.
             - Truncate all the log files and json alerts files.
             - Stop the necessary daemons.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -192,9 +192,9 @@ def test_syscollector_all_scans_disabled(configuration, metadata, set_wazuh_conf
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration using the configuration template.
+            brief: Set fortishield configuration using the configuration template.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
@@ -203,7 +203,7 @@ def test_syscollector_all_scans_disabled(configuration, metadata, set_wazuh_conf
             brief: Truncate the log file before and after the test execution.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons for each test case.
+            brief: Handler of Fortishield daemons for each test case.
 
     assertions:
         - Check if a specific scan is disabled and not triggered.
@@ -231,7 +231,7 @@ def test_syscollector_all_scans_disabled(configuration, metadata, set_wazuh_conf
 
 
 @pytest.mark.parametrize('configuration, metadata', zip(t3_configurations, t3_config_metadata), ids=t3_case_ids)
-def test_syscollector_invalid_configurations(configuration, metadata, set_wazuh_configuration,
+def test_syscollector_invalid_configurations(configuration, metadata, set_fortishield_configuration,
                                              configure_local_internal_options_module, truncate_monitored_files,
                                              daemons_handler_function):
     '''
@@ -248,12 +248,12 @@ def test_syscollector_invalid_configurations(configuration, metadata, set_wazuh_
             - Check if the tag/attribute error is present in the logs.
             - Check if Syscollector starts depending on the criticality of the field.
         - teardown:
-            - Restore Wazuh configuration.
+            - Restore Fortishield configuration.
             - Restore local internal options.
             - Truncate all the log files and json alerts files.
             - Stop the necessary daemons.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -264,9 +264,9 @@ def test_syscollector_invalid_configurations(configuration, metadata, set_wazuh_
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration using the configuration template.
+            brief: Set fortishield configuration using the configuration template.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
@@ -275,7 +275,7 @@ def test_syscollector_invalid_configurations(configuration, metadata, set_wazuh_
             brief: Truncate the log file before and after the test execution.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons for each test case.
+            brief: Handler of Fortishield daemons for each test case.
 
     assertions:
         - Check if the scan is triggered after N seconds.
@@ -312,8 +312,8 @@ def test_syscollector_invalid_configurations(configuration, metadata, set_wazuh_
 
 
 @pytest.mark.parametrize('configuration, metadata', zip(t4_configurations, t4_config_metadata), ids=t4_case_ids)
-@pytest.mark.xfail(reason='Reported in wazuh/wazuh#15413 - To be removed in 4.5: wazuh/wazuh-qa#3798')
-def test_syscollector_default_values(configuration, metadata, set_wazuh_configuration,
+@pytest.mark.xfail(reason='Reported in fortishield/fortishield#15413 - To be removed in 4.5: fortishield/fortishield-qa#3798')
+def test_syscollector_default_values(configuration, metadata, set_fortishield_configuration,
                                      configure_local_internal_options_module, truncate_monitored_files,
                                      daemons_handler_function):
     '''
@@ -329,12 +329,12 @@ def test_syscollector_default_values(configuration, metadata, set_wazuh_configur
             - Check if the default configuration was applied.
             - Check if Syscollector starts correctly.
         - teardown:
-            - Restore Wazuh configuration.
+            - Restore Fortishield configuration.
             - Restore local internal options.
             - Truncate all the log files and json alerts files.
             - Stop the necessary daemons.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -345,9 +345,9 @@ def test_syscollector_default_values(configuration, metadata, set_wazuh_configur
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration using the configuration template.
+            brief: Set fortishield configuration using the configuration template.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
@@ -356,7 +356,7 @@ def test_syscollector_default_values(configuration, metadata, set_wazuh_configur
             brief: Truncate the log file before and after the test execution.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons for each test case.
+            brief: Handler of Fortishield daemons for each test case.
 
     assertions:
         - Check if the module sets the default configuration.
@@ -371,7 +371,7 @@ def test_syscollector_default_values(configuration, metadata, set_wazuh_configur
 
 
 @pytest.mark.parametrize('configuration, metadata', zip(t5_configurations, t5_config_metadata), ids=t5_case_ids)
-def test_syscollector_scanning(configuration, metadata, set_wazuh_configuration,
+def test_syscollector_scanning(configuration, metadata, set_fortishield_configuration,
                                configure_local_internal_options_module, truncate_monitored_files,
                                daemons_handler_function):
     '''
@@ -387,12 +387,12 @@ def test_syscollector_scanning(configuration, metadata, set_wazuh_configuration,
             - Check if the default configuration was applied.
             - Check if Syscollector starts correctly.
         - teardown:
-            - Restore Wazuh configuration.
+            - Restore Fortishield configuration.
             - Restore local internal options.
             - Truncate all the log files and json alerts files.
             - Stop the necessary daemons.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     tier: 0
 
@@ -403,9 +403,9 @@ def test_syscollector_scanning(configuration, metadata, set_wazuh_configuration,
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration using the configuration template.
+            brief: Set fortishield configuration using the configuration template.
         - configure_local_internal_options_module:
             type: fixture
             brief: Configure the local internal options file.
@@ -414,7 +414,7 @@ def test_syscollector_scanning(configuration, metadata, set_wazuh_configuration,
             brief: Truncate the log file before and after the test execution.
         - daemons_handler_function:
             type: fixture
-            brief: Handler of Wazuh daemons for each test case.
+            brief: Handler of Fortishield daemons for each test case.
 
     assertions:
         - Check if each scan is completed.

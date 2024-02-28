@@ -73,22 +73,22 @@
 -XX:HeapDumpPath=data
 
 # specify an alternative path for JVM fatal error logs
--XX:ErrorFile=/var/log/wazuh-indexer/hs_err_pid%p.log
+-XX:ErrorFile=/var/log/fortishield-indexer/hs_err_pid%p.log
 
 ## JDK 8 GC logging
 8:-XX:+PrintGCDetails
 8:-XX:+PrintGCDateStamps
 8:-XX:+PrintTenuringDistribution
 8:-XX:+PrintGCApplicationStoppedTime
-8:-Xloggc:/var/log/wazuh-indexer/gc.log
+8:-Xloggc:/var/log/fortishield-indexer/gc.log
 8:-XX:+UseGCLogFileRotation
 8:-XX:NumberOfGCLogFiles=32
 8:-XX:GCLogFileSize=64m
 
 # JDK 9+ GC logging
-9-:-Xlog:gc*,gc+age=trace,safepoint:file=/var/log/wazuh-indexer/gc.log:utctime,pid,tags:filecount=32,filesize=64m
+9-:-Xlog:gc*,gc+age=trace,safepoint:file=/var/log/fortishield-indexer/gc.log:utctime,pid,tags:filecount=32,filesize=64m
 
 ## Opensearch Performance Analyzer
 -Dclk.tck=100
 -Djdk.attach.allowAttachSelf=true
--Djava.security.policy=file:///usr/share/wazuh-indexer/plugins/opensearch-performance-analyzer/pa_config/opensearch_security.policy
+-Djava.security.policy=file:///usr/share/fortishield-indexer/plugins/opensearch-performance-analyzer/pa_config/opensearch_security.policy

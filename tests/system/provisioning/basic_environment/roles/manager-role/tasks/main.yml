@@ -24,23 +24,23 @@
 
 - name: "Get manager package"
   ansible.builtin.get_url:
-    url: "https://{{package_repository}}.wazuh.com/{{repository}}/apt/pool/main/w/wazuh-manager/wazuh-manager_{{package_version}}-{{package_revision}}_amd64.deb"
-    dest: /tmp/wazuh-manager.deb
+    url: "https://{{package_repository}}.fortishield.github.io/{{repository}}/apt/pool/main/w/fortishield-manager/fortishield-manager_{{package_version}}-{{package_revision}}_amd64.deb"
+    dest: /tmp/fortishield-manager.deb
 
 - name: "Install manager package"
   ansible.builtin.apt:
-    deb: /tmp/wazuh-manager.deb
+    deb: /tmp/fortishield-manager.deb
 
 - name: Copy ossec.conf file
   copy:
     src: ../files/ossec.conf
     dest: /var/ossec/etc/ossec.conf
-    owner: wazuh
-    group: wazuh
+    owner: fortishield
+    group: fortishield
     mode: '0644'
 
-- name: Stop Wazuh
-  command: /var/ossec/bin/wazuh-control stop
+- name: Stop Fortishield
+  command: /var/ossec/bin/fortishield-control stop
 
 - name: Remove client.keys
   file:
@@ -53,5 +53,5 @@
     block: |
       authd.debug=2
 
-- name: Start Wazuh
-  command: /var/ossec/bin/wazuh-control restart
+- name: Start Fortishield
+  command: /var/ossec/bin/fortishield-control restart

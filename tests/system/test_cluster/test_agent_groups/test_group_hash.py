@@ -4,18 +4,18 @@ import os
 import time
 import pytest
 
-import wazuh_testing as fw
+import fortishield_testing as fw
 from system.test_cluster.test_agent_groups.common import register_agent
 from system import (create_new_agent_group, delete_agent_group, assign_agent_to_new_group, restart_cluster,
                     execute_wdb_query, remove_cluster_agents, unassign_agent_from_group)
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
 # Hosts
-test_infra_managers = ["wazuh-master", "wazuh-worker1", "wazuh-worker2"]
-test_infra_agents = ["wazuh-agent1", "wazuh-agent2"]
+test_infra_managers = ["fortishield-master", "fortishield-worker1", "fortishield-worker2"]
+test_infra_agents = ["fortishield-agent1", "fortishield-agent2"]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
                               'provisioning', 'enrollment_cluster', 'inventory.yml')
@@ -76,12 +76,12 @@ def configure_groups(group):
 # Tests
 @pytest.mark.parametrize('n_agents', [1, 2])
 @pytest.mark.parametrize('group', ['default', 'multigroup1'])
-@pytest.mark.parametrize('target_node', ['wazuh-master', 'wazuh-worker1'])
+@pytest.mark.parametrize('target_node', ['fortishield-master', 'fortishield-worker1'])
 def test_group_hash(target_node, group, n_agents, configure_groups, clean_environment):
     '''
     description: Check that when an agent registered in the manager and assigned to a group, the global hash is the
                  the expected one.
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
     parameters:
         - target_node:
             type: String
@@ -94,7 +94,7 @@ def test_group_hash(target_node, group, n_agents, configure_groups, clean_enviro
             brief: Create and delete groups.
         - clean_enviroment:
             type: Fixture
-            brief: Reset the wazuh log files at the start of the test. Remove all registered agents from master.
+            brief: Reset the fortishield log files at the start of the test. Remove all registered agents from master.
     assertions:
         - Verify that there is a global hash.
         - Verify that the global hash is the same in every node.

@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: A Wazuh cluster is a group of Wazuh managers that work together to enhance the availability
+brief: A Fortishield cluster is a group of Fortishield managers that work together to enhance the availability
        and scalability of the service. These tests will check the agent enrollment in a multi-server
        environment and how the agent manages the connections to the servers depending on their status.
 
@@ -18,9 +18,9 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agentd
-    - wazuh-authd
-    - wazuh-remoted
+    - fortishield-agentd
+    - fortishield-authd
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -39,7 +39,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/index.html
 
 tags:
     - enrollment
@@ -48,14 +48,14 @@ import os
 import pytest
 from time import sleep
 
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import QueueMonitor, FileMonitor
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import QueueMonitor, FileMonitor
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
 
 # Marks
 
@@ -67,13 +67,13 @@ SERVER_HOSTS = ['testServer1', 'testServer2', 'testServer3']
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), pytest.mark.agent]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 """
 How does this test work:
 
     - PROTOCOL: tcp/udp
     - CLEAN_KEYS: whatever start with an empty client.keys file or not
-    - SIMULATOR_NUMBERS: Number of simulator to be instantiated, this should match wazuh_conf.yaml
+    - SIMULATOR_NUMBERS: Number of simulator to be instantiated, this should match fortishield_conf.yaml
     - SIMULATOR MODES: for each number of simulator will define a list of "stages"
     that defines the state that remoted simulator should have in that state
     Length of the stages should be the same for all simulators.
@@ -276,7 +276,7 @@ params = [
         'PROTOCOL': test['PROTOCOL']
     } for test in metadata]
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 log_monitor_paths = []
 
@@ -369,9 +369,9 @@ def clean_keys(request, get_configuration):
 
 def restart_agentd():
     """Restart agentd daemon with debug mode active."""
-    control_service('stop', daemon="wazuh-agentd")
+    control_service('stop', daemon="fortishield-agentd")
     truncate_file(LOG_FILE_PATH)
-    control_service('start', daemon="wazuh-agentd", debug_mode=True)
+    control_service('start', daemon="fortishield-agentd", debug_mode=True)
 
 
 # Tests
@@ -386,7 +386,7 @@ def wait_until(x, log_str):
 
 
 # @pytest.mark.parametrize('test_case', [case for case in tests])
-@pytest.mark.skip(reason='https://github.com/wazuh/wazuh-qa/issues/3536')
+@pytest.mark.skip(reason='https://github.com/fortishield/fortishield-qa/issues/3536')
 def test_agentd_multi_server(add_hostnames, configure_authd_server, set_authd_id, clean_keys, configure_environment,
                              get_configuration):
     '''
@@ -394,7 +394,7 @@ def test_agentd_multi_server(add_hostnames, configure_authd_server, set_authd_id
                  Initialize an environment with multiple simulated servers in which the agent is forced to enroll
                  under different test conditions, verifying the agent's behavior through its log files.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -404,10 +404,10 @@ def test_agentd_multi_server(add_hostnames, configure_authd_server, set_authd_id
             brief: Adds to the 'hosts' file the names and the IP addresses of the testing servers.
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - set_authd_id:
             type: fixture
-            brief: Sets the agent id to '101' in the 'wazuh-authd' simulated connection.
+            brief: Sets the agent id to '101' in the 'fortishield-authd' simulated connection.
         - clean_keys:
             type: fixture
             brief: Clears the 'client.keys' file used by the simulated remote connections.
@@ -419,10 +419,10 @@ def test_agentd_multi_server(add_hostnames, configure_authd_server, set_authd_id
             brief: Get configurations from the module.
 
     assertions:
-        - Agent without keys. Verify that all servers will refuse the connection to the 'wazuh-remoted' daemon
+        - Agent without keys. Verify that all servers will refuse the connection to the 'fortishield-remoted' daemon
           but will accept enrollment. The agent should try to connect and enroll each of them.
         - Agent without keys. Verify that the first server only has enrollment available, and the third server
-          only has the 'wazuh-remoted' daemon available. The agent should enroll in the first server and
+          only has the 'fortishield-remoted' daemon available. The agent should enroll in the first server and
           connect to the third one.
         - Agent without keys. Verify that the agent should enroll and connect to the first server, and then
           the first server will disconnect. The agent should connect to the second server with the same key.
@@ -434,7 +434,7 @@ def test_agentd_multi_server(add_hostnames, configure_authd_server, set_authd_id
           third servers are not responding. The agent on disconnection should try the second and third servers
           and go back finally to the first server.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Different test cases are found in the test module and include parameters for
                        the environment setup, the requests to be made, and the expected result.
 

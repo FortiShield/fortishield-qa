@@ -1,11 +1,11 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
        Specifically, these tests will check that the agent can connect to the manager switching their
        protocol after being disconnected.
 
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -35,8 +35,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/remote.html
-    - https://documentation.wazuh.com/current/user-manual/agents/agent-life-cycle.html?highlight=status#agent-status
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/remote.html
+    - https://documentation.fortishield.github.io/current/user-manual/agents/agent-life-cycle.html?highlight=status#agent-status
 
 tags:
     - remoted
@@ -45,9 +45,9 @@ import os
 from time import sleep
 
 import pytest
-import wazuh_testing.tools.agent_simulator as ag
-from wazuh_testing import TCP, UDP
-from wazuh_testing.tools.configuration import load_wazuh_configurations
+import fortishield_testing.tools.agent_simulator as ag
+from fortishield_testing import TCP, UDP
+from fortishield_testing.tools.configuration import load_fortishield_configurations
 
 # Marks
 
@@ -55,7 +55,7 @@ pytestmark = pytest.mark.tier(level=2)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_agents_reconnection.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_agents_reconnection.yaml')
 disconnect_time = 5
 
 parameters = [
@@ -74,7 +74,7 @@ agent_info = {
     'agents_version': '4.2.0'
 }
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 config_ids = [f"{x['PORT']}" for x in parameters]
 
 
@@ -117,7 +117,7 @@ def test_agents_switching_protocols(get_configuration, configure_environment, re
                  stopped and it will wait until the manager consider that agents are disconnected. Finally, it will
                  connect the agents switching their protocol.
     
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -127,18 +127,18 @@ def test_agents_switching_protocols(get_configuration, configure_environment, re
             brief: Get configurations from the module.
         - configure_environment:
             type: fixture
-            brief: Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration.
+            brief: Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration.
         - restart_remoted:
             type: fixture
             brief: Reset ossec.log and start a new monitor.
     
     assertions:
-        - Verify that the shared configuration was sent, checking the agent version retrieved by 'wazuh_bd'
+        - Verify that the shared configuration was sent, checking the agent version retrieved by 'fortishield_bd'
         - Verify the startup message was received.
     
     input_description: A configuration template (test_agents_switching_protocols) is contained in an external YAML file,
-                       (wazuh_agents_reconnection.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-remoted' daemon and agents
+                       (fortishield_agents_reconnection.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-remoted' daemon and agents
                        info.
                         
     expected_output:

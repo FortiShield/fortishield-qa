@@ -2,7 +2,7 @@
     "false_positives": [
         {
             "code": " def md5(fname):\n     hash_md5 = hashlib.md5()\n     with open(fname, \"rb\") as f:\n",
-            "filename": "framework/wazuh/core/utils.py",
+            "filename": "framework/fortishield/core/utils.py",
             "issue_confidence": "HIGH",
             "issue_severity": "MEDIUM",
             "issue_text": "Use of insecure MD2, MD4, MD5, or SHA1 hash function.",
@@ -15,8 +15,8 @@
             "test_name": "blacklist"
         },
         {
-            "code": "         try:\n             subprocess.check_output([os_path.join(common.WAZUH_PATH, \"bin\", \"verify-agent-conf\"), '-f', tmp_file_path],\n                                     stderr=subprocess.STDOUT)\n         except subprocess.CalledProcessError as e:\n",
-            "filename": "framework/wazuh/core/configuration.py",
+            "code": "         try:\n             subprocess.check_output([os_path.join(common.FORTISHIELD_PATH, \"bin\", \"verify-agent-conf\"), '-f', tmp_file_path],\n                                     stderr=subprocess.STDOUT)\n         except subprocess.CalledProcessError as e:\n",
+            "filename": "framework/fortishield/core/configuration.py",
             "issue_confidence": "HIGH",
             "issue_severity": "LOW",
             "issue_text": "subprocess call - check for execution of untrusted input.",
@@ -31,7 +31,7 @@
         },
         {
             "code": " import re\n import subprocess\n import sys\n",
-            "filename": "framework/wazuh/core/configuration.py",
+            "filename": "framework/fortishield/core/configuration.py",
             "issue_confidence": "HIGH",
             "issue_severity": "LOW",
             "issue_text": "Consider possible security implications associated with subprocess module.",
@@ -45,7 +45,7 @@
         },
         {
             "code": "     # end time\n     result = wdb_conn.execute(f\"agent {agent_id} sql SELECT max(date_last) FROM pm_event WHERE \"\n                               \"log = 'Ending rootcheck scan.'\")\n",
-            "filename": "framework/wazuh/core/rootcheck.py",
+            "filename": "framework/fortishield/core/rootcheck.py",
             "issue_confidence": "MEDIUM",
             "issue_severity": "MEDIUM",
             "issue_text": "Possible SQL injection vector through string-based query construction.",
@@ -58,8 +58,8 @@
             "test_name": "hardcoded_sql_expressions"
         },
         {
-            "code": " def syscheck_delete_agent(agent: str, wdb_conn: WazuhDBConnection) -> None:\n     wdb_conn.execute(f\"agent {agent} sql delete from fim_entry\", delete=True)\n",
-            "filename": "framework/wazuh/core/syscheck.py",
+            "code": " def syscheck_delete_agent(agent: str, wdb_conn: FortishieldDBConnection) -> None:\n     wdb_conn.execute(f\"agent {agent} sql delete from fim_entry\", delete=True)\n",
+            "filename": "framework/fortishield/core/syscheck.py",
             "issue_confidence": "MEDIUM",
             "issue_severity": "MEDIUM",
             "issue_text": "Possible SQL injection vector through string-based query construction.",
@@ -73,7 +73,7 @@
         },
         {
             "code": "     # start time\n     result = wdb_conn.execute(f\"agent {agent_id} sql SELECT max(date_last) FROM pm_event \"\n                               \"WHERE log = 'Starting rootcheck scan.'\")\n",
-            "filename": "framework/wazuh/core/rootcheck.py",
+            "filename": "framework/fortishield/core/rootcheck.py",
             "issue_confidence": "MEDIUM",
             "issue_severity": "MEDIUM",
             "issue_text": "Possible SQL injection vector through string-based query construction.",
@@ -87,7 +87,7 @@
         },
         {
             "code": "     iv = InputValidator()\n     reservated_ips = {'localhost', 'NODE_IP', '0.0.0.0', '127.0.1.1'}\n \n",
-            "filename": "framework/wazuh/core/cluster/cluster.py",
+            "filename": "framework/fortishield/core/cluster/cluster.py",
             "issue_confidence": "MEDIUM",
             "issue_severity": "MEDIUM",
             "issue_text": "Possible binding to all interfaces.",
@@ -100,8 +100,8 @@
             "test_name": "hardcoded_bind_all_interfaces"
         },
         {
-            "code": "         'port': 1516,\n         'bind_addr': '0.0.0.0',\n         'nodes': ['NODE_IP'],\n         'hidden': 'no'\n     }\n \n     try:\n         config_cluster = get_ossec_conf(section='cluster', conf_file=config_file, from_import=from_import)['cluster']\n     except WazuhException as e:\n64         if e.code == 1106:\n65             # If no cluster configuration is present in ossec.conf, return default configuration but disabling it.\n66             cluster_default_configuration['disabled'] = True\n",
-            "filename": "framework/wazuh/core/cluster/utils.py",
+            "code": "         'port': 1516,\n         'bind_addr': '0.0.0.0',\n         'nodes': ['NODE_IP'],\n         'hidden': 'no'\n     }\n \n     try:\n         config_cluster = get_ossec_conf(section='cluster', conf_file=config_file, from_import=from_import)['cluster']\n     except FortishieldException as e:\n64         if e.code == 1106:\n65             # If no cluster configuration is present in ossec.conf, return default configuration but disabling it.\n66             cluster_default_configuration['disabled'] = True\n",
+            "filename": "framework/fortishield/core/cluster/utils.py",
             "issue_confidence": "MEDIUM",
             "issue_severity": "MEDIUM",
             "issue_text": "Possible binding to all interfaces.",
@@ -132,7 +132,7 @@
     "to_fix": [
         {
             "code": "             exc_data = dct['__unhandled_exc__']\n             return eval(exc_data['__class__'])(*exc_data['__args__'])\n         return dct\n",
-            "filename": "framework/wazuh/core/cluster/common.py",
+            "filename": "framework/fortishield/core/cluster/common.py",
             "issue_confidence": "HIGH",
             "issue_severity": "MEDIUM",
             "issue_text": "Use of possibly insecure function - consider using safer ast.literal_eval.",

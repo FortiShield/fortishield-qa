@@ -30,7 +30,7 @@ The test needs to receive one parameter (artifacts) in order to be run. If this 
 pytest tests/reliability/test_cluster/test_cluster_logs/test_cluster_master_logs_order/ --artifacts_path=/docs/agent_groups --html=report.html --self-contained-html -sxvv 
 ========================================== test session starts ==========================================
 platform linux -- Python 3.9.5, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
-rootdir: /home/yanazaeva/git/wazuh-qa
+rootdir: /home/yanazaeva/git/fortishield-qa
 plugins: testinfra-5.0.0, metadata-1.11.0, html-3.1.1
 collected 1 item                                                                                        
 

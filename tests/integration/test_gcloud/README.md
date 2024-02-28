@@ -45,7 +45,7 @@ Also, there are optional parameters related to schedule:
 ```shell script
 {
   "type": "service_account",
-  "project_id": "wazuh-132",
+  "project_id": "fortishield-132",
   "private_key_id": "...",
   "private_key": "...",
   "client_email": "...",
@@ -63,8 +63,8 @@ To use this integration, it is necessary to add the configuration to ossec.conf:
 
 ```shell script
 <gcp-pubsub>
-  <project_id>wazuh-project-123</project_id>
-  <subscription_name>wazuh-integration</subscription_name>
+  <project_id>fortishield-project-123</project_id>
+  <subscription_name>fortishield-integration</subscription_name>
   <credentials_file>credentials.json</credentials_file>
   <max_messages>150</max_messages>
   <interval>2h</interval>
@@ -85,16 +85,16 @@ tests modify the system date and there could be some synchronization issues.
 This guide will cover the following platforms: [Linux](#linux) and [MacOS](#macos).
 
 You can run these tests on a manager or an agent. In case you are using an agent, please remember to register it and use
-the correct version (Wazuh branch).
+the correct version (Fortishield branch).
 
-_We are skipping Wazuh installation steps. For further information,
-check [Wazuh documentation](https://documentation.wazuh.com/3.11/installation-guide/index.html)._
+_We are skipping Fortishield installation steps. For further information,
+check [Fortishield documentation](https://documentation.fortishield.github.io/3.11/installation-guide/index.html)._
 
 ### Linux
 
 _We are using **CentOS** for this example:_
 
-- Install **Wazuh**
+- Install **Fortishield**
 
 - Disable firewall (only for **CentOS**)
 
@@ -123,22 +123,22 @@ pip3 install google-cloud-pubsub pytest freezegun jq jsonschema pyyaml==5.4 psut
 
 ```shell script
 # Enable debug 2
-echo 'wazuh_modules.debug=2' >> $wazuh_path/etc/local_internal_options.conf
-echo 'analysisd.debug=2' >> $wazuh_path/etc/local_internal_options.conf
+echo 'fortishield_modules.debug=2' >> $fortishield_path/etc/local_internal_options.conf
+echo 'analysisd.debug=2' >> $fortishield_path/etc/local_internal_options.conf
 
 # Avoid agent disconnections when travelling in time (only for agents)
 sed -i "s:<time-reconnect>60</time-reconnect>:<time-reconnect>99999999999</time-reconnect>:g" /var/ossec/etc/ossec.conf
 
 # Disable log rotation
-echo 'monitord.rotate_log=0' >> $wazuh_path/etc/local_internal_options.conf
+echo 'monitord.rotate_log=0' >> $fortishield_path/etc/local_internal_options.conf
 
-# Restart Wazuh
-/var/ossec/bin/wazuh-control restart
+# Restart Fortishield
+/var/ossec/bin/fortishield-control restart
 ```
 
 ### MacOS
 
-- Install **Wazuh**
+- Install **Fortishield**
 
 - Install Python and its dependencies
 
@@ -158,7 +158,7 @@ pip3 install google-cloud-pubsub pytest freezegun jq jsonschema pyyaml==5.4 psut
 ```shell script
 
 # Enable debug 2
-echo 'wazuh_modules.debug=2' >> /Library/Ossec/etc/local_internal_options.conf
+echo 'fortishield_modules.debug=2' >> /Library/Ossec/etc/local_internal_options.conf
 echo 'analysisd.debug=2' >> /Library/Ossec/etc/local_internal_options.conf
 
 # Avoid agent disconnections when travelling in time
@@ -168,11 +168,11 @@ gsed -i "s:<time-reconnect>60</time-reconnect>:<time-reconnect>99999999999</time
 # Disable log rotation
 echo 'monitord.rotate_log=0' >> /Library/Ossec/etc/local_internal_options.conf
 
-# Restart Wazuh
-/Library/Ossec/bin/wazuh-control restart
+# Restart Fortishield
+/Library/Ossec/bin/fortishield-control restart
 ```
 
-Finally, copy your `wazuh-qa` repository within your testing environment and you are set.
+Finally, copy your `fortishield-qa` repository within your testing environment and you are set.
 
 ## Integration tests
 
@@ -187,7 +187,7 @@ from the closest one, it will look for the next one (if possible) until reaching
 need to run every test from the following path, where the general _conftest_ is:
 
 ```shell script
-cd wazuh-qa/tests/integration
+cd fortishield-qa/tests/integration
 ```
 
 To run any test, we just need to call `pytest` from `python3` using the following line:
@@ -224,13 +224,13 @@ check its documentation for further information.
 #### gcp-pubsub integration tests example
 
 ```shell script
-python3 -m pytest -vvx --gcp-project-id=wazuh-project-123 --gcp-subscription-name=wazuh-integration --gcp-credentials-file=credentials.json test_gcloud/test_functioning/test_pull_on_start.py
+python3 -m pytest -vvx --gcp-project-id=fortishield-project-123 --gcp-subscription-name=fortishield-integration --gcp-credentials-file=credentials.json test_gcloud/test_functioning/test_pull_on_start.py
 
 ======================================== test session starts =========================================
 platform linux -- Python 3.6.9, pytest-5.3.5, py-1.5.2, pluggy-0.13.1 -- /usr/bin/python3
 cachedir: .pytest_cache
 metadata: {'Python': '3.6.9', 'Platform': 'Linux-5.3.0-45-generic-x86_64-with-Ubuntu-18.04-bionic', 'Packages': {'pytest': '5.3.5', 'py': '1.5.2', 'pluggy': '0.13.1'}, 'Plugins': {'metadata': '1.8.0', 'html': '2.0.1'}}
-rootdir: /home/daniel/Wazuh/wazuh-qa/tests/integration, inifile: pytest.ini
+rootdir: /home/daniel/Fortishield/fortishield-qa/tests/integration, inifile: pytest.ini
 plugins: metadata-1.8.0, html-2.0.1
 collected 2 items
 

@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-analysisd' daemon receives the log messages and compares them to the rules.
+brief: The 'fortishield-analysisd' daemon receives the log messages and compares them to the rules.
        It then creates an alert when a log message matches an applicable rule.
-       Specifically, these tests will check if the 'wazuh-analysisd' daemon handles correctly
+       Specifically, these tests will check if the 'fortishield-analysisd' daemon handles correctly
        the invalid events it receives.
 
 components:
@@ -21,8 +21,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
-    - wazuh-db
+    - fortishield-analysisd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -39,7 +39,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - events
@@ -48,10 +48,10 @@ import os
 
 import pytest
 import yaml
-from wazuh_testing import global_parameters
-from wazuh_testing.analysis import callback_fim_error
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_PATH
-from wazuh_testing.tools.monitoring import ManInTheMiddle
+from fortishield_testing import global_parameters
+from fortishield_testing.analysis import callback_fim_error
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_PATH
+from fortishield_testing.tools.monitoring import ManInTheMiddle
 
 # Marks
 
@@ -67,18 +67,18 @@ with open(messages_path) as f:
 # Variables
 
 log_monitor_paths = [LOG_FILE_PATH]
-analysis_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'queue'))
+analysis_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'queue'))
 
 receiver_sockets_params = [(analysis_path, 'AF_UNIX', 'UDP')]
 
 mitm_analysisd = ManInTheMiddle(address=analysis_path, family='AF_UNIX', connection_protocol='UDP')
 # monitored_sockets_params is a List of daemons to start with optional ManInTheMiddle to monitor
-# List items -> (wazuh_daemon: str,(
+# List items -> (fortishield_daemon: str,(
 #                mitm: ManInTheMiddle
 #                daemon_first: bool))
-# Example1 -> ('wazuh-clusterd', None)              Only start wazuh-clusterd with no MITM
-# Example2 -> ('wazuh-clusterd', (my_mitm, True))   Start MITM and then wazuh-clusterd
-monitored_sockets_params = [('wazuh-analysisd', mitm_analysisd, True)]
+# Example1 -> ('fortishield-clusterd', None)              Only start fortishield-clusterd with no MITM
+# Example2 -> ('fortishield-clusterd', (my_mitm, True))   Start MITM and then fortishield-clusterd
+monitored_sockets_params = [('fortishield-analysisd', mitm_analysisd, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
@@ -91,10 +91,10 @@ receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in t
 def test_error_messages(configure_sockets_environment, connect_to_sockets_module, wait_for_analysisd_startup,
                         test_case: list):
     '''
-    description: Check if when the 'wazuh-analysisd' daemon socket receives a message with an invalid event,
-                 it generates the corresponding error that sends to the 'wazuh-db' daemon socket.
+    description: Check if when the 'fortishield-analysisd' daemon socket receives a message with an invalid event,
+                 it generates the corresponding error that sends to the 'fortishield-db' daemon socket.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -107,7 +107,7 @@ def test_error_messages(configure_sockets_environment, connect_to_sockets_module
             brief: Module scope version of 'connect_to_sockets' fixture.
         - wait_for_analysisd_startup:
             type: fixture
-            brief: Wait until the 'wazuh-analysisd' has begun and the 'alerts.json' file is created.
+            brief: Wait until the 'fortishield-analysisd' has begun and the 'alerts.json' file is created.
         - test_case:
             type: list
             brief: List of tests to be performed.

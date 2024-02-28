@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check if FIM disables the synchronization
        on Linux systems when the 'enabled' tag of the synchronization option is set to 'no'.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,8 +40,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -58,11 +58,11 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, callback_detect_synchronization, generate_params
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, callback_detect_synchronization, generate_params
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -71,15 +71,15 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=1)]
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
-configurations_path = os.path.join(test_data_path, 'wazuh_disabled_sync_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_disabled_sync_conf.yaml')
 test_directories = [os.path.join(PREFIX, 'testdir1')]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # configurations
 
 p, m = generate_params(extra_params={"TEST_DIRECTORIES": test_directories[0]})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -96,12 +96,12 @@ def get_configuration(request):
 
 def test_sync_disabled(get_configuration, configure_environment, install_audit, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon uses the value of the 'enabled' tag to disable
+    description: Check if the 'fortishield-syscheckd' daemon uses the value of the 'enabled' tag to disable
                  the file synchronization. For this purpose, the test will monitor a testing directory,
                  and finally, it will verify that no FIM 'integrity' event is generated when
                  the synchronization is disabled.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -123,8 +123,8 @@ def test_sync_disabled(get_configuration, configure_environment, install_audit, 
         - Verify that no FIM 'integrity' event is generated when the value
           of the 'enabled' tag is set yo 'no' (synchronization disabled).
 
-    input_description: A test case (sync_disabled) is contained in external YAML file (wazuh_disabled_sync_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined with
+    input_description: A test case (sync_disabled) is contained in external YAML file (fortishield_disabled_sync_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined with
                        the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -138,6 +138,6 @@ def test_sync_disabled(get_configuration, configure_environment, install_audit, 
     check_apply_test({'sync_disabled'}, get_configuration['tags'])
 
     with pytest.raises(TimeoutError):
-        event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+        event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=callback_detect_synchronization)
         raise AttributeError(f'Unexpected event {event}')

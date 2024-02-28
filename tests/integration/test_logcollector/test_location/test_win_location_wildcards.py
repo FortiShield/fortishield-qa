@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages. Secifically, these
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages. Secifically, these
        tests check the behavior of the location tag when it is configured using wildcards. They check that the file
        detected and monitored correctly after wildcard expansion. They also check that when no file matching the regex
        is found, a message is shown in debug mode.
@@ -21,7 +21,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agent
+    - fortishield-agent
 
 os_platform:
     - windows
@@ -32,10 +32,10 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html
-    - https://documentation.wazuh.com/current/user-manual/reference/statistics-files/wazuh-logcollector-state.html
-    - https://documentation.wazuh.com/current/user-manual/reference/internal-options.html#logcollector
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/statistics-files/fortishield-logcollector-state.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/internal-options.html#logcollector
 
 tags:
     - logcollector_options
@@ -43,12 +43,12 @@ tags:
 import os
 import re
 import pytest
-from wazuh_testing.modules import TIER1, WINDOWS
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.local_actions import run_local_command_returning_output
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.modules.logcollector import event_monitor as evm
-from wazuh_testing.modules import logcollector as lc
+from fortishield_testing.modules import TIER1, WINDOWS
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.local_actions import run_local_command_returning_output
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.modules.logcollector import event_monitor as evm
+from fortishield_testing.modules import logcollector as lc
 
 pytestmark = [TIER1, WINDOWS]
 
@@ -79,8 +79,8 @@ log_sample = 'Nov 10 12:19:04 localhost sshd: test log'
 @pytest.mark.parametrize('folder_path, file_list', [(folder_path, ['test'])], ids=[''])
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=case_ids)
 def test_win_location_wildcards(configuration, metadata, folder_path, file_list, create_files_in_folder,
-                                truncate_monitored_files, set_wazuh_configuration,
-                                configure_local_internal_options_function, restart_wazuh_function):
+                                truncate_monitored_files, set_fortishield_configuration,
+                                configure_local_internal_options_function, restart_fortishield_function):
     '''
     description: Check logcollector expands wildcards and monitors target file properly.
 
@@ -89,7 +89,7 @@ def test_win_location_wildcards(configuration, metadata, folder_path, file_list,
            - Create file to monitor logs
            - Truncate ossec.log file
            - Set ossec.conf and local_internal_options.conf
-           - Restart the wazuh daemon
+           - Restart the fortishield daemon
         - Test:
            - Check if the wildcards expanded and matches file
            - Insert the log message.
@@ -97,19 +97,19 @@ def test_win_location_wildcards(configuration, metadata, folder_path, file_list,
         - Teardown:
            - Delete the monitored file
            - Restore ossec.conf and local_internal_options.conf
-           - Stop Wazuh
+           - Stop Fortishield
 
-    wazuh_min_version: 4.5.0
+    fortishield_min_version: 4.5.0
 
     tier: 1
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata
+            brief: Fortishield configuration metadata
         - folder_path:
             type: str
             brief: path for folder to be created and monitored
@@ -122,15 +122,15 @@ def test_win_location_wildcards(configuration, metadata, folder_path, file_list,
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options:
             type: fixture
             brief: Configure the local_internal_options file.
-        - restart_wazuh_function:
+        - restart_fortishield_function:
             type: fixture
-            brief: Restart wazuh.
+            brief: Restart fortishield.
 
     assertions:
         - Check that when configuring location with wildcards it expands and matches file
@@ -142,10 +142,10 @@ def test_win_location_wildcards(configuration, metadata, folder_path, file_list,
         - The `cases_win_location_wildcards` file provides the test cases.
 
     expected_output:
-        - r".*wazuh-agent.*expand_win32_wildcards.*DEBUG: No file/folder that matches {regex}"
-        - r".*wazuh-agent.*check_pattern_expand.*New file that matches the '{file_path}' pattern: '(.*)'"
-        - r".*wazuh-agent.*Analizing file: '{file}'.*"
-        - r".*wazuh-agent.*DEBUG: Reading syslog '{message}'.*"
+        - r".*fortishield-agent.*expand_win32_wildcards.*DEBUG: No file/folder that matches {regex}"
+        - r".*fortishield-agent.*check_pattern_expand.*New file that matches the '{file_path}' pattern: '(.*)'"
+        - r".*fortishield-agent.*Analizing file: '{file}'.*"
+        - r".*fortishield-agent.*DEBUG: Reading syslog '{message}'.*"
     '''
     command = f"echo {log_sample}>> {test_file}"
     file = re.escape(test_file)

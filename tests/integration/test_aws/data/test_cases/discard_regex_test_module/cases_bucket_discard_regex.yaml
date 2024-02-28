@@ -2,13 +2,13 @@
   description: CloudTrail discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: cloudtrail
-    BUCKET_NAME: wazuh-cloudtrail-integration-tests
+    BUCKET_NAME: fortishield-cloudtrail-integration-tests
     DISCARD_FIELD: eventSource
     DISCARD_REGEX: .*ec2.amazonaws.com.*
     PATH: ''
   metadata:
     bucket_type: cloudtrail
-    bucket_name: wazuh-cloudtrail-integration-tests
+    bucket_name: fortishield-cloudtrail-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: eventSource
     discard_regex: .*ec2.amazonaws.com.*
@@ -19,13 +19,13 @@
   description: VPC discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: vpcflow
-    BUCKET_NAME: wazuh-vpcflow-integration-tests
+    BUCKET_NAME: fortishield-vpcflow-integration-tests
     DISCARD_FIELD: srcport
     DISCARD_REGEX: "5319"
     PATH: ''
   metadata:
     bucket_type: vpcflow
-    bucket_name: wazuh-vpcflow-integration-tests
+    bucket_name: fortishield-vpcflow-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: srcport
     discard_regex: "5319"
@@ -36,13 +36,13 @@
   description: Config discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: config
-    BUCKET_NAME: wazuh-config-integration-tests
+    BUCKET_NAME: fortishield-config-integration-tests
     DISCARD_FIELD: configuration.complianceType
     DISCARD_REGEX: .*COMPLIANT.*
     PATH: ''
   metadata:
     bucket_type: config
-    bucket_name: wazuh-config-integration-tests
+    bucket_name: fortishield-config-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: configuration.complianceType
     discard_regex: .*COMPLIANT.*
@@ -53,13 +53,13 @@
   description: ALB discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: alb
-    BUCKET_NAME: wazuh-alb-integration-tests
+    BUCKET_NAME: fortishield-alb-integration-tests
     DISCARD_FIELD: elb_status_code
     DISCARD_REGEX: '401'
     PATH: ''
   metadata:
     bucket_type: alb
-    bucket_name: wazuh-alb-integration-tests
+    bucket_name: fortishield-alb-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: elb_status_code
     discard_regex: '401'
@@ -70,13 +70,13 @@
   description: CLB discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: clb
-    BUCKET_NAME: wazuh-clb-integration-tests
+    BUCKET_NAME: fortishield-clb-integration-tests
     DISCARD_FIELD: elb_status_code
     DISCARD_REGEX: '401'
     PATH: ''
   metadata:
     bucket_type: clb
-    bucket_name: wazuh-clb-integration-tests
+    bucket_name: fortishield-clb-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: elb_status_code
     discard_regex: '401'
@@ -87,13 +87,13 @@
   description: NLB discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: nlb
-    BUCKET_NAME: wazuh-nlb-integration-tests
+    BUCKET_NAME: fortishield-nlb-integration-tests
     DISCARD_FIELD: listener
     DISCARD_REGEX: 0CMK2UAG108C7AXK
     PATH: ''
   metadata:
     bucket_type: nlb
-    bucket_name: wazuh-nlb-integration-tests
+    bucket_name: fortishield-nlb-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: listener
     discard_regex: 0CMK2UAG108C7AXK
@@ -104,13 +104,13 @@
   description: KMS discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-kms-integration-tests
+    BUCKET_NAME: fortishield-kms-integration-tests
     DISCARD_FIELD: eventName
     DISCARD_REGEX: MatchDataKey
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-kms-integration-tests
+    bucket_name: fortishield-kms-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: eventName
     discard_regex: MatchDataKey
@@ -121,13 +121,13 @@
   description: Macie discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-macie-integration-tests
+    BUCKET_NAME: fortishield-macie-integration-tests
     DISCARD_FIELD: severity
     DISCARD_REGEX: LOW
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-macie-integration-tests
+    bucket_name: fortishield-macie-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: severity
     discard_regex: LOW
@@ -138,13 +138,13 @@
   description: Trusted Advisor discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-trusted-advisor-integration-tests
+    BUCKET_NAME: fortishield-trusted-advisor-integration-tests
     DISCARD_FIELD: status
     DISCARD_REGEX: ERROR
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-trusted-advisor-integration-tests
+    bucket_name: fortishield-trusted-advisor-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: status
     discard_regex: ERROR
@@ -155,13 +155,13 @@
   description: GuardDuty discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: guardduty
-    BUCKET_NAME: wazuh-guardduty-integration-tests
+    BUCKET_NAME: fortishield-guardduty-integration-tests
     DISCARD_FIELD: partition
     DISCARD_REGEX: aws-test
     PATH: ''
   metadata:
     bucket_type: guardduty
-    bucket_name: wazuh-guardduty-integration-tests
+    bucket_name: fortishield-guardduty-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: partition
     discard_regex: aws-test
@@ -172,13 +172,13 @@
   description: Native GuardDuty discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: guardduty
-    BUCKET_NAME: wazuh-native-guardduty-integration-tests
+    BUCKET_NAME: fortishield-native-guardduty-integration-tests
     DISCARD_FIELD: partition
     DISCARD_REGEX: aws-test
     PATH: ''
   metadata:
     bucket_type: guardduty
-    bucket_name: wazuh-native-guardduty-integration-tests
+    bucket_name: fortishield-native-guardduty-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: partition
     discard_regex: aws-test
@@ -189,13 +189,13 @@
   description: WAF discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: waf
-    BUCKET_NAME: wazuh-waf-integration-tests
+    BUCKET_NAME: fortishield-waf-integration-tests
     DISCARD_FIELD: action
     DISCARD_REGEX: ALLOW
     PATH: ''
   metadata:
     bucket_type: waf
-    bucket_name: wazuh-waf-integration-tests
+    bucket_name: fortishield-waf-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: action
     discard_regex: ALLOW
@@ -206,13 +206,13 @@
   description: Server Access discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: server_access
-    BUCKET_NAME: wazuh-server-access-integration-tests
+    BUCKET_NAME: fortishield-server-access-integration-tests
     DISCARD_FIELD: http_status
     DISCARD_REGEX: '200'
     PATH: ''
   metadata:
     bucket_type: server_access
-    bucket_name: wazuh-server-access-integration-tests
+    bucket_name: fortishield-server-access-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: http_status
     discard_regex: '200'
@@ -223,13 +223,13 @@
   description: CloudTrail discard regex configurations
   configuration_parameters:
     BUCKET_TYPE: cisco_umbrella
-    BUCKET_NAME: wazuh-umbrella-integration-tests
+    BUCKET_NAME: fortishield-umbrella-integration-tests
     DISCARD_FIELD: action
     DISCARD_REGEX: Blocked
     PATH: dnslogs
   metadata:
     bucket_type: cisco_umbrella
-    bucket_name: wazuh-umbrella-integration-tests
+    bucket_name: fortishield-umbrella-integration-tests
     only_logs_after: 2022-NOV-20
     discard_field: action
     discard_regex: Blocked

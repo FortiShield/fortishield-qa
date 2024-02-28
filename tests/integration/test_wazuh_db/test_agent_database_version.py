@@ -1,9 +1,9 @@
 import pytest
 
-from wazuh_testing.modules import TIER0, LINUX, SERVER
-from wazuh_testing.wazuh_db import query_wdb
-from wazuh_testing.tools import agent_simulator as ag
-from wazuh_testing.tools.wazuh_manager import remove_all_agents
+from fortishield_testing.modules import TIER0, LINUX, SERVER
+from fortishield_testing.fortishield_db import query_wdb
+from fortishield_testing.tools import agent_simulator as ag
+from fortishield_testing.tools.fortishield_manager import remove_all_agents
 
 # Marks
 pytestmark = [TIER0, LINUX, SERVER]
@@ -20,26 +20,26 @@ def remove_agents():
 
 
 # Tests
-def test_agent_database_version(restart_wazuh_daemon, remove_agents):
+def test_agent_database_version(restart_fortishield_daemon, remove_agents):
     '''
     description: Check that the agent database version is the expected one. To do this, it performs a query to the agent
                  database that gets the database version.
 
     test_phases:
         - setup:
-            - Restart wazuh-manager service.
+            - Restart fortishield-manager service.
         - test:
             - Get the version of the manager database through the socket
             - Get the version of the agent database through the socket
             - Check that the manager database version is the expected one.
             - Check that the agent database version is the expected one.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
-        - restart_wazuh_daemon:
+        - restart_fortishield_daemon:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Verify that database version is the expected one.
@@ -48,7 +48,7 @@ def test_agent_database_version(restart_wazuh_daemon, remove_agents):
         - Database version: 13
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     agents = ag.create_agents(1, 'localhost')

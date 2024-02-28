@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
@@ -43,7 +43,7 @@ logs_order = {
 
 
 @pytest.mark.xfail(reason="known cluster log issue due to cluster logging refactor "
-                          "to be worked in https://github.com/wazuh/wazuh/issues/20162")
+                          "to be worked in https://github.com/fortishield/fortishield/issues/20162")
 def test_check_logs_order_workers(artifacts_path):
     """Check that cluster logs appear in the expected order.
 

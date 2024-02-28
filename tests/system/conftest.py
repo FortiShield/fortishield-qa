@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import json
@@ -11,7 +11,7 @@ import pytest
 from numpydoc.docscrape import FunctionDoc
 from py.xml import html
 from system import clean_cluster_logs, remove_cluster_agents
-from wazuh_testing.tools import CLUSTER_LOGS_PATH
+from fortishield_testing.tools import CLUSTER_LOGS_PATH
 
 results = dict()
 report_files = []
@@ -39,7 +39,7 @@ def set_report_files(files):
 
 def get_report_files():
     for file in os.listdir('/tmp'):
-        if 'wazuh' in file:
+        if 'fortishield' in file:
             report_files.append(os.path.join('/tmp', file))
     return report_files
 

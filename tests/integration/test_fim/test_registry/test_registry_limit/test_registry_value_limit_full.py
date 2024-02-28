@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        when these files are modified. Specifically, these tests will check if FIM events are
        generated while the database is in 'full database alert' mode for reaching the limit
        of entries to monitor set in the 'registry_limit'-'entries' tag.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,8 +39,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#file-limit
 
 pytest_args:
     - fim_mode:
@@ -55,20 +55,20 @@ tags:
 '''
 import os
 import pytest
-from wazuh_testing import LOG_FILE_PATH, global_parameters
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
-from wazuh_testing.modules import WINDOWS, TIER1
-from wazuh_testing.modules.fim import (registry_parser, KEY_WOW64_64KEY, REG_SZ, KEY_ALL_ACCESS, RegOpenKeyEx,
+from fortishield_testing import LOG_FILE_PATH, global_parameters
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor, generate_monitoring_callback
+from fortishield_testing.modules import WINDOWS, TIER1
+from fortishield_testing.modules.fim import (registry_parser, KEY_WOW64_64KEY, REG_SZ, KEY_ALL_ACCESS, RegOpenKeyEx,
                                        RegCloseKey, WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY)
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import (CB_REGISTRY_LIMIT_CAPACITY, CB_COUNT_REGISTRY_VALUE_ENTRIES,
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import (CB_REGISTRY_LIMIT_CAPACITY, CB_COUNT_REGISTRY_VALUE_ENTRIES,
                                                      CB_DATABASE_FULL_COULD_NOT_INSERT_VALUE,
                                                      ERR_MSG_DATABASE_FULL_ALERT, ERR_MSG_WRONG_NUMBER_OF_ENTRIES,
                                                      ERR_MSG_DATABASE_FULL_COULD_NOT_INSERT,
                                                      ERR_MSG_FIM_REGISTRY_VALUE_ENTRIES,
                                                      ERR_MSG_WRONG_VALUE_FOR_DATABASE_FULL)
-from wazuh_testing.modules.fim.utils import generate_params, modify_registry_value, create_registry
+from fortishield_testing.modules.fim.utils import generate_params, modify_registry_value, create_registry
 
 # Marks
 pytestmark = [WINDOWS, TIER1]
@@ -77,7 +77,7 @@ pytestmark = [WINDOWS, TIER1]
 # Variables
 test_reg = os.path.join(WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 NUM_REGS = 10
 EXPECTED_DATABES_STATE = "100"
 monitor_timeout = 40
@@ -89,8 +89,8 @@ conf_params = {'WINDOWS_REGISTRY': test_reg}
 params, metadata = generate_params(extra_params=conf_params,
                                    apply_to_all=({'REGISTRIES': registry_limit_elem} for registry_limit_elem
                                                  in registry_limit_list), modes=['scheduled'])
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # Fixtures
@@ -117,7 +117,7 @@ def extra_configuration_before_yield():
 def test_registry_value_limit_full(configure_local_internal_options_module, get_configuration, configure_environment,
                                    restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon generates proper events while the FIM database is in
+    description: Check if the 'fortishield-syscheckd' daemon generates proper events while the FIM database is in
                  'full database alert' mode for reaching the limit of entries to monitor set in the 'entries' option
                  of the 'registry_limit' tag.
                  For this purpose, the test will monitor a key in which several testing values will be created
@@ -125,7 +125,7 @@ def test_registry_value_limit_full(configure_local_internal_options_module, get_
                  when a new testing value is added to the monitored key. Finally, the test will verify that,
                  in the FIM 'entries' event, the number of entries and monitored values match.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -141,7 +141,7 @@ def test_registry_value_limit_full(configure_local_internal_options_module, get_
             brief: Configure a custom environment for testing.
         - restart_syscheckd:
             type: fixture
-            brief: Clear the Wazuh logs file and start a new monitor.
+            brief: Clear the Fortishield logs file and start a new monitor.
 
     assertions:
         - Verify that the FIM database is in 'full database alert' mode
@@ -149,8 +149,8 @@ def test_registry_value_limit_full(configure_local_internal_options_module, get_
         - Verify that proper FIM events are generated while the database
           is in 'full database alert' mode.
 
-    input_description: A test case (fim_registry_limit) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined
+    input_description: A test case (fim_registry_limit) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined
                        with the testing registry key to be monitored defined in this module.
 
     expected_output:
@@ -161,7 +161,7 @@ def test_registry_value_limit_full(configure_local_internal_options_module, get_
     tags:
         - scheduled
     '''
-    database_state = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    database_state = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                              callback=generate_monitoring_callback(CB_REGISTRY_LIMIT_CAPACITY),
                                              error_message=ERR_MSG_DATABASE_FULL_ALERT).result()
 
@@ -174,11 +174,11 @@ def test_registry_value_limit_full(configure_local_internal_options_module, get_
 
     RegCloseKey(reg1_handle)
 
-    wazuh_log_monitor.start(timeout=monitor_timeout,
+    fortishield_log_monitor.start(timeout=monitor_timeout,
                             callback=generate_monitoring_callback(CB_DATABASE_FULL_COULD_NOT_INSERT_VALUE),
                             error_message=ERR_MSG_DATABASE_FULL_COULD_NOT_INSERT)
 
-    value_entries = wazuh_log_monitor.start(timeout=monitor_timeout,
+    value_entries = fortishield_log_monitor.start(timeout=monitor_timeout,
                                             callback=generate_monitoring_callback(CB_COUNT_REGISTRY_VALUE_ENTRIES),
                                             error_message=ERR_MSG_FIM_REGISTRY_VALUE_ENTRIES).result()
 

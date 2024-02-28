@@ -74,37 +74,37 @@
         networks:
           - name: "{{ docker_network }}"
 
-- name: Wazuh Master
-  hosts: wazuh-master
+- name: Fortishield Master
+  hosts: fortishield-master
   vars:
-    master_hostname: "wazuh-master"
+    master_hostname: "fortishield-master"
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/master-role"
 
-- name: Wazuh Worker1
-  hosts: wazuh-worker1
+- name: Fortishield Worker1
+  hosts: fortishield-worker1
   vars:
-    worker_name: wazuh-worker1
+    worker_name: fortishield-worker1
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/worker-role"
 
-- name: Wazuh Worker2
-  hosts: wazuh-worker2
+- name: Fortishield Worker2
+  hosts: fortishield-worker2
   vars:
-    worker_name: wazuh-worker2
+    worker_name: fortishield-worker2
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/worker-role"
 
-- name: Wazuh Agent1
-  hosts: wazuh-agent1
+- name: Fortishield Agent1
+  hosts: fortishield-agent1
   vars:
-    manager_hostname: wazuh-master
+    manager_hostname: fortishield-master
     agent_id: "{{ agent1_id }}"
     agent_hostname: "{{ agent1_hostname }}"
     agent_key: "{{ agent1_key }}"
@@ -113,10 +113,10 @@
   roles:
     - name: "roles/agent-role"
 
-- name: Wazuh Agent2
-  hosts: wazuh-agent2
+- name: Fortishield Agent2
+  hosts: fortishield-agent2
   vars:
-    manager_hostname: wazuh-worker1
+    manager_hostname: fortishield-worker1
     agent_id: "{{ agent2_id }}"
     agent_hostname: "{{ agent2_hostname }}"
     agent_key: "{{ agent2_key }}"
@@ -125,10 +125,10 @@
   roles:
     - name: "roles/agent-role"
 
-- name: Wazuh Agent3
-  hosts: wazuh-agent3
+- name: Fortishield Agent3
+  hosts: fortishield-agent3
   vars:
-    manager_hostname: wazuh-worker2
+    manager_hostname: fortishield-worker2
     agent_id: "{{ agent3_id }}"
     agent_hostname: "{{ agent3_hostname }}"
     agent_key: "{{ agent3_key }}"

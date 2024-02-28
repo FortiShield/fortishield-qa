@@ -1,19 +1,19 @@
 import pytest
-from wazuh_testing import logger
-from wazuh_testing.modules.aws import (
+from fortishield_testing import logger
+from fortishield_testing.modules.aws import (
     FAKE_CLOUDWATCH_LOG_GROUP,
     PERMANENT_CLOUDWATCH_LOG_GROUP,
 )
-from wazuh_testing.modules.aws.cloudwatch_utils import (
+from fortishield_testing.modules.aws.cloudwatch_utils import (
     create_log_events,
     create_log_group,
     create_log_stream,
     delete_log_group,
     delete_log_stream,
 )
-from wazuh_testing.modules.aws.db_utils import delete_s3_db, delete_services_db
-from wazuh_testing.modules.aws.s3_utils import delete_file, file_exists, upload_file
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.modules.aws.db_utils import delete_s3_db, delete_services_db
+from fortishield_testing.modules.aws.s3_utils import delete_file, file_exists, upload_file
+from fortishield_testing.tools.services import control_service
 
 
 @pytest.fixture
@@ -23,8 +23,8 @@ def mark_cases_as_skipped(metadata):
 
 
 @pytest.fixture
-def restart_wazuh_function_without_exception(daemon=None):
-    """Restart all Wazuh daemons."""
+def restart_fortishield_function_without_exception(daemon=None):
+    """Restart all Fortishield daemons."""
     try:
         control_service("start", daemon=daemon)
     except ValueError:

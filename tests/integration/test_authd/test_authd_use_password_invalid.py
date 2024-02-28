@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -19,7 +19,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
+    - fortishield-authd
 
 os_platform:
     - linux
@@ -44,11 +44,11 @@ import pytest
 
 import os
 
-from wazuh_testing.modules.authd import event_monitor as evm
-from wazuh_testing import DEFAULT_AUTHD_PASS_PATH
-from wazuh_testing.tools.file import write_file, delete_file
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.modules.authd import event_monitor as evm
+from fortishield_testing import DEFAULT_AUTHD_PASS_PATH
+from fortishield_testing.tools.file import write_file, delete_file
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.services import control_service
 
 
 # Reference paths
@@ -86,7 +86,7 @@ def set_authd_pass(metadata: dict):
 @pytest.mark.parametrize('metadata, configuration', zip(metadata, configuration), ids=case_ids)
 def test_authd_use_password_invalid(metadata, configuration, truncate_monitored_files,
                                     configure_local_internal_options_module, set_authd_pass,
-                                    set_wazuh_configuration, tear_down):
+                                    set_fortishield_configuration, tear_down):
     '''
     description:
         Checks the correct errors are raised when an invalid password value
@@ -94,7 +94,7 @@ def test_authd_use_password_invalid(metadata, configuration, truncate_monitored_
         to come from the cases yaml, this is done this way to handle easily
         the different error logs that could be raised from different inputs.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -105,9 +105,9 @@ def test_authd_use_password_invalid(metadata, configuration, truncate_monitored_
         - metadata:
             type: dict
             brief: Test case metadata.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - truncate_monitored_files:
             type: fixture
             brief: Truncate all the log files and json alerts files before and after the test execution.
@@ -123,10 +123,10 @@ def test_authd_use_password_invalid(metadata, configuration, truncate_monitored_
 
     assertions:
         - Error log 'Empty password provided.' is raised in ossec.log.
-        - wazuh-manager.service must not be able to restart.
+        - fortishield-manager.service must not be able to restart.
 
     input_description:
-        ./data/configuration_template/config_authd_use_password_invalid.yaml: Wazuh config needed for the tests.
+        ./data/configuration_template/config_authd_use_password_invalid.yaml: Fortishield config needed for the tests.
         ./data/test_cases/cases_authd_use_password_invalid.yaml: Values to be used and expected error.
 
     expected_output:
@@ -134,9 +134,9 @@ def test_authd_use_password_invalid(metadata, configuration, truncate_monitored_
         - .*Invalid password provided.
     '''
     if metadata.get('error') == 'Invalid password provided.':
-        pytest.xfail(reason="No password validation in authd.pass - Issue wazuh/wazuh#16282.")
+        pytest.xfail(reason="No password validation in authd.pass - Issue fortishield/fortishield#16282.")
 
-    # Verify wazuh-manager fails at restart.
+    # Verify fortishield-manager fails at restart.
     with pytest.raises(ValueError):
         control_service('restart')
 

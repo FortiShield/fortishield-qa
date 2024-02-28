@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-analysisd' daemon receives the log messages and compares them to the rules.
+brief: The 'fortishield-analysisd' daemon receives the log messages and compares them to the rules.
        It then creates an alert when a log message matches an applicable rule.
-       Specifically, these tests will check if the 'wazuh-analysisd' daemon generates alerts
+       Specifically, these tests will check if the 'fortishield-analysisd' daemon generates alerts
        using custom rules that contains the 'mitre' field to enrich those alerts with
        MITREs IDs, techniques and tactics.
 
@@ -22,8 +22,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
-    - wazuh-db
+    - fortishield-analysisd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -40,7 +40,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
     - https://attack.mitre.org/
 
 tags:
@@ -51,9 +51,9 @@ import os
 
 import jsonschema
 import pytest
-from wazuh_testing.mitre import (callback_detect_mitre_event, validate_mitre_event)
-from wazuh_testing.tools import ALERT_FILE_PATH
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.mitre import (callback_detect_mitre_event, validate_mitre_event)
+from fortishield_testing.tools import ALERT_FILE_PATH
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -61,7 +61,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 # variables
 
-wazuh_alert_monitor = FileMonitor(ALERT_FILE_PATH)
+fortishield_alert_monitor = FileMonitor(ALERT_FILE_PATH)
 _data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
 invalid_configurations = []
@@ -84,14 +84,14 @@ def get_configuration(request):
 
 # tests
 
-def test_mitre_check_alert(get_configuration, configure_local_rules, restart_wazuh_alerts):
+def test_mitre_check_alert(get_configuration, configure_local_rules, restart_fortishield_alerts):
     '''
     description: Check if MITRE alerts are syntactically and semantically correct.
                  For this purpose, customized rules with MITRE fields are inserted,
                  so that the alerts generated include this information which
                  will be finally validated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -102,7 +102,7 @@ def test_mitre_check_alert(get_configuration, configure_local_rules, restart_waz
         - configure_local_rules:
             type: fixture
             brief: Configure a custom rule in 'local_rules.xml' for testing.
-        - restart_wazuh_alerts:
+        - restart_fortishield_alerts:
             type: fixture
             brief: Reset 'alerts.json' and start a new monitor.
 
@@ -123,9 +123,9 @@ def test_mitre_check_alert(get_configuration, configure_local_rules, restart_waz
     '''
     # Wait until Mitre's event is detected
     if get_configuration not in invalid_configurations:
-        event = wazuh_alert_monitor.start(timeout=30, callback=callback_detect_mitre_event).result()
+        event = fortishield_alert_monitor.start(timeout=30, callback=callback_detect_mitre_event).result()
         validate_mitre_event(event)
     else:
         with pytest.raises(jsonschema.exceptions.ValidationError):
-            event = wazuh_alert_monitor.start(timeout=30, callback=callback_detect_mitre_event).result()
+            event = fortishield_alert_monitor.start(timeout=30, callback=callback_detect_mitre_event).result()
             validate_mitre_event(event)

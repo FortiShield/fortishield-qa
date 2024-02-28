@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. In particular, these tests will check if FIM events are still generated when
        a monitored directory is deleted and created again.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -65,11 +65,11 @@ import sys
 import time
 
 import pytest
-from wazuh_testing import T_10
-from wazuh_testing.modules.fim.utils import generate_params, regular_file_cud
-from wazuh_testing.tools import PREFIX, LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import T_10
+from fortishield_testing.modules.fim.utils import generate_params, regular_file_cud
+from fortishield_testing.tools import PREFIX, LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -81,16 +81,16 @@ directory_str = os.path.join(PREFIX, 'testdir1')
 test_directories = [directory_str]
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 configurations_path = os.path.join(test_data_path,
-                                   'wazuh_conf.yaml' if sys.platform != 'win32' else 'wazuh_conf_win32.yaml')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+                                   'fortishield_conf.yaml' if sys.platform != 'win32' else 'fortishield_conf_win32.yaml')
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 # Configurations
 windows_audit_interval = 1
 conf_params = {'TEST_DIRECTORIES': directory_str, 'MODULE_NAME': __name__,
                'WINDOWS_AUDIT_INTERVAL': str(windows_audit_interval)}
 p, m = generate_params(extra_params=conf_params, modes=['realtime', 'whodata'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -116,7 +116,7 @@ def test_create_after_delete(tags_to_apply, get_configuration, configure_environ
                  directory to be monitored, checks that FIM events are generated, and then deletes it.
                  Finally, it creates the directory again and verifies that the events are still generated correctly.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -141,12 +141,12 @@ def test_create_after_delete(tags_to_apply, get_configuration, configure_environ
         - Verify that FIM events are still generated when a monitored directory is deleted and created again.
 
     input_description: A test case (ossec_conf) is contained in external YAML file
-                       (wazuh_conf.yaml or wazuh_conf_win32.yaml) which includes configuration
-                       settings for the 'wazuh-syscheckd' daemon and, it is combined with
+                       (fortishield_conf.yaml or fortishield_conf_win32.yaml) which includes configuration
+                       settings for the 'fortishield-syscheckd' daemon and, it is combined with
                        the testing directories to be monitored defined in this module.
 
     expected_output:
-        - r'.*Sending FIM event: (.+)$' (Initial scan when restarting Wazuh)
+        - r'.*Sending FIM event: (.+)$' (Initial scan when restarting Fortishield)
         - Multiple FIM events logs of the monitored directories.
 
     tags:
@@ -156,7 +156,7 @@ def test_create_after_delete(tags_to_apply, get_configuration, configure_environ
     check_apply_test(tags_to_apply, get_configuration['tags'])
 
     # Create the monitored directory with files and check that events are not raised
-    regular_file_cud(directory_str, wazuh_log_monitor, file_list=['file1', 'file2', 'file3'],
+    regular_file_cud(directory_str, fortishield_log_monitor, file_list=['file1', 'file2', 'file3'],
                      min_timeout=T_10, triggers_event=True)
 
     # Delete the directory
@@ -169,5 +169,5 @@ def test_create_after_delete(tags_to_apply, get_configuration, configure_environ
     time.sleep(5)
 
     # Assert that events of new CUD actions are raised after next scheduled scan
-    regular_file_cud(directory_str, wazuh_log_monitor, file_list=['file4', 'file5', 'file6'],
+    regular_file_cud(directory_str, fortishield_log_monitor, file_list=['file4', 'file5', 'file6'],
                      min_timeout=T_10, triggers_event=True)

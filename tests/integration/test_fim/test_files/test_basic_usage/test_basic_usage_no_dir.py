@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
-       files are modified. Specifically, these tests will check if the 'wazuh-syscheckd' daemon generates
+       files are modified. Specifically, these tests will check if the 'fortishield-syscheckd' daemon generates
        a debug log when the 'directories' configuration tag is empty.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -61,11 +61,11 @@ tags:
 '''
 import os
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params, callback_empty_directories
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params, callback_empty_directories
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -76,16 +76,16 @@ pytestmark = pytest.mark.tier(level=0)
 test_directories = []
 testdir = os.path.join(PREFIX, 'testdir1')
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # Configurations
 
 p, m = generate_params(extra_params={'TEST_DIRECTORIES': '', 'MODULE_NAME': __name__})
-configuration1 = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configuration1 = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 p, m = generate_params(extra_params={'TEST_DIRECTORIES': testdir, 'MODULE_NAME': __name__})
-configuration2 = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configuration2 = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 # Merge both list of configurations into the final one to avoid skips and configuration issues
 configurations = configuration1 + configuration2
@@ -106,12 +106,12 @@ def get_configuration(request):
 ])
 def test_new_directory(tags_to_apply, get_configuration, configure_environment, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon shows a debug message when an empty 'directories' tag is found.
+    description: Check if the 'fortishield-syscheckd' daemon shows a debug message when an empty 'directories' tag is found.
                  For this purpose, the test uses a configuration without specifying the directory to monitor.
                  It will then verify that the appropriate debug message is generated. Finally, the test will use
                  a valid directory and verify that the above message is not generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -130,13 +130,13 @@ def test_new_directory(tags_to_apply, get_configuration, configure_environment, 
             brief: Clear the 'ossec.log' file and start a new monitor.
 
     assertions:
-        - Verify that the 'wazuh-syscheckd' daemon generates a debug log when
+        - Verify that the 'fortishield-syscheckd' daemon generates a debug log when
           the 'directories' configuration tag is empty.
-        - Verify that the 'wazuh-syscheckd' daemon does not generate a debug log when
+        - Verify that the 'fortishield-syscheckd' daemon does not generate a debug log when
           the 'directories' configuration tag is not empty.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directories to be monitored defined in this module.
 
     expected_output:
@@ -151,7 +151,7 @@ def test_new_directory(tags_to_apply, get_configuration, configure_environment, 
     for section in get_configuration['sections']:
         if section['section'] == 'syscheck':
             if not section['elements'][1]['directories']['value']:
-                wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+                fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=callback_empty_directories,
                                         error_message='Did not receive expected '
                                                       '"DEBUG: (6338): Empty directories tag found in the configuration" '
@@ -159,6 +159,6 @@ def test_new_directory(tags_to_apply, get_configuration, configure_environment, 
             # Check that the message is not displayed when the directory is specified.
             else:
                 with pytest.raises(TimeoutError):
-                    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+                    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                                     callback=callback_empty_directories).result()
                     raise AttributeError(f'Unexpected event {event}')

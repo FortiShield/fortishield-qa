@@ -24,12 +24,12 @@
 
 - name: "Get manager package"
   ansible.builtin.get_url:
-    url: "https://{{package_repository}}.wazuh.com/{{repository}}/apt/pool/main/w/wazuh-manager/wazuh-manager_{{package_version}}-{{package_revision}}_amd64.deb"
-    dest: /tmp/wazuh-manager.deb
+    url: "https://{{package_repository}}.fortishield.github.io/{{repository}}/apt/pool/main/w/fortishield-manager/fortishield-manager_{{package_version}}-{{package_revision}}_amd64.deb"
+    dest: /tmp/fortishield-manager.deb
 
 - name: "Install manager package"
   ansible.builtin.apt:
-    deb: /tmp/wazuh-manager.deb
+    deb: /tmp/fortishield-manager.deb
 
 - name: Copy ossec.conf file
   copy:
@@ -45,15 +45,15 @@
     line: "<key>{{ cluster_key }}</key>"
     backrefs: yes
 
-- name: Set Wazuh Manager IP
+- name: Set Fortishield Manager IP
   lineinfile:
     path: /var/ossec/etc/ossec.conf
     regexp: '<node>(.*)</node>'
     line: "<node>{{ manager_hostname }}</node>"
     backrefs: yes
 
-- name: Stop Wazuh
-  command: /var/ossec/bin/wazuh-control stop
+- name: Stop Fortishield
+  command: /var/ossec/bin/fortishield-control stop
 
 - name: Remove client.keys
   file:
@@ -65,7 +65,7 @@
     path: /var/ossec/etc/local_internal_options.conf
     block: |
       syscheck.debug=2
-      wazuh_db.debug=2
+      fortishield_db.debug=2
 
 - name: Register agents
   blockinfile:
@@ -76,8 +76,8 @@
     mode: "0644"
     create: yes
 
-- name: Start Wazuh
-  command: /var/ossec/bin/wazuh-control restart
+- name: Start Fortishield
+  command: /var/ossec/bin/fortishield-control restart
 
 - name: Create script to check BD
   copy:

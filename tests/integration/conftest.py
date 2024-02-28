@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 
@@ -15,26 +15,26 @@ from datetime import datetime
 from numpydoc.docscrape import FunctionDoc
 from py.xml import html
 
-from wazuh_testing import ALERTS_JSON_PATH, ARCHIVES_JSON_PATH, ARCHIVES_LOG_PATH, global_parameters, logger, mocking
-from wazuh_testing.db_interface.agent_db import update_os_info
-from wazuh_testing.db_interface.global_db import get_system, modify_system
-from wazuh_testing.logcollector import create_file_structure, delete_file_structure
-from wazuh_testing.tools import (PREFIX, LOG_FILE_PATH, WAZUH_CONF, get_service, ALERT_FILE_PATH,
-                                 WAZUH_LOCAL_INTERNAL_OPTIONS, AGENT_CONF, AGENT_INFO_SOCKET_PATH)
-from wazuh_testing.tools import ALERT_FILE_PATH, LOG_FILE_PATH, WAZUH_CONF, WAZUH_LOCAL_INTERNAL_OPTIONS, get_service
-from wazuh_testing.tools import (PREFIX, LOG_FILE_PATH, WAZUH_CONF, get_service, ALERT_FILE_PATH,
-                                 WAZUH_LOCAL_INTERNAL_OPTIONS)
-from wazuh_testing.tools.configuration import get_minimal_configuration, get_wazuh_conf, write_wazuh_conf
-from wazuh_testing.tools.file import (truncate_file, recursive_directory_creation, remove_file, copy, write_file,
+from fortishield_testing import ALERTS_JSON_PATH, ARCHIVES_JSON_PATH, ARCHIVES_LOG_PATH, global_parameters, logger, mocking
+from fortishield_testing.db_interface.agent_db import update_os_info
+from fortishield_testing.db_interface.global_db import get_system, modify_system
+from fortishield_testing.logcollector import create_file_structure, delete_file_structure
+from fortishield_testing.tools import (PREFIX, LOG_FILE_PATH, FORTISHIELD_CONF, get_service, ALERT_FILE_PATH,
+                                 FORTISHIELD_LOCAL_INTERNAL_OPTIONS, AGENT_CONF, AGENT_INFO_SOCKET_PATH)
+from fortishield_testing.tools import ALERT_FILE_PATH, LOG_FILE_PATH, FORTISHIELD_CONF, FORTISHIELD_LOCAL_INTERNAL_OPTIONS, get_service
+from fortishield_testing.tools import (PREFIX, LOG_FILE_PATH, FORTISHIELD_CONF, get_service, ALERT_FILE_PATH,
+                                 FORTISHIELD_LOCAL_INTERNAL_OPTIONS)
+from fortishield_testing.tools.configuration import get_minimal_configuration, get_fortishield_conf, write_fortishield_conf
+from fortishield_testing.tools.file import (truncate_file, recursive_directory_creation, remove_file, copy, write_file,
                                       delete_path_recursively)
-from wazuh_testing.tools.monitoring import FileMonitor, QueueMonitor, SocketController, close_sockets
-from wazuh_testing.tools.services import check_daemon_status, control_service, delete_dbs
-from wazuh_testing.tools.time import TimeMachine
-import wazuh_testing.tools.configuration as conf
+from fortishield_testing.tools.monitoring import FileMonitor, QueueMonitor, SocketController, close_sockets
+from fortishield_testing.tools.services import check_daemon_status, control_service, delete_dbs
+from fortishield_testing.tools.time import TimeMachine
+import fortishield_testing.tools.configuration as conf
 
 
 if sys.platform == 'win32':
-    from wazuh_testing.fim import (KEY_WOW64_32KEY, KEY_WOW64_64KEY,
+    from fortishield_testing.fim import (KEY_WOW64_32KEY, KEY_WOW64_64KEY,
                                    create_registry, delete_registry,
                                    registry_parser)
 
@@ -45,7 +45,7 @@ catalog = list()
 results = dict()
 
 ###############################
-report_files = [LOG_FILE_PATH, WAZUH_CONF, WAZUH_LOCAL_INTERNAL_OPTIONS]
+report_files = [LOG_FILE_PATH, FORTISHIELD_CONF, FORTISHIELD_LOCAL_INTERNAL_OPTIONS]
 
 
 def set_report_files(files):
@@ -96,39 +96,39 @@ def pytest_collection_modifyitems(session, config, items):
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh(get_configuration, request):
-    # Stop Wazuh
+def restart_fortishield(get_configuration, request):
+    # Stop Fortishield
     control_service('stop')
 
     # Reset ossec.log and start a new monitor
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
-    # Start Wazuh
+    # Start Fortishield
     control_service('start')
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh_daemon(daemon=None):
+def restart_fortishield_daemon(daemon=None):
     """
-    Restart a Wazuh daemon
-    """
-    truncate_file(LOG_FILE_PATH)
-    control_service("restart", daemon=daemon)
-
-
-@pytest.fixture(scope='function')
-def restart_wazuh_daemon_function(daemon=None):
-    """
-    Restart a Wazuh daemon
+    Restart a Fortishield daemon
     """
     truncate_file(LOG_FILE_PATH)
     control_service("restart", daemon=daemon)
 
 
 @pytest.fixture(scope='function')
-def restart_wazuh_function(request):
+def restart_fortishield_daemon_function(daemon=None):
+    """
+    Restart a Fortishield daemon
+    """
+    truncate_file(LOG_FILE_PATH)
+    control_service("restart", daemon=daemon)
+
+
+@pytest.fixture(scope='function')
+def restart_fortishield_function(request):
     """Restart before starting a test, and stop it after finishing.
 
        Args:
@@ -156,7 +156,7 @@ def restart_wazuh_function(request):
         logger.debug(f"Stopping all daemons")
         control_service('stop')
     else:
-        # Stop a list daemons in order (as Wazuh does)
+        # Stop a list daemons in order (as Fortishield does)
         daemons.reverse()
         for daemon in daemons:
             logger.debug(f"Stopping {daemon}")
@@ -164,17 +164,17 @@ def restart_wazuh_function(request):
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh_module(daemon=None):
-    """Restart all Wazuh daemons"""
+def restart_fortishield_module(daemon=None):
+    """Restart all Fortishield daemons"""
     control_service("restart", daemon=daemon)
     yield
     control_service('stop', daemon=daemon)
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh_daemon_after_finishing(daemon=None):
+def restart_fortishield_daemon_after_finishing(daemon=None):
     """
-    Restart a Wazuh daemon
+    Restart a Fortishield daemon
     """
     yield
     truncate_file(LOG_FILE_PATH)
@@ -182,9 +182,9 @@ def restart_wazuh_daemon_after_finishing(daemon=None):
 
 
 @pytest.fixture(scope='function')
-def restart_wazuh_daemon_after_finishing_function(daemon=None):
+def restart_fortishield_daemon_after_finishing_function(daemon=None):
     """
-    Restart a Wazuh daemon
+    Restart a Fortishield daemon
     """
     yield
     truncate_file(LOG_FILE_PATH)
@@ -193,10 +193,10 @@ def restart_wazuh_daemon_after_finishing_function(daemon=None):
 
 @pytest.fixture(scope='function')
 def restart_analysisd_function():
-    """Restart wazuh-analysisd daemon before starting a test, and stop it after finishing"""
-    control_service('restart', daemon='wazuh-analysisd')
+    """Restart fortishield-analysisd daemon before starting a test, and stop it after finishing"""
+    control_service('restart', daemon='fortishield-analysisd')
     yield
-    control_service('stop', daemon='wazuh-analysisd')
+    control_service('stop', daemon='fortishield-analysisd')
 
 
 @pytest.fixture(scope='module')
@@ -204,20 +204,20 @@ def reset_ossec_log(get_configuration, request):
     # Reset ossec.log and start a new monitor
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
 
 @pytest.fixture(scope='module')
-def restart_wazuh_alerts(get_configuration, request):
-    # Stop Wazuh
+def restart_fortishield_alerts(get_configuration, request):
+    # Stop Fortishield
     control_service('stop')
 
     # Reset alerts.json and start a new monitor
     truncate_file(ALERT_FILE_PATH)
     file_monitor = FileMonitor(ALERT_FILE_PATH)
-    setattr(request.module, 'wazuh_alert_monitor', file_monitor)
+    setattr(request.module, 'fortishield_alert_monitor', file_monitor)
 
-    # Start Wazuh
+    # Start Fortishield
     control_service('start')
 
 
@@ -254,7 +254,7 @@ def pytest_addoption(parser):
         type=int,
         help="number of seconds that any timer will wait until an event is generated. This apply to all tests except"
              "those with a hardcoded timeout not depending on global_parameters.default_timeout "
-             "variable from wazuh_testing package"
+             "variable from fortishield_testing package"
     )
     parser.addoption(
         "--fim-database-memory",
@@ -703,22 +703,22 @@ def configure_local_internal_options_function(request):
 # DEPRECATED
 @pytest.fixture(scope='module')
 def configure_local_internal_options(get_local_internal_options):
-    """Configure Wazuh local internal options.
+    """Configure Fortishield local internal options.
 
     Args:
         get_local_internal_options (Fixture): Fixture that returns a dictionary with the desired local internal options.
     """
-    backup_options_lines = conf.get_wazuh_local_internal_options()
+    backup_options_lines = conf.get_fortishield_local_internal_options()
     backup_options_dict = conf.local_internal_options_to_dict(backup_options_lines)
 
     if backup_options_dict != get_local_internal_options:
-        conf.add_wazuh_local_internal_options(get_local_internal_options)
+        conf.add_fortishield_local_internal_options(get_local_internal_options)
 
         control_service('restart')
 
         yield
 
-        conf.set_wazuh_local_internal_options(backup_options_lines)
+        conf.set_fortishield_local_internal_options(backup_options_lines)
 
         control_service('restart')
     else:
@@ -727,13 +727,13 @@ def configure_local_internal_options(get_local_internal_options):
 
 @pytest.fixture(scope='module')
 def configure_environment(get_configuration, request):
-    """Configure a custom environment for testing. Restart Wazuh is needed for applying the configuration."""
+    """Configure a custom environment for testing. Restart Fortishield is needed for applying the configuration."""
 
     # Save current configuration
-    backup_config = conf.get_wazuh_conf()
+    backup_config = conf.get_fortishield_conf()
 
     # Configuration for testing
-    test_config = conf.set_section_wazuh_conf(get_configuration.get('sections'))
+    test_config = conf.set_section_fortishield_conf(get_configuration.get('sections'))
 
     # Create test directories
     if hasattr(request.module, 'test_directories'):
@@ -752,7 +752,7 @@ def configure_environment(get_configuration, request):
                 create_registry(registry_parser[match.group(1)], match.group(2), KEY_WOW64_64KEY)
 
     # Set new configuration
-    conf.write_wazuh_conf(test_config)
+    conf.write_fortishield_conf(test_config)
 
     # Change Windows Date format to ensure TimeMachine will work properly
     if sys.platform == 'win32':
@@ -790,7 +790,7 @@ def configure_environment(get_configuration, request):
         control_service('start')
 
     # Restore previous configuration
-    conf.write_wazuh_conf(backup_config)
+    conf.write_fortishield_conf(backup_config)
 
     # Call extra functions after yield
     if hasattr(request.module, 'extra_configuration_after_yield'):
@@ -836,7 +836,7 @@ def set_agent_conf(get_configuration):
                 if el[key]['value'] is None:
                     section['elements'].remove(el)
 
-    new_config = conf.set_section_wazuh_conf(sections, backup_config)
+    new_config = conf.set_section_fortishield_conf(sections, backup_config)
     conf.write_agent_conf(new_config)
 
     yield
@@ -856,7 +856,7 @@ def configure_sockets_environment(request):
     monitored_sockets_params = getattr(request.module, 'monitored_sockets_params')
     log_monitor_paths = getattr(request.module, 'log_monitor_paths')
 
-    # Stop wazuh-service and ensure all daemons are stopped
+    # Stop fortishield-service and ensure all daemons are stopped
     control_service('stop')
     check_daemon_status(running_condition=False)
 
@@ -910,7 +910,7 @@ def configure_sockets_environment_function(request):
     monitored_sockets_params = getattr(request.module, 'monitored_sockets_params')
     log_monitor_paths = getattr(request.module, 'log_monitor_paths')
 
-    # Stop wazuh-service and ensure all daemons are stopped
+    # Stop fortishield-service and ensure all daemons are stopped
     control_service('stop')
     check_daemon_status(running_condition=False)
 
@@ -1000,12 +1000,12 @@ def create_file_structure_function(get_files_list):
 
 
 def daemons_handler_impl(request):
-    """Helper function to handle Wazuh daemons.
+    """Helper function to handle Fortishield daemons.
     It uses `daemons_handler_configuration` of each module in order to configure the behavior of the fixture.
     The  `daemons_handler_configuration` should be a dictionary with the following keys:
         daemons (list, optional): List with every daemon to be used by the module. In case of empty a ValueError
             will be raised
-        all_daemons (boolean): Configure to restart all wazuh services. Default `False`.
+        all_daemons (boolean): Configure to restart all fortishield services. Default `False`.
         ignore_errors (boolean): Configure if errors in daemon handling should be ignored. This option is available
         in order to use this fixture along with invalid configuration. Default `False`
 
@@ -1025,7 +1025,7 @@ def daemons_handler_impl(request):
                 raise ValueError
 
         if 'all_daemons' in daemons_handler_configuration:
-            logger.debug(f"Wazuh control set to {daemons_handler_configuration['all_daemons']}")
+            logger.debug(f"Fortishield control set to {daemons_handler_configuration['all_daemons']}")
             all_daemons = daemons_handler_configuration['all_daemons']
 
         if 'ignore_errors' in daemons_handler_configuration:
@@ -1038,7 +1038,7 @@ def daemons_handler_impl(request):
 
     try:
         if all_daemons:
-            logger.debug('Restarting wazuh using wazuh-control')
+            logger.debug('Restarting fortishield using fortishield-control')
             # Restart daemon instead of starting due to legacy used fixture in the test suite.
             control_service('restart')
         else:
@@ -1059,7 +1059,7 @@ def daemons_handler_impl(request):
     yield
 
     if all_daemons:
-        logger.debug('Stopping wazuh using wazuh-control')
+        logger.debug('Stopping fortishield using fortishield-control')
         control_service('stop')
     else:
         for daemon in daemons:
@@ -1114,20 +1114,20 @@ def file_monitoring(request):
 
 
 @pytest.fixture()
-def set_wazuh_configuration(configuration):
-    """Set wazuh configuration
+def set_fortishield_configuration(configuration):
+    """Set fortishield configuration
 
     Args:
         configuration (dict): Configuration template data to write in the ossec.conf
     """
     # Save current configuration
-    backup_config = conf.get_wazuh_conf()
+    backup_config = conf.get_fortishield_conf()
 
     # Configuration for testing
-    test_config = conf.set_section_wazuh_conf(configuration.get('sections'))
+    test_config = conf.set_section_fortishield_conf(configuration.get('sections'))
 
     # Set new configuration
-    conf.write_wazuh_conf(test_config)
+    conf.write_fortishield_conf(test_config)
 
     # Set current configuration
     global_parameters.current_configuration = configuration
@@ -1135,13 +1135,13 @@ def set_wazuh_configuration(configuration):
     yield
 
     # Restore previous configuration
-    conf.write_wazuh_conf(backup_config)
+    conf.write_fortishield_conf(backup_config)
 
 
 @pytest.fixture
 def truncate_monitored_files():
     """Truncate all the log files and json alerts files before and after the test execution"""
-    if get_service() == 'wazuh-manager':
+    if get_service() == 'fortishield-manager':
         log_files = [LOG_FILE_PATH, ALERT_FILE_PATH]
     else:
         log_files = [LOG_FILE_PATH]
@@ -1159,7 +1159,7 @@ def truncate_monitored_files():
 
 @pytest.fixture()
 def stop_modules_function_after_execution():
-    """Stop wazuh modules daemon after finishing a test"""
+    """Stop fortishield modules daemon after finishing a test"""
     yield
     control_service('stop')
 
@@ -1227,7 +1227,7 @@ def clean_mocked_agents():
 
 @pytest.fixture(scope='module')
 def mock_agent_module():
-    """Fixture to create a mocked agent in wazuh databases"""
+    """Fixture to create a mocked agent in fortishield databases"""
     agent_id = mocking.create_mocked_agent(name='mocked_agent')
 
     yield agent_id
@@ -1237,7 +1237,7 @@ def mock_agent_module():
 
 @pytest.fixture(scope='function')
 def mock_agent_function(request):
-    """Fixture to create a mocked agent in wazuh databases"""
+    """Fixture to create a mocked agent in fortishield databases"""
     system = getattr(request.module, 'mocked_system') if hasattr(request.module, 'mocked_system') else 'RHEL8'
     agent_data = mocking.SYSTEM_DATA[system] if system in mocking.SYSTEM_DATA else {'name': 'mocked_agent'}
 
@@ -1253,7 +1253,7 @@ def clear_logs(get_configuration, request):
     """Reset the ossec.log and start a new monitor"""
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
 
 @pytest.fixture(scope='function')
@@ -1345,21 +1345,21 @@ def create_file(new_file_path):
 
 
 @pytest.fixture(scope='session')
-def load_wazuh_basic_configuration():
+def load_fortishield_basic_configuration():
     """Load a new basic configuration to the manager"""
     # Load ossec.conf with all disabled settings
     minimal_configuration = conf.get_minimal_configuration()
 
     # Make a backup from current configuration
-    backup_ossec_configuration = conf.get_wazuh_conf()
+    backup_ossec_configuration = conf.get_fortishield_conf()
 
     # Write new configuration
-    conf.write_wazuh_conf(minimal_configuration)
+    conf.write_fortishield_conf(minimal_configuration)
 
     yield
 
     # Restore the ossec.conf backup
-    conf.write_wazuh_conf(backup_ossec_configuration)
+    conf.write_fortishield_conf(backup_ossec_configuration)
 
 
 @pytest.fixture(scope='function')

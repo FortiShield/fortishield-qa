@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts
        when these files are modified. In particular, these tests will check if FIM changes
        the monitoring mode from 'realtime' to 'scheduled' when it is not supported.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - macos
@@ -35,8 +35,8 @@ os_version:
     - Solaris 11
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -53,12 +53,12 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing.fim import detect_initial_scan, callback_ignore_realtime_flag
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.utils import generate_params, regular_file_cud
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing.fim import detect_initial_scan, callback_ignore_realtime_flag
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.utils import generate_params, regular_file_cud
 
 
 # Marks
@@ -69,7 +69,7 @@ pytestmark = [pytest.mark.darwin, pytest.mark.sunos5, pytest.mark.tier(level=0)]
 realtime_flag_timeout = 60
 directory_str = os.path.join(PREFIX, 'dir')
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_check_realtime.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_check_realtime.yaml')
 test_file = 'testfile.txt'
 test_directories = [directory_str]
 
@@ -77,9 +77,9 @@ test_directories = [directory_str]
 # Configurations
 conf_params = {'TEST_DIRECTORIES': directory_str}
 parameters, metadata = generate_params(extra_params=conf_params, modes=['scheduled'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 local_internal_options = {'syscheck.debug': '2', 'monitord.rotate_log': '0'}
-daemons_handler_configuration = {'daemons': ['wazuh-syscheckd']}
+daemons_handler_configuration = {'daemons': ['fortishield-syscheckd']}
 
 
 # Fixtures
@@ -100,7 +100,7 @@ def test_realtime_unsupported(get_configuration, configure_environment, file_mon
                  mode. After this, the set of operations takes place and the expected behavior is the events will be
                  generated with 'scheduled' mode and not 'realtime' as it is set in the configuration.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -119,13 +119,13 @@ def test_realtime_unsupported(get_configuration, configure_environment, file_mon
             brief: Configure the local internal options file.
         - daemons_handler_module:
             type: fixture
-            brief: Handle the Wazuh daemons.
+            brief: Handle the Fortishield daemons.
 
     assertions:
         - Verify that FIM changes the monitoring mode from 'realtime' to 'scheduled' when it is not supported.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf_check_realtime.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it is combined
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf_check_realtime.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it is combined
                        with the testing directory to be monitored defined in this module.
 
     expected_output:

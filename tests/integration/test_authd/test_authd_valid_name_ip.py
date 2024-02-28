@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -16,9 +16,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -41,10 +41,10 @@ import os
 import socket
 import time
 import pytest
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
-from wazuh_testing.authd import validate_authd_response
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
+from fortishield_testing.authd import validate_authd_response
 
 # Marks
 
@@ -53,16 +53,16 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 # Configurations
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-client_keys_path = os.path.join(WAZUH_PATH, 'etc', 'client.keys')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+client_keys_path = os.path.join(FORTISHIELD_PATH, 'etc', 'client.keys')
 test_cases = read_yaml(os.path.join(test_data_path, 'test_authd_valid_name_ip.yaml'))
-configurations = load_wazuh_configurations(configurations_path, __name__)
+configurations = load_fortishield_configurations(configurations_path, __name__)
 
 # Variables
 
 log_monitor_paths = []
 receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2')]
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 hostname = socket.gethostname()
 
@@ -89,7 +89,7 @@ def test_authd_valid_name_ip(get_configuration, configure_environment, configure
     description:
         Checks that every input message in authd port generates the adequate output.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -106,10 +106,10 @@ def test_authd_valid_name_ip(get_configuration, configure_environment, configure
             brief: Configure the socket listener to receive and send messages on the sockets.
         - clean_client_keys_file_function:
             type: fixture
-            brief: Stops Wazuh and cleans any previous key in client.keys file at function scope.
+            brief: Stops Fortishield and cleans any previous key in client.keys file at function scope.
         - restart_authd_function:
             type: fixture
-            brief: Restart the 'wazuh-authd' daemon, clear the 'ossec.log' file and start a new file monitor.
+            brief: Restart the 'fortishield-authd' daemon, clear the 'ossec.log' file and start a new file monitor.
         - wait_for_authd_startup_function:
             type: fixture
             brief: Waits until Authd is accepting connections.

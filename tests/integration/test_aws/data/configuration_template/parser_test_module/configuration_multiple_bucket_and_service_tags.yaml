@@ -12,7 +12,7 @@
               - aws_profile:
                   value: qa
               - name:
-                  value: wazuh-cloudtrail-integration-tests
+                  value: fortishield-cloudtrail-integration-tests
               - regions:
                   value: us-east-1
         - bucket:
@@ -22,7 +22,7 @@
               - aws_profile:
                   value: qa
               - name:
-                  value: wazuh-cloudtrail-integration-tests
+                  value: fortishield-cloudtrail-integration-tests
               - regions:
                   value: us-east-2
         - service:
@@ -32,7 +32,7 @@
               - aws_profile:
                   value: qa
               - aws_log_groups:
-                  value: wazuh-cloudwatchlogs-integration-tests
+                  value: fortishield-cloudwatchlogs-integration-tests
               - regions:
                   value: us-east-1
         - service:
@@ -42,6 +42,6 @@
               - aws_profile:
                   value: qa
               - aws_log_groups:
-                  value: wazuh-cloudwatchlogs-integration-tests
+                  value: fortishield-cloudwatchlogs-integration-tests
               - regions:
                   value: us-east-2

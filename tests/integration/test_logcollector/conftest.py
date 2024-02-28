@@ -1,26 +1,26 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 import pytest
 from shutil import copyfile
 import sys
 
 if sys.platform != 'win32':
-    from wazuh_testing.tools import LOGCOLLECTOR_FILE_STATUS_PATH
+    from fortishield_testing.tools import LOGCOLLECTOR_FILE_STATUS_PATH
 
-from wazuh_testing.tools import LOG_FILE_PATH, WAZUH_LOCAL_INTERNAL_OPTIONS
-import wazuh_testing.tools.configuration as conf
-from wazuh_testing.logcollector import LOGCOLLECTOR_DEFAULT_LOCAL_INTERNAL_OPTIONS
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools import CLIENT_CUSTOM_KEYS_PATH, CLIENT_CUSTOM_CERT_PATH, get_service
+from fortishield_testing.tools import LOG_FILE_PATH, FORTISHIELD_LOCAL_INTERNAL_OPTIONS
+import fortishield_testing.tools.configuration as conf
+from fortishield_testing.logcollector import LOGCOLLECTOR_DEFAULT_LOCAL_INTERNAL_OPTIONS
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools import CLIENT_CUSTOM_KEYS_PATH, CLIENT_CUSTOM_CERT_PATH, get_service
 from os.path import exists
 from os import remove
 
-DAEMON_NAME = "wazuh-logcollector"
+DAEMON_NAME = "fortishield-logcollector"
 
 
 @pytest.fixture(scope='module')
@@ -29,7 +29,7 @@ def restart_logcollector(get_configuration, request):
     control_service('stop', daemon=DAEMON_NAME)
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
     control_service('start', daemon=DAEMON_NAME)
 
 
@@ -92,10 +92,10 @@ def truncate_log_file():
 
 @pytest.fixture(scope='module')
 def restart_monitord():
-    wazuh_component = get_service()
+    fortishield.github.ioponent = get_service()
 
     """Reset log file and start a new monitor."""
-    if wazuh_component == 'wazuh-manager':
-        control_service('restart', daemon='wazuh-monitord')
+    if fortishield.github.ioponent == 'fortishield-manager':
+        control_service('restart', daemon='fortishield-monitord')
     else:
-        control_service('restart', daemon='wazuh-agentd')
+        control_service('restart', daemon='fortishield-agentd')

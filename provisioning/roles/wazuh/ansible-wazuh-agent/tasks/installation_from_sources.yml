@@ -1,5 +1,5 @@
 ---
-  - name: Install dependencies to build Wazuh packages
+  - name: Install dependencies to build Fortishield packages
     package:
       name:
         - make
@@ -12,12 +12,12 @@
 
   - name: Removing old files
     file:
-      path: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+      path: "/tmp/{{ fortishield_agent_sources_installation.branch }}.tar.gz"
       state: absent
 
   - name: Removing old folders
     file:
-      path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      path: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}"
       state: absent
 
   - name: Installing policycoreutils-python (RedHat families)
@@ -36,26 +36,26 @@
     when:
       - ansible_os_family|lower == "debian"
 
-  - name: Download required packages from github.com/wazuh/wazuh
+  - name: Download required packages from github.com/fortishield/fortishield
     get_url:
-      url: "https://github.com/wazuh/wazuh/archive/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
-      dest: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+      url: "https://github.com/fortishield/fortishield/archive/{{ fortishield_agent_sources_installation.branch }}.tar.gz"
+      dest: "/tmp/{{ fortishield_agent_sources_installation.branch }}.tar.gz"
     delegate_to: "{{ inventory_hostname }}"
     changed_when: false
 
-  - name: Create folder to extract Wazuh branch
+  - name: Create folder to extract Fortishield branch
     file:
-      path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      path: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}"
       mode: 0755
       state: directory
     changed_when: false
 
-  - name: Extract downloaded Wazuh branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
+  - name: Extract downloaded Fortishield branch from Github # Using shell instead of unarchive due to that module not working properlyh with --strip
     command: >-
-      tar -xzvf /tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz
+      tar -xzvf /tmp/{{ fortishield_agent_sources_installation.branch }}.tar.gz
       --strip 1
-      --directory /tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}
-    register: wazuh_untar
+      --directory /tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}
+    register: fortishield_untar
     changed_when: false
     args:
       warn: false
@@ -63,7 +63,7 @@
   - name: Clean remaining files from others builds
     command: "make -C src {{ item }}"
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}/src/"
+      chdir: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}/src/"
     with_items:
       - "clean"
       - "clean-deps"
@@ -74,27 +74,27 @@
   - name: Render the "preloaded-vars.conf" file
     template:
       src: "templates/preloaded_vars_agent.conf.j2"
-      dest: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}/etc/preloaded-vars.conf"
+      dest: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}/etc/preloaded-vars.conf"
       owner: root
       group: root
       mode: 0644
     changed_when: false
 
-  - name: Executing "install.sh" script to build and install the Wazuh Agent
+  - name: Executing "install.sh" script to build and install the Fortishield Agent
     shell: ./install.sh > /tmp/build_agent_log.txt
     register: installation_result
     changed_when: installation_result == 0
     args:
-      chdir: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      chdir: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}"
 
   - name: Cleanup downloaded files
     file:
-      path: "/tmp/{{ wazuh_agent_sources_installation.branch }}.tar.gz"
+      path: "/tmp/{{ fortishield_agent_sources_installation.branch }}.tar.gz"
       state: absent
     changed_when: false
 
   - name: Cleanup created folders
     file:
-      path: "/tmp/wazuh-{{ wazuh_agent_sources_installation.branch }}"
+      path: "/tmp/fortishield-{{ fortishield_agent_sources_installation.branch }}"
       state: absent
     changed_when: false

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        these files are modified. Specifically, these tests will verify that FIM events include
        the 'content_changes' field with the tag 'More changes' when it exceeds the maximum size
        allowed, and the 'report_changes' option is enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -49,8 +49,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#diff
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#diff
 
 pytest_args:
     - fim_mode:
@@ -68,15 +68,15 @@ import os
 import sys
 
 import pytest
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import get_test_cases_data, load_configuration_template
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing import global_parameters, LOG_FILE_PATH, REGULAR, T_20
-from wazuh_testing.modules.fim import TEST_DIR_1
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.event_monitor import (callback_detect_event, get_fim_event,
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import get_test_cases_data, load_configuration_template
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters, LOG_FILE_PATH, REGULAR, T_20
+from fortishield_testing.modules.fim import TEST_DIR_1
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.event_monitor import (callback_detect_event, get_fim_event,
                                                      callback_detect_file_more_changes)
-from wazuh_testing.modules.fim.utils import create_file
+from fortishield_testing.modules.fim.utils import create_file
 from test_fim.common import generate_string
 
 
@@ -106,17 +106,17 @@ configurations = load_configuration_template(configurations_path, configuration_
 # Tests
 @pytest.mark.parametrize('test_folders', [test_directories], scope="module", ids='')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_large_changes(configuration, metadata, set_wazuh_configuration, configure_local_internal_options_function,
+def test_large_changes(configuration, metadata, set_fortishield_configuration, configure_local_internal_options_function,
                        create_monitored_folders_module, restart_syscheck_function, wait_syscheck_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects the character limit in the file changes is reached
+    description: Check if the 'fortishield-syscheckd' daemon detects the character limit in the file changes is reached
                  showing the 'More changes' tag in the 'content_changes' field of the generated events. For this
                  purpose, the test will monitor a directory, add a testing file and modify it, adding more characters
                  than the allowed limit. Then, it will unzip the 'diff' and get the size of the changes. Finally,
                  the test will verify that the generated FIM event contains in its 'content_changes' field the proper
                  value depending on the test case.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -130,9 +130,9 @@ def test_large_changes(configuration, metadata, set_wazuh_configuration, configu
         - test_folders:
             type: dict
             brief: List of folders to be created for monitoring.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set wazuh configuration.
+            brief: Set fortishield configuration.
         - create_monitored_folders_module:
             type: fixture
             brief: Create a given list of folders when the module starts. Delete the folders at the end of the module.
@@ -164,14 +164,14 @@ def test_large_changes(configuration, metadata, set_wazuh_configuration, configu
         - r'.*Sending FIM event: (.+)$' ('added' and 'modified' events)
         - The 'More changes' message appears in content_changes when the changes size is bigger than the set limit.
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
     limit = 50000
 
     # Create the file and and capture the event.
     original_string = generate_string(metadata['original_size'], '0')
     create_file(REGULAR, testdir, metadata['filename'], content=original_string)
 
-    wazuh_log_monitor.start(timeout=T_20, callback=callback_detect_event,
+    fortishield_log_monitor.start(timeout=T_20, callback=callback_detect_event,
                             error_message="Did not receive the expected FIM event").result()
 
     # Modify the file with new content
@@ -183,7 +183,7 @@ def test_large_changes(configuration, metadata, set_wazuh_configuration, configu
         event = get_fim_event(timeout=T_20, callback=callback_detect_file_more_changes,
                               error_message='Did not find event with "More changes" within content_changes.')
     else:
-        event = wazuh_log_monitor.start(timeout=T_20, callback=callback_detect_event,
+        event = fortishield_log_monitor.start(timeout=T_20, callback=callback_detect_event,
                                         error_message="Did not receive the expected FIM event").result()
         assert 'More changes' not in event['data']['content_changes'], '"More changes" found within content_changes.'
 

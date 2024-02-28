@@ -4,12 +4,12 @@ import shutil
 import subprocess
 import sys
 
-from wazuh_testing.fim import create_file, REGULAR, SYMLINK, callback_symlink_scan_ended, change_internal_options
-from wazuh_testing.tools import PREFIX
+from fortishield_testing.fim import create_file, REGULAR, SYMLINK, callback_symlink_scan_ended, change_internal_options
+from fortishield_testing.tools import PREFIX
 
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 test_directories = [os.path.join(PREFIX, 'testdir_link'), os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir2'), os.path.join(PREFIX, 'testdir_target'),
                     os.path.join(PREFIX, 'testdir_not_target'), os.path.join(PREFIX, 'testdir1', 'subdir')]
@@ -18,7 +18,7 @@ symlink_interval = 20
 
 
 def debug_sym_check(func):
-    """Decorator to see how long it's taking wazuh log monitor to detect the sym_check event"""
+    """Decorator to see how long it's taking fortishield log monitor to detect the sym_check event"""
 
     def wrapper(*args, **kwargs):
         now1 = datetime.datetime.now()

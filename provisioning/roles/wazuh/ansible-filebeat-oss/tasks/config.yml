@@ -9,10 +9,10 @@
       mode: 0400
     notify: restart filebeat
 
-  - name: Fetch latest Wazuh alerts template
+  - name: Fetch latest Fortishield alerts template
     get_url:
-      url: https://raw.githubusercontent.com/wazuh/wazuh/{{ wazuh_template_branch }}/extensions/elasticsearch/7.x/wazuh-template.json
-      dest: "/etc/filebeat/wazuh-template.json"
+      url: https://raw.githubusercontent.com/fortishield/fortishield/{{ fortishield_template_branch }}/extensions/elasticsearch/7.x/fortishield-template.json
+      dest: "/etc/filebeat/fortishield-template.json"
       owner: root
       group: root
       mode: 0400

@@ -7,7 +7,7 @@ It is a _wodle based_ module that has a capability to pull logs from several AWS
 ## Tests directory structure
 
 ```bash
-wazuh-qa/tests/integration/test_aws
+fortishield-qa/tests/integration/test_aws
 ├── conftest.py
 ├── data
 │   ├── configuration_template
@@ -39,7 +39,7 @@ wazuh-qa/tests/integration/test_aws
 ## Deps directory structure
 
 ```bash
-wazuh-qa/deps/wazuh_testing/wazuh_testing/modules/aws
+fortishield-qa/deps/fortishield_testing/fortishield_testing/modules/aws
 ├── cli_utils.py
 ├── constants.py
 ├── data_generator.py
@@ -57,7 +57,7 @@ wazuh-qa/deps/wazuh_testing/wazuh_testing/modules/aws
 ## Configuration settings
 
 - **credentials**
-    Set the credentials at `$HOME/.aws/credentials` (being `HOME` the home directory of the user who runs the tests, more information [here](https://documentation.wazuh.com/current/amazon/services/prerequisites/credentials.html#profiles)) with the content:
+    Set the credentials at `$HOME/.aws/credentials` (being `HOME` the home directory of the user who runs the tests, more information [here](https://documentation.fortishield.github.io/current/amazon/services/prerequisites/credentials.html#profiles)) with the content:
 
 ```ini
 [qa]
@@ -77,16 +77,16 @@ tests modify the system date and there could be some synchronization issues.
 This guide will cover the following platforms: [Linux](#linux).
 
 You can run these tests on a manager or an agent. In case you are using an agent, please remember to register it and use
-the correct version (Wazuh branch).
+the correct version (Fortishield branch).
 
-_We are skipping Wazuh installation steps. For further information,
-check [Wazuh documentation](https://documentation.wazuh.com/current/installation-guide/index.html)._
+_We are skipping Fortishield installation steps. For further information,
+check [Fortishield documentation](https://documentation.fortishield.github.io/current/installation-guide/index.html)._
 
 ### Linux
 
 _We are using **Ubuntu 22.04** for this example:_
 
-- Install **Wazuh**
+- Install **Fortishield**
 
 - Install python tests dependencies:
 
@@ -94,14 +94,14 @@ _We are using **Ubuntu 22.04** for this example:_
     # Install pip
     apt install python3-pip
 
-    # Clone your `wazuh-qa` repository within your testing environment
-    cd wazuh-qa
+    # Clone your `fortishield-qa` repository within your testing environment
+    cd fortishield-qa
 
     # Install Python libraries
     python3 -m pip install -r requirements.txt
 
     # Install test dependecies
-    python3 -m pip install deps/wazuh-testing
+    python3 -m pip install deps/fortishield-testing
     ```
 
 
@@ -118,7 +118,7 @@ from the closest one, it will look for the next one (if possible) until reaching
 need to run every test from the following path, where the general _conftest_ is:
 
 ```shell script
-cd wazuh-qa/tests/integration
+cd fortishield-qa/tests/integration
 ```
 
 To run any test, we just need to call `pytest` from `python3` using the following line:

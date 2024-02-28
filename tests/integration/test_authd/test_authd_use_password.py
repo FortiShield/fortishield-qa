@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -16,9 +16,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -42,9 +42,9 @@ import ssl
 import time
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import read_yaml
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import read_yaml
 
 # Marks
 
@@ -63,12 +63,12 @@ metadata = [
 ]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
-client_keys_path = os.path.join(WAZUH_PATH, 'etc', 'client.keys')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
+client_keys_path = os.path.join(FORTISHIELD_PATH, 'etc', 'client.keys')
 test_authd_use_password_tests = read_yaml(os.path.join(test_data_path, 'test_authd_use_password.yaml'))
 configuration_ids = [f"Use_password_{x['USE_PASSWORD']}" for x in parameters]
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
-authd_default_password_path = os.path.join(WAZUH_PATH, 'etc', 'authd.pass')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+authd_default_password_path = os.path.join(FORTISHIELD_PATH, 'etc', 'authd.pass')
 
 # Variables
 DEFAULT_TEST_PASSWORD = 'TopSecret'
@@ -80,7 +80,7 @@ SUCCESS_MESSAGE = "OSSEC K:'001 {} any "
 
 log_monitor_paths = []
 receiver_sockets_params = [(("localhost", 1515), 'AF_INET', 'SSL_TLSv1_2')]
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
 
@@ -88,9 +88,9 @@ receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in t
 
 def read_random_pass():
     """
-    Search for the random password creation in Wazuh logs
+    Search for the random password creation in Fortishield logs
     """
-    osseclog_path = os.path.join(WAZUH_PATH, 'logs', 'ossec.log')
+    osseclog_path = os.path.join(FORTISHIELD_PATH, 'logs', 'ossec.log')
     passw = None
     try:
         with open(osseclog_path, 'r') as log_file:
@@ -155,14 +155,14 @@ def get_configuration(request):
 @pytest.mark.parametrize('test_case', [case for case in test_authd_use_password_tests],
                          ids=[test_case['name'] for test_case in test_authd_use_password_tests])
 def test_authd_force_options(get_configuration, configure_environment, configure_sockets_environment,
-                             clean_client_keys_file_function, reset_password, restart_wazuh_daemon_function,
+                             clean_client_keys_file_function, reset_password, restart_fortishield_daemon_function,
                              wait_for_authd_startup_function, connect_to_sockets_function,
                              test_case, tear_down):
     '''
     description:
         Checks that every input message in authd port generates the adequate output.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -185,7 +185,7 @@ def test_authd_force_options(get_configuration, configure_environment, configure
             brief: Write the password file.
         - restart_authd_function:
             type: fixture
-            brief: stops the wazuh-authd daemon.
+            brief: stops the fortishield-authd daemon.
         - wait_for_authd_startup_function:
             type: fixture
             brief: Waits until Authd is accepting connections.

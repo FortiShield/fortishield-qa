@@ -1,8 +1,8 @@
 ---
 - tags:
-  - test_invalid_wazuh_conf
+  - test_invalid_fortishield_conf
   apply_to_modules:
-  - test_invalid_wazuh_conf
+  - test_invalid_fortishield_conf
   sections:
     - section: localfile
       elements:

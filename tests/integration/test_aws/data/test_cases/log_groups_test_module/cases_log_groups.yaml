@@ -2,10 +2,10 @@
   description: CloudWatch log groups configurations
   configuration_parameters:
     SERVICE_TYPE: cloudwatchlogs
-    LOG_GROUP_NAME: wazuh-cloudwatchlogs-integration-tests,temporary-log-group
+    LOG_GROUP_NAME: fortishield-cloudwatchlogs-integration-tests,temporary-log-group
   metadata:
     service_type: cloudwatchlogs
-    log_group_name: wazuh-cloudwatchlogs-integration-tests,temporary-log-group
+    log_group_name: fortishield-cloudwatchlogs-integration-tests,temporary-log-group
     only_logs_after: 2023-JAN-12
     expected_results: 3
 

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check if FIM synchronizes the database on
        Linux systems at the period specified in the 'interval' tag.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,8 +40,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -58,12 +58,12 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, callback_detect_synchronization, generate_params
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.time import TimeMachine, time_to_timedelta
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, callback_detect_synchronization, generate_params
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.time import TimeMachine, time_to_timedelta
 
 # Marks
 
@@ -72,9 +72,9 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=2)]
 # variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 test_directories = [os.path.join(PREFIX, 'testdir1')]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 sync_intervals = ['10', '10s', '10m', '10h', '10d', '10w']
 
 # configurations
@@ -82,7 +82,7 @@ sync_intervals = ['10', '10s', '10m', '10h', '10d', '10w']
 p, m = generate_params(apply_to_all=({'INTERVAL': sync_interval} for sync_interval in sync_intervals),
                        modes=['scheduled'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -97,13 +97,13 @@ def get_configuration(request):
 @pytest.mark.skip(reason="It will be blocked by #3992, when it was solve we can enable again this test")
 def test_sync_interval(get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon performs the file synchronization at the intervals
+    description: Check if the 'fortishield-syscheckd' daemon performs the file synchronization at the intervals
                  specified in the configuration, using the 'interval' tag. For this purpose, the test
                  will monitor a testing directory. Then, it will travel in time to the next synchronization
                  time and verify that the FIM 'integrity' event is trigered. Finally, the test will travel
                  in time to half of the interval and verify that no FIM 'integrity' event is generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -125,8 +125,8 @@ def test_sync_interval(get_configuration, configure_environment, restart_syschec
         - Verify that FIM 'integrity' event is generated when the interval specified has elapsed.
         - Verify that no FIM 'integrity' event is generated at half of the interval specified.
 
-    input_description: A test case (sync_interval) is contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined with
+    input_description: A test case (sync_interval) is contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined with
                        the interval periods and the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -140,19 +140,19 @@ def test_sync_interval(get_configuration, configure_environment, restart_syschec
     check_apply_test({'sync_interval'}, get_configuration['tags'])
     interval = time_to_timedelta(get_configuration['metadata']['interval'])
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
                             error_message='Did not receive expected '
                                           '"Initializing FIM Integrity Synchronization check" event')
 
     TimeMachine.travel_to_future(interval)
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_synchronization,
                             error_message='Did not receive expected '
                                           '"Initializing FIM Integrity Synchronization check" event')
 
     # This should fail as we are only advancing half the time needed for synchronization to occur
     TimeMachine.travel_to_future(interval / 2)
     try:
-        result = wazuh_log_monitor.start(timeout=1 if interval.total_seconds() == 10.0 else 3,
+        result = fortishield_log_monitor.start(timeout=1 if interval.total_seconds() == 10.0 else 3,
                                          callback=callback_detect_synchronization,
                                          accum_results=1,
                                          error_message='Did not receive expected "Initializing FIM Integrity '

@@ -1,10 +1,10 @@
 import os
 
 import pytest
-from wazuh_testing import T_20, TEMPLATE_DIR, TEST_CASES_DIR, global_parameters
-from wazuh_testing.modules.aws import event_monitor, local_internal_options  # noqa: F401
-from wazuh_testing.modules.aws.db_utils import s3_db_exists, services_db_exists
-from wazuh_testing.tools.configuration import (
+from fortishield_testing import T_20, TEMPLATE_DIR, TEST_CASES_DIR, global_parameters
+from fortishield_testing.modules.aws import event_monitor, local_internal_options  # noqa: F401
+from fortishield_testing.modules.aws.db_utils import s3_db_exists, services_db_exists
+from fortishield_testing.tools.configuration import (
     get_test_cases_data,
     load_configuration_template,
 )
@@ -30,8 +30,8 @@ t0_configurations = load_configuration_template(
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t0_configurations, t0_configuration_metadata), ids=t0_case_ids)
 def test_bucket_discard_regex(
-        configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration, clean_s3_cloudtrail_db,
-        configure_local_internal_options_function, truncate_monitored_files, restart_wazuh_function, file_monitoring,
+        configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration, clean_s3_cloudtrail_db,
+        configure_local_internal_options_function, truncate_monitored_files, restart_fortishield_function, file_monitoring,
 ):
     """
     description: Check that some bucket logs are excluded when the regex and field defined in <discard_regex>
@@ -39,22 +39,22 @@ def test_bucket_discard_regex(
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check in the ossec.log that a line has appeared calling the module with correct parameters.
             - Check the expected number of events were forwarded to analysisd, only logs stored in the bucket and skips
               the ones that match with regex.
             - Check the database was created and updated accordingly.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
             - Delete the uploaded file
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     parameters:
         - configuration:
@@ -63,10 +63,10 @@ def test_bucket_discard_regex(
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - clean_s3_cloudtrail_db:
@@ -77,10 +77,10 @@ def test_bucket_discard_regex(
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
         - file_monitoring:
             type: fixture
             brief: Handle the monitoring of a specified file.
@@ -161,8 +161,8 @@ t1_configurations = load_configuration_template(
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_configuration_metadata), ids=t1_case_ids)
 def test_cloudwatch_discard_regex_json(
-        configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration, clean_aws_services_db,
-        configure_local_internal_options_function, truncate_monitored_files, restart_wazuh_function, file_monitoring,
+        configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration, clean_aws_services_db,
+        configure_local_internal_options_function, truncate_monitored_files, restart_fortishield_function, file_monitoring,
 ):
     """
     description: Check that some CloudWatch JSON logs are excluded when the regex and field defined in <discard_regex>
@@ -170,22 +170,22 @@ def test_cloudwatch_discard_regex_json(
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check in the ossec.log that a line has appeared calling the module with correct parameters.
             - Check the expected number of events were forwarded to analysisd, only logs stored in the bucket and skips
               the ones that match with regex.
             - Check the database was created and updated accordingly.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
             - Delete the uploaded file
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     parameters:
         - configuration:
@@ -194,10 +194,10 @@ def test_cloudwatch_discard_regex_json(
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - clean_aws_services_db:
@@ -208,10 +208,10 @@ def test_cloudwatch_discard_regex_json(
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
         - file_monitoring:
             type: fixture
             brief: Handle the monitoring of a specified file.
@@ -288,8 +288,8 @@ t2_configurations = load_configuration_template(
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t2_configurations, t2_configuration_metadata), ids=t2_case_ids)
 def test_cloudwatch_discard_regex_simple_text(
-        configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration, clean_aws_services_db,
-        configure_local_internal_options_function, truncate_monitored_files, restart_wazuh_function, file_monitoring,
+        configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration, clean_aws_services_db,
+        configure_local_internal_options_function, truncate_monitored_files, restart_fortishield_function, file_monitoring,
 ):
     """
     description: Check that some CloudWatch simple text logs are excluded when the regex defined in <discard_regex>
@@ -297,22 +297,22 @@ def test_cloudwatch_discard_regex_simple_text(
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check in the ossec.log that a line has appeared calling the module with correct parameters.
             - Check the expected number of events were forwarded to analysisd, only logs stored in the bucket and skips
               the ones that match with regex.
             - Check the database was created and updated accordingly.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
             - Delete the uploaded file
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     parameters:
         - configuration:
@@ -321,10 +321,10 @@ def test_cloudwatch_discard_regex_simple_text(
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - clean_aws_services_db:
@@ -335,10 +335,10 @@ def test_cloudwatch_discard_regex_simple_text(
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
         - file_monitoring:
             type: fixture
             brief: Handle the monitoring of a specified file.
@@ -413,8 +413,8 @@ t3_configurations = load_configuration_template(
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t3_configurations, t3_configuration_metadata), ids=t3_case_ids)
 def test_inspector_discard_regex(
-        configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration, clean_aws_services_db,
-        configure_local_internal_options_function, truncate_monitored_files, restart_wazuh_function, file_monitoring,
+        configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration, clean_aws_services_db,
+        configure_local_internal_options_function, truncate_monitored_files, restart_fortishield_function, file_monitoring,
 ):
     """
     description: Check that some Inspector logs are excluded when the regex and field defined in <discard_regex>
@@ -422,22 +422,22 @@ def test_inspector_discard_regex(
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check in the ossec.log that a line has appeared calling the module with correct parameters.
             - Check the expected number of events were forwarded to analysisd, only logs stored in the bucket and skips
               the ones that match with regex.
             - Check the database was created and updated accordingly.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
             - Delete the uploaded file
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     parameters:
         - configuration:
@@ -446,10 +446,10 @@ def test_inspector_discard_regex(
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - clean_aws_services_db:
@@ -460,10 +460,10 @@ def test_inspector_discard_regex(
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
         - file_monitoring:
             type: fixture
             brief: Handle the monitoring of a specified file.

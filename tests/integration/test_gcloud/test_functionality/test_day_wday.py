@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The Wazuh 'gcp-pubsub' module uses it to fetch different kinds of events
+brief: The Fortishield 'gcp-pubsub' module uses it to fetch different kinds of events
        (Data access, Admin activity, System events, DNS queries, etc.) from the
-       Google Cloud infrastructure. Once events are collected, Wazuh processes
+       Google Cloud infrastructure. Once events are collected, Fortishield processes
        them using its threat detection rules. Specifically, these tests
        will check if the 'gcp-pubsub' module gets the GCP logs at the date-time
        specified in the configuration and sleeps up to it.
@@ -24,8 +24,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-monitord
-    - wazuh-modulesd
+    - fortishield-monitord
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -42,9 +42,9 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#day
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#wday
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/gcp-pubsub.html#time
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#day
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#wday
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/gcp-pubsub.html#time
 
 tags:
     - week_day
@@ -57,12 +57,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import generate_params
-from wazuh_testing.gcloud import callback_detect_start_gcp_sleep
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import generate_params
+from fortishield_testing.gcloud import callback_detect_start_gcp_sleep
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -70,9 +70,9 @@ pytestmark = pytest.mark.tier(level=0)
 
 # variables
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_schedule_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_schedule_conf.yaml')
 force_restart_after_restoring = False
 interval = '1h'
 pull_on_start = 'no'
@@ -96,7 +96,7 @@ set_datetime_info()
 
 # configurations
 
-daemons_handler_configuration = {'daemons': ['wazuh-modulesd']}
+daemons_handler_configuration = {'daemons': ['fortishield-modulesd']}
 monitoring_modes = ['scheduled']
 conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
                'SUBSCRIPTION_NAME': global_parameters.gcp_subscription_name,
@@ -108,7 +108,7 @@ conf_params = {'PROJECT_ID': global_parameters.gcp_project_id,
 p, m = generate_params(extra_params=conf_params,
                        modes=monitoring_modes)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -137,7 +137,7 @@ def test_day_wday(tags_to_apply, get_configuration, configure_environment, reset
                  Finally, the test will travel in time to the specified interval and verify that
                  the 'fetch' event is generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -151,7 +151,7 @@ def test_day_wday(tags_to_apply, get_configuration, configure_environment, reset
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -162,7 +162,7 @@ def test_day_wday(tags_to_apply, get_configuration, configure_environment, reset
         - Verify that the 'gcp-pubsub' module sleeps up to the date-time specified in the configuration.
         - Verify that the 'gcp-pubsub' module starts to pull logs at the date-time specified in the configuration.
 
-    input_description: Tree test cases are contained in an external YAML file (wazuh_schedule_conf.yaml)
+    input_description: Tree test cases are contained in an external YAML file (fortishield_schedule_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. Those are
                        combined with the scheduling values defined in the module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
@@ -178,13 +178,13 @@ def test_day_wday(tags_to_apply, get_configuration, configure_environment, reset
     '''
     check_apply_test(tags_to_apply, get_configuration['tags'])
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_start_gcp_sleep,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_start_gcp_sleep,
                             error_message='Did not receive expected "Sleeping until ..." event').result()
 
 
 @pytest.mark.parametrize('tags_to_apply', [
     ({'ossec_day_multiple_conf'}),
-    pytest.param({'ossec_wday_multiple_conf'}, marks=pytest.mark.xfail(reason="Unstable because of wazuh/wazuh#15255")),
+    pytest.param({'ossec_wday_multiple_conf'}, marks=pytest.mark.xfail(reason="Unstable because of fortishield/fortishield#15255")),
     ({'ossec_time_multiple_conf'})
 ])
 @pytest.mark.skipif(sys.platform == "win32", reason="Windows does not have support for Google Cloud integration.")
@@ -196,7 +196,7 @@ def test_day_wday_multiple(tags_to_apply, get_configuration, configure_environme
                  values for the 'day', 'wday', and 'time' tags (depending on the test case). Finally, it
                  will check that the 'sleep' event is triggered and matches with the set interval.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -210,7 +210,7 @@ def test_day_wday_multiple(tags_to_apply, get_configuration, configure_environme
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
-        - restart_wazuh:
+        - restart_fortishield:
             type: fixture
             brief: Reset the 'ossec.log' file and start a new monitor.
         - wait_for_gcp_start:
@@ -221,7 +221,7 @@ def test_day_wday_multiple(tags_to_apply, get_configuration, configure_environme
         - Verify that the 'gcp-pubsub' module calculates the next scan correctly from
           the date-time and interval values specified in the configuration.
 
-    input_description: Tree test cases are contained in an external YAML file (wazuh_schedule_conf.yaml)
+    input_description: Tree test cases are contained in an external YAML file (fortishield_schedule_conf.yaml)
                        which includes configuration settings for the 'gcp-pubsub' module. Those are
                        combined with the scheduling values defined in the module. The GCP access
                        credentials can be found in the 'configuration_template.yaml' file.
@@ -240,10 +240,10 @@ def test_day_wday_multiple(tags_to_apply, get_configuration, configure_environme
     kwargs = {'days': 0 if unit != 'd' else interval, 'weeks': 0 if unit != 'w' else interval}
     # Update datetime info globally
     set_datetime_info()
-    # Get the expected date before the test run to avoid a day difference with Wazuh's scheduled scan
+    # Get the expected date before the test run to avoid a day difference with Fortishield's scheduled scan
     expected_next_scan_date = today + datetime.timedelta(**kwargs)
 
-    next_scan_time_log = wazuh_log_monitor.start(timeout=global_parameters.default_timeout + 60,
+    next_scan_time_log = fortishield_log_monitor.start(timeout=global_parameters.default_timeout + 60,
                                                  callback=callback_detect_start_gcp_sleep,
                                                  error_message='Did not receive expected '
                                                                '"Sleeping until ..." event').result()

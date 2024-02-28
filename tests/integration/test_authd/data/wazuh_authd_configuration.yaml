@@ -184,7 +184,7 @@
       - section: cluster
         elements:
         - name:
-            value: wazuh
+            value: fortishield
         - node_name:
             value: worker1
         - node_type:
@@ -370,7 +370,7 @@
       - section: cluster
         elements:
         - name:
-            value: wazuh
+            value: fortishield
         - node_name:
             value: node_0
         - node_type:
@@ -554,7 +554,7 @@
       - section: cluster
         elements:
         - name:
-            value: wazuh
+            value: fortishield
         - node_name:
             value: worker1
         - node_type:

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts
        when these files are modified. Specifically, these tests will verify that FIM detects
        the correct 'inotify watches' number when renaming and deleting a monitored directory.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -64,13 +64,13 @@ import shutil as sh
 import sys
 
 import pytest
-from wazuh_testing import T_60
-from wazuh_testing.fim import LOG_FILE_PATH, callback_num_inotify_watches, generate_params, detect_initial_scan
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import control_service
+from fortishield_testing import T_60
+from fortishield_testing.fim import LOG_FILE_PATH, callback_num_inotify_watches, generate_params, detect_initial_scan
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import control_service
 
 # Marks
 
@@ -82,9 +82,9 @@ test_directories = [os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir1', 'sub2')]
 
 directory_str = ','.join(test_directories)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_num_watches.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_num_watches.yaml')
 testdir1 = test_directories[0]
 NO_WATCHES = 0
 EXPECTED_WATCHES = 3
@@ -96,11 +96,11 @@ if sys.platform == 'win32':
 
 p, m = generate_params(extra_params={"TEST_DIRECTORIES": testdir1}, modes=['realtime'])
 
-configurations1 = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations1 = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 p, m = generate_params(extra_params={"TEST_DIRECTORIES": testdir1}, modes=['scheduled'])
 
-configurations2 = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations2 = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 configurations = configurations1 + configurations2
 
@@ -116,16 +116,16 @@ def get_configuration(request):
 
 @pytest.fixture(scope='function')
 def restart_syscheckd_each_time(request):
-    control_service('stop', daemon='wazuh-syscheckd')
+    control_service('stop', daemon='fortishield-syscheckd')
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, 'wazuh_log_monitor', file_monitor)
+    setattr(request.module, 'fortishield_log_monitor', file_monitor)
 
     if not os.path.exists(testdir1):
         for directory in test_directories:
             os.mkdir(directory)
 
-    control_service('start', daemon='wazuh-syscheckd')
+    control_service('start', daemon='fortishield-syscheckd')
     detect_initial_scan(file_monitor)
 
 
@@ -149,14 +149,14 @@ def extra_configuration_after_yield():
 def test_num_watches(realtime_enabled, decreases_num_watches, rename_folder, get_configuration, configure_environment,
                      restart_syscheckd_each_time):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects the correct number of 'inotify watches' when
+    description: Check if the 'fortishield-syscheckd' daemon detects the correct number of 'inotify watches' when
                  renaming and deleting a monitored directory. For this purpose, the test will create and monitor
                  a folder with two subdirectories. Once FIM is started, it will verify that three watches have
                  been detected. If these 'inotify watches' are correct, the test will make file operations on
                  the monitored folder or do nothing. Finally, it will verify that the 'inotify watches' number
                  detected in the generated FIM events is correct.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -186,8 +186,8 @@ def test_num_watches(realtime_enabled, decreases_num_watches, rename_folder, get
         - Verify that FIM adds 'inotify watches' when monitored directories have been removed or renamed, and
           they are restored.
 
-    input_description: A test case (num_watches_conf) is contained in external YAML file (wazuh_conf_num_watches.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these are
+    input_description: A test case (num_watches_conf) is contained in external YAML file (fortishield_conf_num_watches.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these are
                        combined with the testing directories to be monitored defined in the module.
 
     expected_output:
@@ -205,7 +205,7 @@ def test_num_watches(realtime_enabled, decreases_num_watches, rename_folder, get
 
     # Check that the number of inotify watches is correct before modifying the folder
     try:
-        num_watches = wazuh_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
+        num_watches = fortishield_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
                                               error_message='Did not receive expected '
                                                             '"Folders monitored with real-time engine: ..." event'
                                               ).result()
@@ -238,7 +238,7 @@ def test_num_watches(realtime_enabled, decreases_num_watches, rename_folder, get
 
     try:
         # Check that the number of inotify watches is correct after modifying the folder
-        num_watches = wazuh_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
+        num_watches = fortishield_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
                                               error_message='Did not receive expected '
                                                             '"Folders monitored with real-time engine: ..." event'
                                               ).result()
@@ -263,12 +263,12 @@ def test_num_watches(realtime_enabled, decreases_num_watches, rename_folder, get
         else:
             pytest.fail('Wrong number of inotify watches')
 
-    # If directories have been removed or renamed, create directories again and check Wazuh add watches
+    # If directories have been removed or renamed, create directories again and check Fortishield add watches
     if decreases_num_watches:
         for directory in test_directories:
             os.mkdir(directory)
 
-        num_watches = wazuh_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
+        num_watches = fortishield_log_monitor.start(timeout=T_60, callback=callback_num_inotify_watches,
                                               error_message='Did not receive expected '
                                                             '"Folders monitored with real-time engine: ..." event'
                                               ).result()

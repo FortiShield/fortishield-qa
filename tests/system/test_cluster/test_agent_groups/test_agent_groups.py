@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import os
@@ -7,8 +7,8 @@ import re
 from time import sleep
 
 import pytest
-from wazuh_testing.tools.system_monitoring import HostMonitor
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools.system_monitoring import HostMonitor
+from fortishield_testing.tools.system import HostManager
 from system.test_cluster.test_agent_groups.common import register_agent
 from system import AGENT_STATUS_ACTIVE, check_agent_status, restart_cluster, execute_wdb_query
 
@@ -16,9 +16,9 @@ from system import AGENT_STATUS_ACTIVE, check_agent_status, restart_cluster, exe
 pytestmark = [pytest.mark.cluster, pytest.mark.enrollment_cluster_env]
 
 # Hosts
-test_infra_managers = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-test_infra_agents = ["wazuh-agent1"]
-master_host = 'wazuh-master'
+test_infra_managers = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+test_infra_agents = ["fortishield-agent1"]
+master_host = 'fortishield-master'
 worker_host = test_infra_managers[1]
 
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
@@ -29,7 +29,7 @@ local_path = os.path.dirname(os.path.abspath(__file__))
 add_messages_path = os.path.join(local_path, 'data/add_messages.yml')
 delete_messages_path = os.path.join(local_path, 'data/delete_messages.yml')
 sync_messages_path = os.path.join(local_path, 'data/synchronization_messages.yml')
-script_path = os.path.join(re.sub(r'^.*?wazuh-qa', '/wazuh-qa', local_path), '../utils/get_wdb_agent.py')
+script_path = os.path.join(re.sub(r'^.*?fortishield-qa', '/fortishield-qa', local_path), '../utils/get_wdb_agent.py')
 tmp_path = os.path.join(local_path, 'tmp')
 
 # Variables

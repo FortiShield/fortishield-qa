@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -19,8 +19,8 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
-    - wazuh-agentd
+    - fortishield-remoted
+    - fortishield-agentd
 
 os_platform:
     - linux
@@ -37,12 +37,12 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://github.com/wazuh/wazuh/blob/master/src/os_crypto/shared/msgs.c
-    - https://documentation.wazuh.com/current/user-manual/reference/internal-options.html#remoted
-    - https://github.com/wazuh/wazuh/blob/master/src/config/remote-config.c
-    - https://github.com/wazuh/wazuh/pull/459
-    - https://github.com/wazuh/wazuh/pull/7746
-    - https://github.com/wazuh/wazuh/issues/6112
+    - https://github.com/fortishield/fortishield/blob/master/src/os_crypto/shared/msgs.c
+    - https://documentation.fortishield.github.io/current/user-manual/reference/internal-options.html#remoted
+    - https://github.com/fortishield/fortishield/blob/master/src/config/remote-config.c
+    - https://github.com/fortishield/fortishield/pull/459
+    - https://github.com/fortishield/fortishield/pull/7746
+    - https://github.com/fortishield/fortishield/issues/6112
 
 tags:
     - rids
@@ -50,9 +50,9 @@ tags:
 import os
 
 import pytest
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.services import control_service
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
@@ -77,8 +77,8 @@ params = [{} for x in range(0, len(metadata))]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                               'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_manager_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations_path = os.path.join(test_data_path, 'fortishield_manager_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=params, metadata=metadata)
 
 
@@ -95,7 +95,7 @@ def restart_service():
 def set_internal_options_conf(param, value):
     new_content = ''
 
-    internal_options = os.path.join(WAZUH_PATH, 'etc', 'internal_options.conf')
+    internal_options = os.path.join(FORTISHIELD_PATH, 'etc', 'internal_options.conf')
 
     with open(internal_options, 'r') as f:
         lines = f.readlines()
@@ -114,10 +114,10 @@ def test_rids_conf(get_configuration, configure_environment):
     '''
     description: Check that RIDS configuration works as expected for the following fields, `remoted.verify_msg_id` and
                  `remoted.worker_pool`. To do this, it modifies the local internal options with the test case metadata
-                 and restarts Wazuh to verify that the daemon starts or not. Finally, when a correct configuration has
+                 and restarts Fortishield to verify that the daemon starts or not. Finally, when a correct configuration has
                  been tested, it restores the `internal_options.conf` as it was before running the test.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -133,7 +133,7 @@ def test_rids_conf(get_configuration, configure_environment):
         - Verify that the RIDS configuration is applied correctly(or not).
 
     input_description: Some metadata is defined in the module. These include some configurations stored in
-                       the 'wazuh_manager_conf.yaml'.
+                       the 'fortishield_manager_conf.yaml'.
 
     expected_output:
         - The `expected_start` boolean variable with `True` when a defined valid RIDS configuration is loaded.

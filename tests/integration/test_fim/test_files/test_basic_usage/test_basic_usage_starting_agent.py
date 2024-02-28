@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,8 +9,8 @@ type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check if FIM events of type 'modified' and
-       'deleted' are generated when files that exist before starting the Wazuh agent are modified.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       'deleted' are generated when files that exist before starting the Fortishield agent are modified.
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -63,12 +63,12 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, REGULAR, callback_detect_event, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, REGULAR, callback_detect_event, \
     create_file, generate_params, modify_file_content, check_time_travel, delete_file, validate_event
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -80,12 +80,12 @@ test_directories = [os.path.join(PREFIX, 'testdir1'), os.path.join(PREFIX, 'test
 
 directory_str = ','.join(test_directories)
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1, testdir2 = test_directories
 timeout = global_parameters.default_timeout
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 
 # Extra functions
@@ -101,7 +101,7 @@ def extra_configuration_before_yield():
 conf_params = {'TEST_DIRECTORIES': directory_str, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -126,13 +126,13 @@ def get_configuration(request):
 def test_events_from_existing_files(filename, tags_to_apply, get_configuration,
                                     configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects 'modified' and 'deleted' events when modifying
-                 files that exist before the Wazuh agent is started. For this purpose, the test will modify
+    description: Check if the 'fortishield-syscheckd' daemon detects 'modified' and 'deleted' events when modifying
+                 files that exist before the Fortishield agent is started. For this purpose, the test will modify
                  the testing file, change the system time to the next scheduled scan, and verify that
                  the proper FIM event is generated. Finally, the test will perform
                  the above steps but deleting the testing file.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -158,10 +158,10 @@ def test_events_from_existing_files(filename, tags_to_apply, get_configuration,
 
     assertions:
         - Verify that FIM events of type 'modified' and 'deleted' are generated
-          when files that exist before starting the Wazuh agent are modified.
+          when files that exist before starting the Fortishield agent are modified.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directories to be monitored defined in this module.
 
     expected_output:
@@ -179,8 +179,8 @@ def test_events_from_existing_files(filename, tags_to_apply, get_configuration,
     modify_file_content(testdir1, filename, new_content='Sample content')
 
     # Expect modified event
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    modified_event = wazuh_log_monitor.start(timeout=timeout, callback=callback_detect_event,
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    modified_event = fortishield_log_monitor.start(timeout=timeout, callback=callback_detect_event,
                                              error_message='Did not receive expected '
                                                            '"Sending FIM event: ..." event').result()
     assert 'modified' in modified_event['data']['type'] and \
@@ -191,8 +191,8 @@ def test_events_from_existing_files(filename, tags_to_apply, get_configuration,
     delete_file(testdir1, filename)
 
     # Expect deleted event
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
-    deleted_event = wazuh_log_monitor.start(timeout=timeout, callback=callback_detect_event,
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
+    deleted_event = fortishield_log_monitor.start(timeout=timeout, callback=callback_detect_event,
                                             error_message='Did not receive expected '
                                                           '"Sending FIM event: ..." event').result()
     assert 'deleted' in deleted_event['data']['type'] and \

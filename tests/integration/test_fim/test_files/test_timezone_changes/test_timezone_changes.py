@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check that the modifications made on monitored
        files during the initial scan ('baseline') generate FIM events after that scan.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -64,11 +64,11 @@ import sys
 import time
 
 import pytest
-from wazuh_testing.fim import (LOG_FILE_PATH, REGULAR, callback_detect_event, callback_detect_end_scan, create_file,
+from fortishield_testing.fim import (LOG_FILE_PATH, REGULAR, callback_detect_event, callback_detect_end_scan, create_file,
                                generate_params, delete_file, global_parameters, check_time_travel)
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -78,16 +78,16 @@ pytestmark = pytest.mark.tier(level=2)
 
 testdir1 = os.path.join(PREFIX, 'testdir1')
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_timezone_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_timezone_conf.yaml')
 
 # configurations
 
 conf_params = {'TEST_DIRECTORIES': testdir1, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -137,13 +137,13 @@ def extra_configuration_after_yield():
 
 def test_timezone_changes(get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon' detects events when they appear after the 'baseline' scan.
+    description: Check if the 'fortishield-syscheckd' daemon' detects events when they appear after the 'baseline' scan.
                  The log message 'File integrity monitoring scan ended' informs about the end of the first scan,
                  which generates the 'baseline'. For this purpose, the test creates a test file while the initial
                  scan is being performed. When the baseline has been generated it checks if the FIM 'added' event
                  has been triggered.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -165,8 +165,8 @@ def test_timezone_changes(get_configuration, configure_environment, restart_sysc
         - Verify that an FIM 'added' event is generated after the initial scan when the related file operation
           is made before the scan ends.
 
-    input_description: A test case (timezone_conf) is contained in external YAML file (wazuh_timezone_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it is
+    input_description: A test case (timezone_conf) is contained in external YAML file (fortishield_timezone_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it is
                        combined with the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -181,7 +181,7 @@ def test_timezone_changes(get_configuration, configure_environment, restart_sysc
     # Change time zone
     set_foreign_timezone()
 
-    check_time_travel(True, monitor=wazuh_log_monitor)
+    check_time_travel(True, monitor=fortishield_log_monitor)
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event_before_end_scan,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_detect_event_before_end_scan,
                             error_message='Did not receive expected event before end the scan')

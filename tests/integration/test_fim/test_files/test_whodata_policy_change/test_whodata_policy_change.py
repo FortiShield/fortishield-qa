@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -20,7 +20,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -31,7 +31,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
 
 pytest_args:
     - fim_mode:
@@ -48,14 +48,14 @@ import os
 import time
 
 import pytest
-from wazuh_testing.tools import PREFIX, configuration
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.local_actions import run_local_command_returning_output
-from wazuh_testing import T_5, T_20, T_30, LOG_FILE_PATH
-from wazuh_testing.modules import fim
-from wazuh_testing.modules.fim import event_monitor as evm
-from wazuh_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
-from wazuh_testing.modules.fim.utils import regular_file_cud
+from fortishield_testing.tools import PREFIX, configuration
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.local_actions import run_local_command_returning_output
+from fortishield_testing import T_5, T_20, T_30, LOG_FILE_PATH
+from fortishield_testing.modules import fim
+from fortishield_testing.modules.fim import event_monitor as evm
+from fortishield_testing.modules.fim import FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing.modules.fim.utils import regular_file_cud
 
 
 # Marks
@@ -74,7 +74,7 @@ configurations_path = os.path.join(CONFIGURATIONS_PATH, 'configuration_whodata_p
 test_folders = [os.path.join(PREFIX, fim.TEST_DIR_1)]
 folder = test_folders[0]
 file_list = [f"regular_file"]
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 policies_file = os.path.join(TEST_DATA_PATH, 'policy_enable.csv')
 
 # Test configurations
@@ -89,18 +89,18 @@ configurations = configuration.load_configuration_template(configurations_path, 
 @pytest.mark.parametrize('policies_file', [policies_file], ids='')
 @pytest.mark.parametrize('test_folders', [test_folders], ids='', scope='module')
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_whodata_policy_change(configuration, metadata, set_wazuh_configuration, create_monitored_folders_module,
+def test_whodata_policy_change(configuration, metadata, set_fortishield_configuration, create_monitored_folders_module,
                                configure_local_internal_options_function, policies_file, restore_win_whodata_policies,
                                restart_syscheck_function, wait_syscheck_start):
     '''
-    description: Check if the 'wazuh-syscheckd' is monitoring a in whodata mode in Windows, and the Audit Policies are
+    description: Check if the 'fortishield-syscheckd' is monitoring a in whodata mode in Windows, and the Audit Policies are
                  changed, the monitoring changes to realtime and works on the monitored files.
 
     test_phases:
         - setup:
-            - Set wazuh configuration.
+            - Set fortishield configuration.
             - Create target folder to be monitored
-            - Clean logs files and restart wazuh to apply the configuration.
+            - Clean logs files and restart fortishield to apply the configuration.
         - test:
             - Check that SACL has been configured for monitored folders
             - Change windows audit whodata policies
@@ -110,8 +110,8 @@ def test_whodata_policy_change(configuration, metadata, set_wazuh_configuration,
             - Restore windows audit policies
             - Delete the monitored folders
             - Restore configuration
-            - Stop wazuh
-    wazuh_min_version: 4.6.0
+            - Stop fortishield
+    fortishield_min_version: 4.6.0
 
     tier: 1
 
@@ -125,7 +125,7 @@ def test_whodata_policy_change(configuration, metadata, set_wazuh_configuration,
         - create_monitored_folders_module:
             type: fixture
             brief: Create the folders that will be monitored, delete them after test.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -164,12 +164,12 @@ def test_whodata_policy_change(configuration, metadata, set_wazuh_configuration,
     tags:
         - whodata
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Check it is being monitored in whodata
-    evm.detect_windows_sacl_configured(wazuh_log_monitor)
+    evm.detect_windows_sacl_configured(fortishield_log_monitor)
     # Check Whodata engine has started
-    evm.detect_whodata_start(wazuh_log_monitor)
+    evm.detect_whodata_start(fortishield_log_monitor)
 
     # Change policies
     if metadata['check_event']:
@@ -181,9 +181,9 @@ def test_whodata_policy_change(configuration, metadata, set_wazuh_configuration,
     # Check monitoring changes to realtime
     if metadata['check_event']:
         evm.check_fim_event(timeout=T_20, callback=evm.CB_RECIEVED_EVENT_4719)
-    evm.detect_windows_whodata_mode_change(wazuh_log_monitor)
+    evm.detect_windows_whodata_mode_change(fortishield_log_monitor)
 
     # Create/Update/Delete file and check events
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-    regular_file_cud(folder, wazuh_log_monitor, file_list=file_list, event_mode=fim.REALTIME_MODE,
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+    regular_file_cud(folder, fortishield_log_monitor, file_list=file_list, event_mode=fim.REALTIME_MODE,
                      escaped=True, min_timeout=T_30, triggers_event=True)

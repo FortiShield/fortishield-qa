@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Check when the 'wazuh-syscheckd' daemon is performing a synchronization, a normal synchronization will end
+brief: Check when the 'fortishield-syscheckd' daemon is performing a synchronization, a normal synchronization will end
 before the configured `interval` and `max_interval`.
 
 components:
@@ -20,7 +20,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -40,8 +40,8 @@ os_version:
 
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -60,12 +60,12 @@ import os
 import pytest
 
 
-from wazuh_testing import global_parameters
-from wazuh_testing.tools import LOG_FILE_PATH, configuration
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules import TIER1, AGENT, SERVER
-from wazuh_testing.modules.fim import MONITORED_DIR_1, FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
-from wazuh_testing.modules.fim import event_monitor as evm
+from fortishield_testing import global_parameters
+from fortishield_testing.tools import LOG_FILE_PATH, configuration
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules import TIER1, AGENT, SERVER
+from fortishield_testing.modules.fim import MONITORED_DIR_1, FIM_DEFAULT_LOCAL_INTERNAL_OPTIONS
+from fortishield_testing.modules.fim import event_monitor as evm
 
 # Marks
 pytestmark = [AGENT, SERVER, TIER1]
@@ -90,15 +90,15 @@ configurations = configuration.load_configuration_template(configurations_path, 
                                                            configuration_metadata)
 
 # Variables
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 
 # Tests
 @pytest.mark.parametrize('configuration, metadata', zip(configurations, configuration_metadata), ids=test_case_ids)
-def test_sync_time(configuration, metadata, set_wazuh_configuration, configure_local_internal_options_function,
+def test_sync_time(configuration, metadata, set_fortishield_configuration, configure_local_internal_options_function,
                    create_files_in_folder, restart_syscheck_function, wait_fim_start):
     '''
-    description: Check when the 'wazuh-syscheckd' daemon is performing a synchronization, a normal synchronization
+    description: Check when the 'fortishield-syscheckd' daemon is performing a synchronization, a normal synchronization
                  will end before the configured `interval` and `max_interval`.
 
     test_phases:
@@ -108,7 +108,7 @@ def test_sync_time(configuration, metadata, set_wazuh_configuration, configure_l
         - Get all the integrity state events time.
         - Assert that the time it took for the sync to complete was less than the configured interval and max_interval.
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 2
 
@@ -119,7 +119,7 @@ def test_sync_time(configuration, metadata, set_wazuh_configuration, configure_l
         - metadata:
             type: dict
             brief: Test case data.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
             brief: Set ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -140,7 +140,7 @@ def test_sync_time(configuration, metadata, set_wazuh_configuration, configure_l
         - Assert sync time delta is smaller than max_interval
 
     input_description: A test case is contained in external YAML file (cases_sync_interval.yaml) which includes
-                       configuration settings for the 'wazuh-syscheckd' daemon. That is combined with the interval
+                       configuration settings for the 'fortishield-syscheckd' daemon. That is combined with the interval
                        periods and the testing directory to be monitored defined in this module.
 
     expected_output:
@@ -152,15 +152,15 @@ def test_sync_time(configuration, metadata, set_wazuh_configuration, configure_l
         - scheduled
     '''
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
     # Wait for new sync and get start time
-    sync_time = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    sync_time = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                         callback=evm.callback_sync_start_time,
                                         error_message=evm.ERR_MSG_FIM_SYNC_NOT_DETECTED, update_position=True).result()
 
     # Get the time of all the sync state events for the created files
-    results = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    results = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                       callback=evm.callback_state_event_time, accum_results=3,
                                       error_message=evm.ERR_MSG_FIM_SYNC_NOT_DETECTED, update_position=True).result()
 

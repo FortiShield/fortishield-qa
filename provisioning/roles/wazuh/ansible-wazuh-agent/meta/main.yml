@@ -1,8 +1,8 @@
 ---
 galaxy_info:
-  author: Wazuh
-  description: Installing, deploying and configuring Wazuh Agent.
-  company: wazuh.com
+  author: Fortishield
+  description: Installing, deploying and configuring Fortishield Agent.
+  company: fortishield.github.io
   license: license (GPLv3)
   min_ansible_version: 2.0
   platforms:

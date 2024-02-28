@@ -1,9 +1,9 @@
-wazuh-master:
+fortishield-master:
   access:
     max_login_attempts: 9999
-wazuh-worker1:
+fortishield-worker1:
   access:
     max_login_attempts: 9999
-wazuh-worker2:
+fortishield-worker2:
   access:
     max_login_attempts: 9999

@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: These tests will check that the API works correctly using the 'HTTPS' protocol.
-       The Wazuh API is an open source 'RESTful' API that allows for interaction with
-       the Wazuh manager from a web browser, command line tool like 'cURL' or any script
+       The Fortishield API is an open source 'RESTful' API that allows for interaction with
+       the Fortishield manager from a web browser, command line tool like 'cURL' or any script
        or program that can make web requests.
 
 components:
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/configuration.html#https
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/configuration.html#https
 
 tags:
     - api
@@ -51,7 +51,7 @@ import os
 
 import pytest
 import requests
-from wazuh_testing.tools.configuration import check_apply_test, get_api_conf
+from fortishield_testing.tools.configuration import check_apply_test, get_api_conf
 
 # Marks
 
@@ -88,7 +88,7 @@ def test_https(tags_to_apply, get_configuration, configure_api_environment,
         For this purpose, it configures the API to use both protocols
         and makes requests to it, waiting for a correct response.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0

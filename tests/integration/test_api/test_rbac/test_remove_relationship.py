@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -21,10 +21,10 @@ targets:
     - manager
 
 daemons:
-    - wazuh-apid
-    - wazuh-analysisd
-    - wazuh-syscheckd
-    - wazuh-db
+    - fortishield-apid
+    - fortishield-analysisd
+    - fortishield-syscheckd
+    - fortishield-db
 
 os_platform:
     - linux
@@ -41,8 +41,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/api/getting-started.html
-    - https://documentation.wazuh.com/current/user-manual/api/reference.html#tag/Security
+    - https://documentation.fortishield.github.io/current/user-manual/api/getting-started.html
+    - https://documentation.fortishield.github.io/current/user-manual/api/reference.html#tag/Security
     - https://en.wikipedia.org/wiki/Role-based_access_control
 
 tags:
@@ -50,7 +50,7 @@ tags:
 '''
 import requests
 import pytest
-from wazuh_testing.api import get_security_resource_information
+from fortishield_testing.api import get_security_resource_information
 
 # Marks
 pytestmark = [pytest.mark.server]
@@ -97,7 +97,7 @@ def test_remove_user_role_relationship(set_security_resources, get_api_details):
     '''
     description: Check if the user and role still exist after removing their relationship.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -144,7 +144,7 @@ def test_remove_role_policy_relationship(set_security_resources, get_api_details
     '''
     description: Check if the role and policy still exist after removing their relationship.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -191,7 +191,7 @@ def test_remove_role_rule_relationship(set_security_resources, get_api_details):
     '''
     description: Check if the role and rule still exist after removing their relationship.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 

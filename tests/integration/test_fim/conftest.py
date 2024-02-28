@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 import os
 import re
@@ -8,16 +8,16 @@ import time
 import pytest
 
 from distro import id
-from wazuh_testing import (global_parameters, LOG_FILE_PATH, REGULAR, WAZUH_SERVICES_START, WAZUH_SERVICES_STOP,
-                           WAZUH_LOG_MONITOR)
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.file import truncate_file, delete_path_recursively, create_file
-from wazuh_testing.tools.local_actions import run_local_command_returning_output
-from wazuh_testing.modules.fim import (WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, SYNC_INTERVAL_VALUE, KEY_WOW64_64KEY,
+from fortishield_testing import (global_parameters, LOG_FILE_PATH, REGULAR, FORTISHIELD_SERVICES_START, FORTISHIELD_SERVICES_STOP,
+                           FORTISHIELD_LOG_MONITOR)
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.file import truncate_file, delete_path_recursively, create_file
+from fortishield_testing.tools.local_actions import run_local_command_returning_output
+from fortishield_testing.modules.fim import (WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, SYNC_INTERVAL_VALUE, KEY_WOW64_64KEY,
                                        MONITORED_DIR_1, registry_parser)
-from wazuh_testing.modules.fim import event_monitor as evm
-from wazuh_testing.modules.fim.utils import create_registry, delete_registry
+from fortishield_testing.modules.fim import event_monitor as evm
+from fortishield_testing.modules.fim.utils import create_registry, delete_registry
 
 
 @pytest.fixture()
@@ -26,16 +26,16 @@ def create_key(request):
     Fixture that create the test key And then delete the key and truncate the file. The aim of this fixture is to avoid
     false positives if the manager still has the test key in it's DB.
     """
-    control_service(WAZUH_SERVICES_STOP)
+    control_service(FORTISHIELD_SERVICES_STOP)
     create_registry(registry_parser[WINDOWS_HKEY_LOCAL_MACHINE], MONITORED_KEY, KEY_WOW64_64KEY)
 
     yield
     delete_registry(registry_parser[WINDOWS_HKEY_LOCAL_MACHINE], MONITORED_KEY, KEY_WOW64_64KEY)
-    control_service(WAZUH_SERVICES_STOP)
+    control_service(FORTISHIELD_SERVICES_STOP)
     truncate_file(LOG_FILE_PATH)
     file_monitor = FileMonitor(LOG_FILE_PATH)
-    setattr(request.module, WAZUH_LOG_MONITOR, file_monitor)
-    control_service(WAZUH_SERVICES_START)
+    setattr(request.module, FORTISHIELD_LOG_MONITOR, file_monitor)
+    control_service(FORTISHIELD_SERVICES_START)
 
     # wait until the sync is done.
     file_monitor.start(timeout=SYNC_INTERVAL_VALUE + global_parameters.default_timeout,
@@ -122,9 +122,9 @@ def restart_syscheck_function():
     """
     Restart syscheckd daemon.
     """
-    control_service("stop", daemon="wazuh-syscheckd")
+    control_service("stop", daemon="fortishield-syscheckd")
     truncate_file(LOG_FILE_PATH)
-    control_service("start", daemon="wazuh-syscheckd")
+    control_service("start", daemon="fortishield-syscheckd")
 
 
 @pytest.fixture()

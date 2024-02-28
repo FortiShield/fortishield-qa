@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -8,7 +8,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will check the 'prelink' program is installed on
        the system to prevent prelinking from creating false positives running it before FIM scanning.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -21,7 +21,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -38,8 +38,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#prefilter-cmd
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#prefilter-cmd
     - https://linux.die.net/man/8/prelink
 
 pytest_args:
@@ -59,20 +59,20 @@ import subprocess
 
 import distro
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params, check_fim_start, callback_configuration_error
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params, check_fim_start, callback_configuration_error
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=1), pytest.mark.agent, pytest.mark.server]
 
 # Variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_prefilter_cmd_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_prefilter_cmd_conf.yaml')
 test_directories = [os.path.join('/', 'testdir1')]
 directory_str = ','.join(test_directories)
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 # Configurations
 prefilter = '/usr/sbin/prelink -y'
@@ -89,7 +89,7 @@ for params in conf_params:
     else:
         configuration_ids.append("prefilter_cmd_conf_scheduled")
 
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=conf_params,
                                            metadata=conf_metadata
                                            )
@@ -114,13 +114,13 @@ def install_prelink():
 # Tests
 def test_prefilter_cmd_conf(get_configuration, configure_environment, install_prelink, restart_syscheckd):
     '''
-    description: Check if the 'wazuh-syscheckd' detects the 'prelink' program installed on the system and runs it
+    description: Check if the 'fortishield-syscheckd' detects the 'prelink' program installed on the system and runs it
                  using the command defined in the 'prefilter_cmd' tag. For this purpose, the test will monitor
                  a testing directory and run a bash script to check if the 'prelink' program is installed and
                  install it if necessary. Finally, it will verify that the command to run the 'prelink' program
                  is defined in the configuration.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -141,8 +141,8 @@ def test_prefilter_cmd_conf(get_configuration, configure_environment, install_pr
     assertions:
         - Verify that the 'prelink' program is installed on the system.
 
-    input_description: A test case (prefilter_cmd) is contained in external YAML file (wazuh_prefilter_cmd_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, these are combined
+    input_description: A test case (prefilter_cmd) is contained in external YAML file (fortishield_prefilter_cmd_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, these are combined
                        with the testing directory to be monitored defined in the module. Also, a bash script
                        (install_prelink.sh) is included to check if the 'prelink' program is installed and install it
                        if necessary.
@@ -154,8 +154,8 @@ def test_prefilter_cmd_conf(get_configuration, configure_environment, install_pr
         - prelink
     '''
     if os.path.exists(prefilter.split()[0]):
-        check_fim_start(wazuh_log_monitor)
+        check_fim_start(fortishield_log_monitor)
     else:
-        wazuh_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_configuration_error,
+        fortishield_log_monitor.start(timeout=global_parameters.default_timeout, callback=callback_configuration_error,
                                 error_message="The expected 'Configuration error at etc/ossec.conf' "
                                               "message has not been produced")

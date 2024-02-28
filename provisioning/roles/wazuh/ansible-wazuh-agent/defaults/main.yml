@@ -1,16 +1,16 @@
 ---
 
-wazuh_agent_version: 4.8.0
+fortishield_agent_version: 4.8.0
 
 # Custom packages installation
 
-wazuh_custom_packages_installation_agent_enabled: false
-wazuh_custom_packages_installation_agent_deb_url: ""
-wazuh_custom_packages_installation_agent_rpm_url: ""
+fortishield_custom_packages_installation_agent_enabled: false
+fortishield_custom_packages_installation_agent_deb_url: ""
+fortishield_custom_packages_installation_agent_rpm_url: ""
 
 # Sources installation
 
-wazuh_agent_sources_installation:
+fortishield_agent_sources_installation:
   enabled: false
   branch: "master"
   user_language: "y"
@@ -30,23 +30,23 @@ wazuh_agent_sources_installation:
   user_agent_server_ip: "YOUR_MANAGER_IP"
   user_agent_server_name: null
   user_agent_config_profile: null
-  user_ca_store: "{{ wazuh_dir }}/wpk_root.pem"
+  user_ca_store: "{{ fortishield_dir }}/wpk_root.pem"
 
-wazuh_agent_yum_lock_timeout: 30
+fortishield_agent_yum_lock_timeout: 30
 
-# We recommend the use of ansible-vault to protect Wazuh, api, agentless and authd credentials.
-api_pass: wazuh
+# We recommend the use of ansible-vault to protect Fortishield, api, agentless and authd credentials.
+api_pass: fortishield
 authd_pass: ''
 
-wazuh_api_reachable_from_agent: yes
-wazuh_profile_centos: 'centos, centos7, centos7.6'
-wazuh_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
-wazuh_auto_restart: 'yes'
+fortishield_api_reachable_from_agent: yes
+fortishield_profile_centos: 'centos, centos7, centos7.6'
+fortishield_profile_ubuntu: 'ubuntu, ubuntu18, ubuntu18.04'
+fortishield_auto_restart: 'yes'
 
-wazuh_notify_time: '10'
-wazuh_time_reconnect: '60'
-wazuh_crypto_method: 'aes'
-wazuh_winagent_config:
+fortishield_notify_time: '10'
+fortishield_time_reconnect: '60'
+fortishield_crypto_method: 'aes'
+fortishield_winagent_config:
   download_dir: C:\
   install_dir: C:\Program Files\ossec-agent\
   install_dir_x86: C:\Program Files (x86)\ossec-agent\
@@ -56,35 +56,35 @@ wazuh_winagent_config:
   check_md5: True
   md5: a03806b7302767d0470d65d3f103fabb
 
-wazuh_winagent_config_url: https://packages.wazuh.com/4.x/windows/wazuh-agent-4.8.0-1.msi
-wazuh_winagent_package_name: wazuh-agent-4.8.0-1.msi
-wazuh_winagent_package_name_generic: wazuh-agent.msi
-wazuh_dir: "/var/ossec"
-macos_wazuh_dir: "/Library/Ossec"
+fortishield_winagent_config_url: https://packages.fortishield.github.io/4.x/windows/fortishield-agent-4.8.0-1.msi
+fortishield_winagent_package_name: fortishield-agent-4.8.0-1.msi
+fortishield_winagent_package_name_generic: fortishield-agent.msi
+fortishield_dir: "/var/ossec"
+macos_fortishield_dir: "/Library/Ossec"
 
-# This is deprecated, see: wazuh_agent_address
-wazuh_agent_nat: false
+# This is deprecated, see: fortishield_agent_address
+fortishield_agent_nat: false
 
 ##########################################
-### Wazuh
+### Fortishield
 ##########################################
 
-wazuh_agent_nolog_sensible: yes
-wazuh_agent_config_overlay: yes
+fortishield_agent_nolog_sensible: yes
+fortishield_agent_config_overlay: yes
 
-# This is a middle ground between breaking existing uses of wazuh_agent_nat
+# This is a middle ground between breaking existing uses of fortishield_agent_nat
 # and allow working with agents having several network interfaces
-wazuh_agent_address: '{{ "any" if wazuh_agent_nat else ansible_default_ipv4.address }}'
+fortishield_agent_address: '{{ "any" if fortishield_agent_nat else ansible_default_ipv4.address }}'
 
 # List of managers. The first one with register variable declared *and* set to true
 # is the one used to register the agent. Otherwise, the first one in the list will be used.
-wazuh_managers:
+fortishield_managers:
   - address: 127.0.0.1
     port: 1514
     protocol: tcp
     api_port: 55000
     api_proto: https
-    api_user: wazuh
+    api_user: fortishield
     max_retries: 5
     retry_interval: 5
     register: yes
@@ -92,9 +92,9 @@ wazuh_managers:
 ## Authentication Method: Enrollment section (4.x)
 
 # For more information see:
-# * https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/client.html#enrollment
+# * https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/client.html#enrollment
 
-wazuh_agent_enrollment:
+fortishield_agent_enrollment:
   enabled: 'yes'
   manager_address: ''
   port: 1515
@@ -105,7 +105,7 @@ wazuh_agent_enrollment:
   server_ca_path: ''
   agent_certificate_path: ''
   agent_key_path: ''
-  authorization_pass_path: "{{ wazuh_dir }}/etc/authd.pass"
+  authorization_pass_path: "{{ fortishield_dir }}/etc/authd.pass"
   auto_method: 'no'
   delay_after_enrollment: 20
   use_source_ip: 'no'
@@ -113,9 +113,9 @@ wazuh_agent_enrollment:
 ## Authentication Method: invoking agent-auth
 
 # For more information see:
-# * https://documentation.wazuh.com/current/user-manual/registering/password-authorization-registration.html
+# * https://documentation.fortishield.github.io/current/user-manual/registering/password-authorization-registration.html
 
-wazuh_agent_authd:
+fortishield_agent_authd:
   registration_address: 127.0.0.1
   enable: false
   port: 1515
@@ -129,27 +129,27 @@ wazuh_agent_authd:
 ## Authentication Method: REST API
 
 # For more information see:
-# * https://documentation.wazuh.com/current/user-manual/registering/restful-api-registration.html
-wazuh_agent_api_validate: yes
+# * https://documentation.fortishield.github.io/current/user-manual/registering/restful-api-registration.html
+fortishield_agent_api_validate: yes
 
 ## Client buffer
-wazuh_agent_client_buffer:
+fortishield_agent_client_buffer:
   disable: 'no'
   queue_size: '5000'
   events_per_sec: '500'
 
 ## Rootcheck
-wazuh_agent_rootcheck:
+fortishield_agent_rootcheck:
   frequency: 43200
 
 ## Wodles
-wazuh_agent_openscap:
+fortishield_agent_openscap:
   disable: 'yes'
   timeout: 1800
   interval: '1d'
   scan_on_start: 'yes'
 
-wazuh_agent_cis_cat:
+fortishield_agent_cis_cat:
   disable: 'yes'
   install_java: 'no'
   timeout: 1800
@@ -160,7 +160,7 @@ wazuh_agent_cis_cat:
   ciscat_path: 'wodles/ciscat'
   ciscat_path_win: 'C:\cis-cat'
 
-wazuh_agent_osquery:
+fortishield_agent_osquery:
   disable: 'yes'
   run_daemon: 'yes'
   bin_path_win: 'C:\Program Files\osquery\osqueryd'
@@ -170,7 +170,7 @@ wazuh_agent_osquery:
   config_path_win: 'C:\Program Files\osquery\osquery.conf'
   add_labels: 'yes'
 
-wazuh_agent_syscollector:
+fortishield_agent_syscollector:
   disable: 'no'
   interval: '1h'
   scan_on_start: 'yes'
@@ -182,7 +182,7 @@ wazuh_agent_syscollector:
   processes: 'yes'
 
 ## SCA
-wazuh_agent_sca:
+fortishield_agent_sca:
   enabled: 'yes'
   scan_on_start: 'yes'
   interval: '12h'
@@ -192,7 +192,7 @@ wazuh_agent_sca:
   time: ''
 
 ## Syscheck
-wazuh_agent_syscheck:
+fortishield_agent_syscheck:
   frequency: 43200
   scan_on_start: 'yes'
   auto_ignore: 'no'
@@ -301,7 +301,7 @@ wazuh_agent_syscheck:
       type: "sregex"
 
 ## Localfile
-wazuh_agent_localfiles:
+fortishield_agent_localfiles:
   debian:
     - format: 'syslog'
       location: '/var/log/auth.log'
@@ -322,7 +322,7 @@ wazuh_agent_localfiles:
       location: '/var/log/audit/audit.log'
   linux:
     - format: 'syslog'
-      location: "{{ wazuh_dir }}/logs/active-responses.log"
+      location: "{{ fortishield_dir }}/logs/active-responses.log"
     - format: 'full_command'
       command: 'last -n 20'
       frequency: '360'
@@ -345,38 +345,38 @@ wazuh_agent_localfiles:
       location: 'active-response\active-responses.log'
 
 ## Labels
-wazuh_agent_labels:
+fortishield_agent_labels:
   enable: false
   list:
     - key: Env
       value: Production
 
 ## Active response
-wazuh_agent_active_response:
+fortishield_agent_active_response:
   ar_disabled: 'no'
-  ca_store: "{{ wazuh_dir }}/etc/wpk_root.pem"
+  ca_store: "{{ fortishield_dir }}/etc/wpk_root.pem"
   ca_store_win: 'wpk_root.pem'
   ca_verification: 'yes'
 
 ## Logging
-wazuh_agent_log_format: 'plain'
+fortishield_agent_log_format: 'plain'
 
-# wazuh_agent_config
-wazuh_agent_config_defaults:
-  repo: '{{ wazuh_repo }}'
-  active_response: '{{ wazuh_agent_active_response }}'
-  log_format: '{{ wazuh_agent_log_format }}'
-  client_buffer: '{{ wazuh_agent_client_buffer }}'
-  syscheck: '{{ wazuh_agent_syscheck }}'
+# fortishield_agent_config
+fortishield_agent_config_defaults:
+  repo: '{{ fortishield_repo }}'
+  active_response: '{{ fortishield_agent_active_response }}'
+  log_format: '{{ fortishield_agent_log_format }}'
+  client_buffer: '{{ fortishield_agent_client_buffer }}'
+  syscheck: '{{ fortishield_agent_syscheck }}'
 
-  rootcheck: '{{ wazuh_agent_rootcheck }}'
-  openscap: '{{ wazuh_agent_openscap }}'
+  rootcheck: '{{ fortishield_agent_rootcheck }}'
+  openscap: '{{ fortishield_agent_openscap }}'
 
-  osquery: '{{ wazuh_agent_osquery }}'
-  syscollector: '{{ wazuh_agent_syscollector }}'
-  sca: '{{ wazuh_agent_sca }}'
-  cis_cat: '{{ wazuh_agent_cis_cat }}'
-  localfiles: '{{ wazuh_agent_localfiles }}'
+  osquery: '{{ fortishield_agent_osquery }}'
+  syscollector: '{{ fortishield_agent_syscollector }}'
+  sca: '{{ fortishield_agent_sca }}'
+  cis_cat: '{{ fortishield_agent_cis_cat }}'
+  localfiles: '{{ fortishield_agent_localfiles }}'
 
-  labels: '{{ wazuh_agent_labels }}'
-  enrollment: '{{ wazuh_agent_enrollment }}'
+  labels: '{{ fortishield_agent_labels }}'
+  enrollment: '{{ fortishield_agent_enrollment }}'

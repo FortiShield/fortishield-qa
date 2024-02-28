@@ -1,16 +1,16 @@
 ---
-wazuh-worker2:
-  - regex: '.*Worker wazuh-worker2.*Integrity sync.*Finished in.*'
+fortishield-worker2:
+  - regex: '.*Worker fortishield-worker2.*Integrity sync.*Finished in.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker2.*Integrity sync.*Starting.*'
+  - regex: '.*Worker fortishield-worker2.*Integrity sync.*Starting.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-  - regex: '.*Worker wazuh-worker2.*Integrity sync.*Finished in.*'
+  - regex: '.*Worker fortishield-worker2.*Integrity sync.*Finished in.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
 
-wazuh-master:
-  - regex: '.*Worker wazuh-worker2.*Integrity check.*Finished in.*'
+fortishield-master:
+  - regex: '.*Worker fortishield-worker2.*Integrity check.*Finished in.*'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60

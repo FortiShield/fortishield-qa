@@ -21,12 +21,12 @@
     - import_tasks: Debian.yml
       when: ansible_os_family == 'Debian'
 
-    - name: Remove performance analyzer plugin from Wazuh indexer
+    - name: Remove performance analyzer plugin from Fortishield indexer
       become: true
       command: ./opensearch-plugin remove opensearch-performance-analyzer
       ignore_errors: true
       args:
-        chdir: /usr/share/wazuh-indexer/bin/
+        chdir: /usr/share/fortishield-indexer/bin/
       register: remove_opensearch_performance_analyzer
       failed_when:
         - remove_opensearch_performance_analyzer.rc != 0
@@ -44,7 +44,7 @@
         src: "templates/opensearch.yml.j2"
         dest: "{{ indexer_conf_path }}/opensearch.yml"
         owner: root
-        group: wazuh-indexer
+        group: fortishield-indexer
         mode: 0640
         force: yes
       tags: install
@@ -54,20 +54,20 @@
         - security
 
 
-    - name: Configure Wazuh indexer JVM memmory.
+    - name: Configure Fortishield indexer JVM memmory.
       template:
         src: "templates/jvm.options.j2"
         dest: "{{ indexer_conf_path }}/jvm.options"
         owner: root
-        group: wazuh-indexer
+        group: fortishield-indexer
         mode: 0644
         force: yes
-      notify: restart wazuh-indexer
+      notify: restart fortishield-indexer
       tags: install
 
-    - name: Ensure extra time for Wazuh indexer to start on reboots
+    - name: Ensure extra time for Fortishield indexer to start on reboots
       lineinfile:
-        path: /usr/lib/systemd/system/wazuh-indexer.service
+        path: /usr/lib/systemd/system/fortishield-indexer.service
         regexp: '^TimeoutStartSec='
         line: "TimeoutStartSec={{ indexer_start_timeout }}"
       become: yes
@@ -85,13 +85,13 @@
         state: absent
       with_items: "{{ files_to_delete.files }}"
 
-    - name: Ensure Wazuh indexer started and enabled
+    - name: Ensure Fortishield indexer started and enabled
       service:
-        name: wazuh-indexer
+        name: fortishield-indexer
         enabled: true
         state: started
 
-    - name: Wait for Wazuh indexer API
+    - name: Wait for Fortishield indexer API
       uri:
         url: "https://{{ inventory_hostname if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
@@ -110,7 +110,7 @@
       when:
         - hostvars[inventory_hostname]['private_ip'] is not defined or not hostvars[inventory_hostname]['private_ip']
 
-    - name: Wait for Wazuh indexer API (Private IP)
+    - name: Wait for Fortishield indexer API (Private IP)
       uri:
         url: "https://{{ hostvars[inventory_hostname]['private_ip'] if not single_node else indexer_network_host }}:{{ indexer_http_port }}/_cat/health/"
         user: "admin" # Default Indexer user is always "admin"
@@ -136,5 +136,5 @@
       systemd:
         daemon_reload: true
       become: yes
-      notify: restart wazuh-indexer
+      notify: restart fortishield-indexer
   when: perform_installation

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if FIM events are generated
        when subfolders are moved between monitored directories.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html
 
 pytest_args:
     - fim_mode:
@@ -64,25 +64,25 @@ import shutil
 import sys
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params, create_file, REGULAR, \
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params, create_file, REGULAR, \
     callback_detect_event, check_time_travel, validate_event
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # marks
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0)]
 
 # variables
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_directories = [os.path.join(PREFIX, 'testdir1'), os.path.join(PREFIX, 'testdir2'),
                     os.path.join(PREFIX, 'testdir3')]
 directory_str = ','.join(test_directories)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir1, testdir2, testdir3 = test_directories
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 
 # This directory won't be monitored
@@ -91,7 +91,7 @@ testdir4 = os.path.join(PREFIX, 'testdir4')
 # configurations
 conf_params = {'TEST_DIRECTORIES': directory_str, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params)
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -107,7 +107,7 @@ def get_configuration(request):
 
 
 def extra_configuration_before_yield():
-    """Create subdirs before restarting Wazuh."""
+    """Create subdirs before restarting Fortishield."""
     create_file(REGULAR, os.path.join(testdir1, 'subdir'), 'regular1', content='')
     create_file(REGULAR, os.path.join(testdir3, 'subdir2'), 'regular2', content='')
     create_file(REGULAR, os.path.join(testdir3, 'subdir3'), 'regular3', content='')
@@ -131,12 +131,12 @@ def extra_configuration_after_yield():
 def test_move_dir(source_folder, target_folder, subdir, tags_to_apply, triggers_delete_event, triggers_add_event,
                   get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects 'added' and 'deleted' events when moving a subdirectory
+    description: Check if the 'fortishield-syscheckd' daemon detects 'added' and 'deleted' events when moving a subdirectory
                  from a monitored folder to another one. For this purpose, the test will move a testing subfolder
                  from the source directory to the target directory and change the system time until the next
                  scheduled scan. Finally, it verifies that the expected FIM events have been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -176,8 +176,8 @@ def test_move_dir(source_folder, target_folder, subdir, tags_to_apply, triggers_
         - Verify that FIM events of type 'added' and 'deleted' are generated
           when subfolders are moved between monitored directories.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and, it
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and, it
                        is combined with the testing directories to be monitored defined in this module.
 
     expected_output:
@@ -192,16 +192,16 @@ def test_move_dir(source_folder, target_folder, subdir, tags_to_apply, triggers_
     mode = get_configuration['metadata']['fim_mode']
 
     if mode == 'whodata' and subdir[-1] == os.path.sep and sys.platform == 'linux':
-        pytest.xfail('Xfailing due to issue: https://github.com/wazuh/wazuh/issues/4720')
+        pytest.xfail('Xfailing due to issue: https://github.com/fortishield/fortishield/issues/4720')
     elif mode == 'whodata' and subdir[-1] == os.path.sep and sys.platform == 'win32':
-        pytest.xfail('Xfailing due to issue: https://github.com/wazuh/wazuh/issues/6089')
+        pytest.xfail('Xfailing due to issue: https://github.com/fortishield/fortishield/issues/6089')
 
     # Move folder to target directory
     os.rename(os.path.join(source_folder, subdir), os.path.join(target_folder, subdir))
-    check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    check_time_travel(scheduled, monitor=fortishield_log_monitor)
 
     # Monitor expected events
-    events = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    events = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                      callback=callback_detect_event,
                                      accum_results=(triggers_add_event + triggers_delete_event),
                                      error_message='Did not receive expected "Sending FIM event: ..." event'

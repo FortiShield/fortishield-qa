@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,8 +9,8 @@ type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when
        these files are modified. Specifically, these tests will check if the process priority of
-       the 'wazuh-syscheckd' daemon set in the 'process_priority' tag is applied successfully.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       the 'fortishield-syscheckd' daemon set in the 'process_priority' tag is applied successfully.
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -50,8 +50,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#process-priority
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#process-priority
 
 pytest_args:
     - fim_mode:
@@ -69,10 +69,10 @@ import os
 import sys
 
 import pytest
-from wazuh_testing.fim import generate_params
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.services import get_process
+from fortishield_testing.fim import generate_params
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.services import get_process
 
 # Marks
 
@@ -81,7 +81,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.darwin, pytest.mark.sunos5, pytest.
 # variables
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 force_restart_after_restoring = True
 test_directories = [os.path.join(PREFIX, 'testdir1')]
 
@@ -94,7 +94,7 @@ conf_params = {'TEST_DIRECTORIES': test_directories[0], 'MODULE_NAME': __name__}
 p, m = generate_params(apply_to_all=({'PROCESS_PRIORITY': priority_value} for priority_value in priority_list),
                        extra_params=conf_params, modes=test_modes)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # fixtures
@@ -108,13 +108,13 @@ def get_configuration(request):
 
 def test_process_priority(get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the process priority of the 'wazuh-syscheckd' daemon set in the 'process_priority' tag
+    description: Check if the process priority of the 'fortishield-syscheckd' daemon set in the 'process_priority' tag
                  is updated correctly. For this purpose, the test will monitor a testing folder and, once FIM starts,
                  it will get the priority value from the 'process_priority' tag and the system information of
-                 the 'wazuh-syscheckd' process. Finally, the test will compare the current process priority
+                 the 'fortishield-syscheckd' process. Finally, the test will compare the current process priority
                  with the target priority to verify that they match.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -133,11 +133,11 @@ def test_process_priority(get_configuration, configure_environment, restart_sysc
             brief: Wait for realtime start, whodata start, or end of initial FIM scan.
 
     assertions:
-        - Verify that the 'wazuh-syscheckd' daemon is running.
-        - Verify that the process priority of the 'wazuh-syscheckd' daemon matches the 'process_priority' tag.
+        - Verify that the 'fortishield-syscheckd' daemon is running.
+        - Verify that the process priority of the 'fortishield-syscheckd' daemon matches the 'process_priority' tag.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon and,
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon and,
                        these are combined with the testing directory to be monitored defined in the module.
 
     expected_output:
@@ -151,7 +151,7 @@ def test_process_priority(get_configuration, configure_environment, restart_sysc
     check_apply_test({'ossec_conf'}, get_configuration['tags'])
 
     priority = int(get_configuration['metadata']['process_priority'])
-    process_name = 'wazuh-syscheckd'
+    process_name = 'fortishield-syscheckd'
     syscheckd_process = get_process(process_name)
 
     assert syscheckd_process is not None, f'Process {process_name} not found'

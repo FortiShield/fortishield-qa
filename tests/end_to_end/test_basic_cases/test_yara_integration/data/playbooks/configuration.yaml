@@ -20,7 +20,7 @@
     - name: Copy the Yara script
       shell: |
         curl {{ s3_url }}/yara_integration/yara.sh -o /var/ossec/active-response/bin/yara.sh
-        chown root:wazuh /var/ossec/active-response/bin/yara.sh
+        chown root:fortishield /var/ossec/active-response/bin/yara.sh
         chmod 0750 /var/ossec/active-response/bin/yara.sh
 
     - name: Check if Yara is installed
@@ -80,7 +80,7 @@
 
     - name: Configure local rules for Yara
       include_role:
-        name: manage_wazuh_configurations
+        name: manage_fortishield_configurations
         tasks_from: write_local_rules.yaml
       vars:
         config_block: |
@@ -103,30 +103,30 @@
           </rule>
           <rule id="108001" level="12">
           <if_sid>108000</if_sid>
-          <match>wazuh-yara: INFO - Scan result: </match>
+          <match>fortishield-yara: INFO - Scan result: </match>
           <description>File "$(yara_scanned_file)" is a positive match. Yara rule: $(yara_rule)</description>
           </rule>
           </group>
 
     - name: Configure local decoders for Yara
       include_role:
-        name: manage_wazuh_configurations
+        name: manage_fortishield_configurations
         tasks_from: write_local_decoders.yaml
       vars:
         config_block: |
           <decoder name="yara_decoder">
-          <prematch>wazuh-yara:</prematch>
+          <prematch>fortishield-yara:</prematch>
           </decoder>
           <decoder name="yara_decoder1">
           <parent>yara_decoder</parent>
-          <regex>wazuh-yara: (\S+) - Scan result: (\S+) (\S+)</regex>
+          <regex>fortishield-yara: (\S+) - Scan result: (\S+) (\S+)</regex>
           <order>log_type, yara_rule, yara_scanned_file</order>
           </decoder>
 
     - name: Configure an active response and syscheck
       include_role:
-        name: manage_wazuh_configurations
-        tasks_from: write_wazuh_config.yaml
+        name: manage_fortishield_configurations
+        tasks_from: write_fortishield_config.yaml
       vars:
         config_block: |
           <command>
@@ -146,9 +146,9 @@
           </syscheck>
         os: linux
 
-    - name: Restart wazuh-manager
+    - name: Restart fortishield-manager
       include_role:
-        name: manage_wazuh
-        tasks_from: restart_wazuh.yaml
+        name: manage_fortishield
+        tasks_from: restart_fortishield.yaml
       vars:
         os: linux

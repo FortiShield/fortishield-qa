@@ -5,21 +5,21 @@ import re
 from math import ceil
 from copy import deepcopy
 
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing import ARCHIVES_LOG_PATH
-from wazuh_testing.modules.analysisd import event_monitor as evm
-from wazuh_testing.tools import file
-from wazuh_testing.modules.analysisd import QUEUE_EVENTS_SIZE, ANALYSISD_ONE_THREAD_CONFIG
-from wazuh_testing.scripts.syslog_simulator import DEFAULT_MESSAGE_SIZE
-from wazuh_testing.tools.run_simulator import syslog_simulator
-from wazuh_testing.tools.thread_executor import ThreadExecutor
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing import ARCHIVES_LOG_PATH
+from fortishield_testing.modules.analysisd import event_monitor as evm
+from fortishield_testing.tools import file
+from fortishield_testing.modules.analysisd import QUEUE_EVENTS_SIZE, ANALYSISD_ONE_THREAD_CONFIG
+from fortishield_testing.scripts.syslog_simulator import DEFAULT_MESSAGE_SIZE
+from fortishield_testing.tools.run_simulator import syslog_simulator
+from fortishield_testing.tools.thread_executor import ThreadExecutor
 
 # Reference paths
 TEST_DATA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 CONFIGURATIONS_PATH = os.path.join(TEST_DATA_PATH, 'configuration_template', 'event_processing_test_module')
 TEST_CASES_PATH = os.path.join(TEST_DATA_PATH, 'test_cases', 'event_processing_test_module')
 SYSLOG_SIMULATOR_START_TIME = 2
-local_internal_options = {'wazuh_modules.debug': '2', 'monitord.rotate_log': '0', 'analysisd.state_interval': '1'}
+local_internal_options = {'fortishield_modules.debug': '2', 'monitord.rotate_log': '0', 'analysisd.state_interval': '1'}
 
 # --------------------------------------------------- TEST_LIMITATION --------------------------------------------------
 # Configuration and cases data
@@ -61,7 +61,7 @@ t4_cases_path = os.path.join(TEST_CASES_PATH, 'cases_processing_events_in_order_
 t4_configuration_parameters, t4_configuration_metadata, t4_case_ids = get_test_cases_data(t4_cases_path)
 t4_configurations = load_configuration_template(t4_configurations_path, t4_configuration_parameters,
                                                 t4_configuration_metadata)
-t4_local_internal_options = {'wazuh_modules.debug': '2', 'monitord.rotate_log': '0', 'analysisd.state_interval': '1'}
+t4_local_internal_options = {'fortishield_modules.debug': '2', 'monitord.rotate_log': '0', 'analysisd.state_interval': '1'}
 t4_local_internal_options.update(ANALYSISD_ONE_THREAD_CONFIG)
 
 # ------------------------------------ TEST_PROCESSING_EVENTS_IN_ORDER_MULTI_THREAD ------------------------------------
@@ -77,18 +77,18 @@ t5_configurations = load_configuration_template(t5_configurations_path, t5_confi
 
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_configuration_metadata), ids=t1_case_ids)
-def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set_wazuh_configuration,
-                    configure_local_internal_options_function, truncate_monitored_files, restart_wazuh_daemon_function):
+def test_limitation(configuration, metadata, load_fortishield_basic_configuration, set_fortishield_configuration,
+                    configure_local_internal_options_function, truncate_monitored_files, restart_fortishield_daemon_function):
     """
     description: Check if after passing the event processing limit, the processing is stopped until the next timeframe.
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Start the event simulator and check that the events are being received and analyzed.
             - Wait until the event limit is reached and check that the events are still being received but not
@@ -96,10 +96,10 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
             - Wait until the next analysis period (next timeframe) and check that events are still being
               processed, in this case the queued ones.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -108,10 +108,10 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -119,10 +119,10 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that events are received when expected.
@@ -153,7 +153,7 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
     events_received = int(analysisd_state['events_received'])
     events_processed = int(analysisd_state['events_processed'])
 
-    # Check that wazuh-manager is processing syslog events
+    # Check that fortishield-manager is processing syslog events
     assert events_received > 0, '(0): No events are being received when it is expected'
     assert events_processed > 0, 'No events are being processed when it is expected'
 
@@ -168,7 +168,7 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
     events_processed = int(analysisd_state['events_processed'])
     expected_processed_events = metadata['maximum'] * metadata['timeframe']
 
-    # Check that the wazuh-manager is receiving events but it is not processing them due to the limitation
+    # Check that the fortishield-manager is receiving events but it is not processing them due to the limitation
     assert events_received > 0, '(1): No events are being received when it is expected'
     assert events_processed == expected_processed_events, f"Events are being processed when the limit has been " \
                                                           f"reached. {events_processed} != {expected_processed_events}"
@@ -189,20 +189,20 @@ def test_limitation(configuration, metadata, load_wazuh_basic_configuration, set
 
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t2_configurations, t2_configuration_metadata), ids=t2_case_ids)
-def test_queueing_events_after_limitation(configuration, metadata, load_wazuh_basic_configuration,
-                                          set_wazuh_configuration, configure_local_internal_options_function,
-                                          truncate_monitored_files, restart_wazuh_daemon_function):
+def test_queueing_events_after_limitation(configuration, metadata, load_fortishield_basic_configuration,
+                                          set_fortishield_configuration, configure_local_internal_options_function,
+                                          truncate_monitored_files, restart_fortishield_daemon_function):
     """
     description: Check if after stopping processing events (due to limit reached), the received events are stored in
         the events queue if it is not full.
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check that the initial events queue usage rate is 0%.
             - Calculate when the limit of processed events is reached, waits a few seconds for events to be stored in
@@ -210,10 +210,10 @@ def test_queueing_events_after_limitation(configuration, metadata, load_wazuh_ba
             - Wait a few seconds and takes a second sample again, to check that the events queue usage is higher than
               the first sample.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -222,10 +222,10 @@ def test_queueing_events_after_limitation(configuration, metadata, load_wazuh_ba
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -233,10 +233,10 @@ def test_queueing_events_after_limitation(configuration, metadata, load_wazuh_ba
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that the queue usage at startup is 0%.
@@ -292,28 +292,28 @@ def test_queueing_events_after_limitation(configuration, metadata, load_wazuh_ba
 
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t3_configurations, t3_configuration_metadata), ids=t3_case_ids)
-def test_dropping_events_when_queue_is_full(configuration, metadata, load_wazuh_basic_configuration,
-                                            set_wazuh_configuration, configure_local_internal_options_function,
-                                            truncate_monitored_files, restart_wazuh_daemon_function):
+def test_dropping_events_when_queue_is_full(configuration, metadata, load_fortishield_basic_configuration,
+                                            set_fortishield_configuration, configure_local_internal_options_function,
+                                            truncate_monitored_files, restart_fortishield_daemon_function):
     """
     description: Check that after the event analysis block, if the events queue is full, the events are dropped.
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Check that the initial queue usage rate is 0%.
             - Calculate when the event analysis blocking phase is expected and the queue is full, then it measures the
               use of the event queue to check that it is 100%, and that the received events are being dropped.
         - teardown:
-            - Truncate wazuh logs.
+            - Truncate fortishield logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -322,10 +322,10 @@ def test_dropping_events_when_queue_is_full(configuration, metadata, load_wazuh_
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -333,10 +333,10 @@ def test_dropping_events_when_queue_is_full(configuration, metadata, load_wazuh_
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_monitored_files:
             type: fixture
-            brief: Truncate wazuh logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that the initial queue is at 0%.
@@ -395,9 +395,9 @@ def test_dropping_events_when_queue_is_full(configuration, metadata, load_wazuh_
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t4_configurations, t4_configuration_metadata), ids=t4_case_ids)
 @pytest.mark.parametrize('configure_local_internal_options_function', [t4_local_internal_options], indirect=True)
-def test_event_processing_in_order_single_thread(configuration, metadata, load_wazuh_basic_configuration,
-                                                 set_wazuh_configuration, configure_local_internal_options_function,
-                                                 truncate_event_logs, restart_wazuh_daemon_function):
+def test_event_processing_in_order_single_thread(configuration, metadata, load_fortishield_basic_configuration,
+                                                 set_fortishield_configuration, configure_local_internal_options_function,
+                                                 truncate_event_logs, restart_fortishield_daemon_function):
     """
     description: Check that events are processed in order according to the position within the queue, and
         that events that are being received during the blocking phase are being added to the end of the queue when
@@ -405,21 +405,21 @@ def test_event_processing_in_order_single_thread(configuration, metadata, load_w
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh event logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield event logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Send a batch of identified events.
             - Wait a few seconds, then send another batch of identified events.
             - Wait until all events are processed.
             - Read the event log (archives.log) and check that the events have been processed in the expected order.
         - teardown:
-            - Truncate wazuh event logs.
+            - Truncate fortishield event logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -428,10 +428,10 @@ def test_event_processing_in_order_single_thread(configuration, metadata, load_w
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -439,10 +439,10 @@ def test_event_processing_in_order_single_thread(configuration, metadata, load_w
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_event_logs:
             type: fixture
-            brief: Truncate wazuh event logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield event logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that all expected events have been stored in the archives.log.
@@ -505,9 +505,9 @@ def test_event_processing_in_order_single_thread(configuration, metadata, load_w
 
 @pytest.mark.tier(level=0)
 @pytest.mark.parametrize('configuration, metadata', zip(t5_configurations, t5_configuration_metadata), ids=t5_case_ids)
-def test_event_processing_in_order_multi_thread(configuration, metadata, load_wazuh_basic_configuration,
-                                                set_wazuh_configuration, configure_local_internal_options_function,
-                                                truncate_event_logs, restart_wazuh_daemon_function):
+def test_event_processing_in_order_multi_thread(configuration, metadata, load_fortishield_basic_configuration,
+                                                set_fortishield_configuration, configure_local_internal_options_function,
+                                                truncate_event_logs, restart_fortishield_daemon_function):
     """
     description: Check that events are processed in order according to the position within the queue, and
         that events that are being received during the blocking phase are being added to the end of the queue when
@@ -515,21 +515,21 @@ def test_event_processing_in_order_multi_thread(configuration, metadata, load_wa
 
     test_phases:
         - setup:
-            - Load Wazuh light configuration.
+            - Load Fortishield light configuration.
             - Apply ossec.conf configuration changes according to the configuration template and use case.
             - Apply custom settings in local_internal_options.conf.
-            - Truncate wazuh event logs.
-            - Restart wazuh-manager service to apply configuration changes.
+            - Truncate fortishield event logs.
+            - Restart fortishield-manager service to apply configuration changes.
         - test:
             - Send a batch of identified events.
             - Wait a few seconds, then send another batch of identified events. This is repeated n times.
             - Wait until all events are processed.
             - Read the event log (archives.log) and check that the events have been processed in the expected order.
         - teardown:
-            - Truncate wazuh event logs.
+            - Truncate fortishield event logs.
             - Restore initial configuration, both ossec.conf and local_internal_options.conf.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configuration:
@@ -538,10 +538,10 @@ def test_event_processing_in_order_multi_thread(configuration, metadata, load_wa
         - metadata:
             type: dict
             brief: Get metadata from the module.
-        - load_wazuh_basic_configuration:
+        - load_fortishield_basic_configuration:
             type: fixture
-            brief: Load basic wazuh configuration.
-        - set_wazuh_configuration:
+            brief: Load basic fortishield configuration.
+        - set_fortishield_configuration:
             type: fixture
             brief: Apply changes to the ossec.conf configuration.
         - configure_local_internal_options_function:
@@ -549,10 +549,10 @@ def test_event_processing_in_order_multi_thread(configuration, metadata, load_wa
             brief: Apply changes to the local_internal_options.conf configuration.
         - truncate_event_logs:
             type: fixture
-            brief: Truncate wazuh event logs.
-        - restart_wazuh_daemon_function:
+            brief: Truncate fortishield event logs.
+        - restart_fortishield_daemon_function:
             type: fixture
-            brief: Restart the wazuh service.
+            brief: Restart the fortishield service.
 
     assertions:
         - Check that all expected events have been stored in the archives.log.

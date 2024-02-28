@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -17,7 +17,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -34,8 +34,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/policy-monitoring/rootcheck
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/policy-monitoring/rootcheck
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - rootcheck
@@ -47,18 +47,18 @@ import sqlite3
 import time
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.agent_simulator import Sender, Injector, create_agents
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import SocketController
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.agent_simulator import Sender, Injector, create_agents
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import SocketController
+from fortishield_testing.tools.services import control_service
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
-WAZUH_DB_DIR = os.path.join(WAZUH_PATH, 'queue', 'db')
-WDB_PATH = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
-ALERTS_JSON_PATH = os.path.join(WAZUH_PATH, 'logs', 'alerts', 'alerts.json')
+FORTISHIELD_DB_DIR = os.path.join(FORTISHIELD_PATH, 'queue', 'db')
+WDB_PATH = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'wdb'))
+ALERTS_JSON_PATH = os.path.join(FORTISHIELD_PATH, 'logs', 'alerts', 'alerts.json')
 
 SERVER_ADDRESS = 'localhost'
 CRYPTO = 'aes'
@@ -103,8 +103,8 @@ ids = [f"check_updates:{x['check_updates']}, check_delete:{x['check_delete']}, {
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                               'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_manager_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations_path = os.path.join(test_data_path, 'fortishield_manager_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=params, metadata=metadata)
 
 
@@ -127,7 +127,7 @@ def clean_alert_logs():
 
 
 def retrieve_rootcheck_rows(agent_id):
-    agent_db_path = os.path.join(WAZUH_DB_DIR, f'{agent_id}.db')
+    agent_db_path = os.path.join(FORTISHIELD_DB_DIR, f'{agent_id}.db')
     conn = sqlite3.connect(agent_db_path)
     cursor = conn.cursor()
     cursor.execute("select * from pm_event")
@@ -170,7 +170,7 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
                  Lastly, the tests also checks if the logs are deleted from the database when sending the delete
                  table request.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -191,7 +191,7 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
         - Verify that rootcheck events are added into the database
         - Verify that the rootcheck events are updated on the database
         - Verify that the rootcheck events are deletet from the database
-    input_description: Different test cases are contained in an external YAML file (wazuh_manager_conf.yaml)
+    input_description: Different test cases are contained in an external YAML file (fortishield_manager_conf.yaml)
                        which includes configuration settings for the 'rootcheck' module.
     expected_output:
         - r'.*not found in Database'
@@ -199,7 +199,7 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
         - r'.*not found in Database'
         - First time in log was updated after insertion
         - Updated time in log was not updated
-        - Wazuh DB returned an error trying to delete the agent
+        - Fortishield DB returned an error trying to delete the agent
         - Rootcheck events were not deleted
 
     tags:
@@ -223,7 +223,7 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
     for injector in injectors:
         injector.stop_receive()
 
-    # Service needs to be stopped otherwise db lock will be held by Wazuh db
+    # Service needs to be stopped otherwise db lock will be held by Fortishield db
     control_service('stop')
 
     # Check that logs have been added to the sql database
@@ -261,7 +261,7 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
         for injector in injectors:
             injector.stop_receive()
 
-        # Service needs to be stopped otherwise db lock will be held by Wazuh db
+        # Service needs to be stopped otherwise db lock will be held by Fortishield db
         control_service('stop')
 
         # Check that logs have been updated
@@ -284,13 +284,13 @@ def test_rootcheck(get_configuration, configure_environment, restart_service,
 
         for agent in agents:
             response = send_delete_table_request(agent.id)
-            assert response.startswith(b'ok'), "Wazuh DB returned an error " \
+            assert response.startswith(b'ok'), "Fortishield DB returned an error " \
                                                "trying to delete the agent"
 
         # Wait 5 seconds
         time.sleep(5)
 
-        # Service needs to be stopped otherwise db lock will be held by Wazuh db
+        # Service needs to be stopped otherwise db lock will be held by Fortishield db
         control_service('stop')
 
         # Check that logs have been deleted

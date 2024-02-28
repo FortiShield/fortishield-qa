@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import hashlib
@@ -11,21 +11,21 @@ from time import sleep
 import pytest
 
 from system import restart_cluster, remove_cluster_agents
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.system import HostManager
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.system import HostManager
 
 
 pytestmark = [pytest.mark.basic_cluster_env]
 
 # Test variables
 
-test_hosts = ['wazuh-master', 'wazuh-worker1', 'wazuh-worker2']
-agent_groups = {'wazuh-agent1': ['default', 'test_mg_0'],
-                'wazuh-agent2': ['default', 'test_mg_1']}
-test_infra_agents = ['wazuh-agent1', 'wazuh-agent2']
+test_hosts = ['fortishield-master', 'fortishield-worker1', 'fortishield-worker2']
+agent_groups = {'fortishield-agent1': ['default', 'test_mg_0'],
+                'fortishield-agent2': ['default', 'test_mg_1']}
+test_infra_agents = ['fortishield-agent1', 'fortishield-agent2']
 
-shared_folder_path = os.path.join(WAZUH_PATH, 'etc', 'shared')
-mg_folder_path = os.path.join(WAZUH_PATH, 'var', 'multigroups')
+shared_folder_path = os.path.join(FORTISHIELD_PATH, 'etc', 'shared')
+mg_folder_path = os.path.join(FORTISHIELD_PATH, 'var', 'multigroups')
 inventory_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'provisioning',
                               'basic_cluster', 'inventory.yml')
 host_manager = HostManager(inventory_path)
@@ -192,7 +192,7 @@ def test_multigroups_not_reloaded(clean_environment, start_agents, agent_healthc
 
 
 @pytest.mark.parametrize('target_group', [
-    agent_groups['wazuh-agent1'][1],
+    agent_groups['fortishield-agent1'][1],
     'default'
 ])
 def test_multigroups_updated(clean_environment, start_agents, agent_healthcheck, create_multigroups, target_group):
@@ -254,7 +254,7 @@ def test_multigroups_deleted(clean_environment, start_agents, agent_healthcheck,
 
         for group in groups:
             if group != 'default':
-                if agent_name == 'wazuh-agent1':
+                if agent_name == 'fortishield-agent1':
                     # Unassign agent.
                     response = host_manager.make_api_call(host=test_hosts[0], token=get_api_token(), method='DELETE',
                                                           endpoint=f"/agents/{agent_id}/group/{group}")

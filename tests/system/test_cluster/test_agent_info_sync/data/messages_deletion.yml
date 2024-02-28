@@ -1,9 +1,9 @@
 ---
-wazuh-worker2:
+fortishield-worker2:
   - regex: '.*Updating local files: End'
     path: "/var/ossec/logs/cluster.log"
     timeout: 60
-wazuh-agent3:
+fortishield-agent3:
   - regex: '.*Trying to connect to server.*'
     path: "/var/ossec/logs/ossec.log"
     timeout: 60

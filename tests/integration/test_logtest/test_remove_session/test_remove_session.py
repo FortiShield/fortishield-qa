@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logtest' tool allows the testing and verification of rules and decoders against provided log examples
-       remotely inside a sandbox in 'wazuh-analysisd'. This functionality is provided by the manager, whose work
+brief: The 'fortishield-logtest' tool allows the testing and verification of rules and decoders against provided log examples
+       remotely inside a sandbox in 'fortishield-analysisd'. This functionality is provided by the manager, whose work
        parameters are configured in the ossec.conf file in the XML rule_test section. Test logs can be evaluated through
-       the 'wazuh-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
+       the 'fortishield-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
        configuration is valid. Also checks rules, decoders, decoders, alerts matching logs correctly.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -39,11 +39,11 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/index.html
-    - https://documentation.wazuh.com/current/user-manual/ruleset/testing.html?highlight=logtest
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/logtest-configuration.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/ruleset/testing.html?highlight=logtest
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/logtest-configuration.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - logtest_configuration
@@ -53,9 +53,9 @@ import os
 
 import pytest
 import yaml
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.monitoring import SocketController
-from wazuh_testing.tools.monitoring import close_sockets
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.monitoring import SocketController
+from fortishield_testing.tools.monitoring import close_sockets
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
@@ -68,7 +68,7 @@ with open(messages_path) as f:
     test_cases = yaml.safe_load(f)
 
 # Variables
-logtest_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'logtest'))
+logtest_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'logtest'))
 receiver_sockets_params = [(logtest_path, 'AF_UNIX', 'TCP')]
 receiver_sockets = None  # Set in the fixtures
 
@@ -98,18 +98,18 @@ def create_session():
 def test_remove_session(restart_required_logtest_daemons, wait_for_logtest_startup, connect_to_sockets_function,
                         test_case: list):
     '''
-    description: Check if 'wazuh-logtest' correctly detects and removes the sessions under pre-defined scenarios.
+    description: Check if 'fortishield-logtest' correctly detects and removes the sessions under pre-defined scenarios.
                  To do this, the session input is sent and the output is received, then it checks if the received data
                  within the logtest socket is the same that the test case expected output.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - restart_required_logtest_daemons:
             type: fixture
-            brief: Wazuh logtests daemons handler.
+            brief: Fortishield logtests daemons handler.
         - wait_for_logtest_startup:
             type: fixture
             brief: Wait until logtest has begun.

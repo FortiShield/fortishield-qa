@@ -50,78 +50,78 @@
         networks:
           - name: "{{ docker_network }}"
       with_items:
-        - { name: "wazuh-agent1"}
-        - { name: "wazuh-agent2"}
-        - { name: "wazuh-agent3"}
-        - { name: "wazuh-agent4"}
-        - { name: "wazuh-agent5"}
-        - { name: "wazuh-agent6"}
-        - { name: "wazuh-agent7"}
-        - { name: "wazuh-agent8"}
-        - { name: "wazuh-agent9"}
-        - { name: "wazuh-agent10"}
-        - { name: "wazuh-agent11"}
-        - { name: "wazuh-agent12"}
-        - { name: "wazuh-agent13"}
-        - { name: "wazuh-agent14"}
-        - { name: "wazuh-agent15"}
-        - { name: "wazuh-agent16"}
-        - { name: "wazuh-agent17"}
-        - { name: "wazuh-agent18"}
-        - { name: "wazuh-agent19"}
-        - { name: "wazuh-agent20"}
-        - { name: "wazuh-agent21"}
-        - { name: "wazuh-agent22"}
-        - { name: "wazuh-agent23"}
-        - { name: "wazuh-agent24"}
-        - { name: "wazuh-agent25"}
-        - { name: "wazuh-agent26"}
-        - { name: "wazuh-agent27"}
-        - { name: "wazuh-agent28"}
-        - { name: "wazuh-agent29"}
-        - { name: "wazuh-agent30"}
-        - { name: "wazuh-agent31"}
-        - { name: "wazuh-agent32"}
-        - { name: "wazuh-agent33"}
-        - { name: "wazuh-agent34"}
-        - { name: "wazuh-agent35"}
-        - { name: "wazuh-agent36"}
-        - { name: "wazuh-agent37"}
-        - { name: "wazuh-agent38"}
-        - { name: "wazuh-agent39"}
-        - { name: "wazuh-agent40"}
+        - { name: "fortishield-agent1"}
+        - { name: "fortishield-agent2"}
+        - { name: "fortishield-agent3"}
+        - { name: "fortishield-agent4"}
+        - { name: "fortishield-agent5"}
+        - { name: "fortishield-agent6"}
+        - { name: "fortishield-agent7"}
+        - { name: "fortishield-agent8"}
+        - { name: "fortishield-agent9"}
+        - { name: "fortishield-agent10"}
+        - { name: "fortishield-agent11"}
+        - { name: "fortishield-agent12"}
+        - { name: "fortishield-agent13"}
+        - { name: "fortishield-agent14"}
+        - { name: "fortishield-agent15"}
+        - { name: "fortishield-agent16"}
+        - { name: "fortishield-agent17"}
+        - { name: "fortishield-agent18"}
+        - { name: "fortishield-agent19"}
+        - { name: "fortishield-agent20"}
+        - { name: "fortishield-agent21"}
+        - { name: "fortishield-agent22"}
+        - { name: "fortishield-agent23"}
+        - { name: "fortishield-agent24"}
+        - { name: "fortishield-agent25"}
+        - { name: "fortishield-agent26"}
+        - { name: "fortishield-agent27"}
+        - { name: "fortishield-agent28"}
+        - { name: "fortishield-agent29"}
+        - { name: "fortishield-agent30"}
+        - { name: "fortishield-agent31"}
+        - { name: "fortishield-agent32"}
+        - { name: "fortishield-agent33"}
+        - { name: "fortishield-agent34"}
+        - { name: "fortishield-agent35"}
+        - { name: "fortishield-agent36"}
+        - { name: "fortishield-agent37"}
+        - { name: "fortishield-agent38"}
+        - { name: "fortishield-agent39"}
+        - { name: "fortishield-agent40"}
 
 
-- name: Wazuh Master
-  hosts: wazuh-master
+- name: Fortishield Master
+  hosts: fortishield-master
   vars:
-    master_hostname: "wazuh-master"
+    master_hostname: "fortishield-master"
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/master-role"
 
-- name: Wazuh Worker1
-  hosts: wazuh-worker1
+- name: Fortishield Worker1
+  hosts: fortishield-worker1
   vars:
-    worker_name: wazuh-worker1
+    worker_name: fortishield-worker1
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/worker-role"
 
-- name: Wazuh Worker2
-  hosts: wazuh-worker2
+- name: Fortishield Worker2
+  hosts: fortishield-worker2
   vars:
-    worker_name: wazuh-worker2
+    worker_name: fortishield-worker2
   vars_files:
     - ./vars/configurations.yml
   roles:
     - name: "roles/worker-role"
 
-- name: Wazuh Agents
+- name: Fortishield Agents
   hosts: agents
   vars:
-    manager_hostname: wazuh-master
+    manager_hostname: fortishield-master
   roles:
     - name: "roles/agent-role"

@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-agentd' program is the client-side daemon that communicates with the server.
-       The objective is to check how the 'wazuh-agentd' daemon behaves when there are delays
-       between connection attempts to the 'wazuh-remoted' daemon using TCP and UDP protocols.
-       The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
+brief: The 'fortishield-agentd' program is the client-side daemon that communicates with the server.
+       The objective is to check how the 'fortishield-agentd' daemon behaves when there are delays
+       between connection attempts to the 'fortishield-remoted' daemon using TCP and UDP protocols.
+       The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
 
 components:
     - agentd
@@ -19,9 +19,9 @@ targets:
     - agent
 
 daemons:
-    - wazuh-agentd
-    - wazuh-authd
-    - wazuh-remoted
+    - fortishield-agentd
+    - fortishield-authd
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -50,7 +50,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/index.html
 
 tags:
     - enrollment
@@ -61,19 +61,19 @@ import platform
 import pytest
 from time import sleep
 
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import QueueMonitor, FileMonitor
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import QueueMonitor, FileMonitor
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.agent import CLIENT_KEYS_PATH, SERVER_CERT_PATH, SERVER_KEY_PATH
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), pytest.mark.agent]
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 
 params = [
     # Different parameters on UDP
@@ -94,7 +94,7 @@ case_ids = [f"{x['PROTOCOL']}_max-retry={x['MAX_RETRIES']}_interval={x['RETRY_IN
             for x in params]
 
 metadata = params
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 log_monitor_paths = []
 receiver_sockets_params = []
 monitored_sockets_params = []
@@ -115,10 +115,10 @@ def teardown():
 def set_debug_mode():
     """Set debug2 for agentd in local internal options file."""
     if platform.system() == 'win32' or platform.system() == 'Windows':
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'local_internal_options.conf')
         debug_line = 'windows.debug=2\n'
     else:
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'etc', 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'etc', 'local_internal_options.conf')
         debug_line = 'agent.debug=2\n'
     with open(local_int_conf_path) as local_file_read:
         lines = local_file_read.readlines()
@@ -187,13 +187,13 @@ def set_keys(request):
 
 @pytest.fixture(scope="function")
 def start_agent(request):
-    """Start Wazuh's agent."""
+    """Start Fortishield's agent."""
     control_service('start')
 
 
 @pytest.fixture(scope="function")
 def stop_agent(request):
-    """Stop Wazuh's agent."""
+    """Stop Fortishield's agent."""
     control_service('stop')
 
 
@@ -268,9 +268,9 @@ def change_timeout(new_value):
     """
     new_timeout = 'agent.recv_timeout=' + new_value
     if platform.system() == 'win32' or platform.system() == 'Windows':
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'local_internal_options.conf')
     else:
-        local_int_conf_path = os.path.join(WAZUH_PATH, 'etc', 'local_internal_options.conf')
+        local_int_conf_path = os.path.join(FORTISHIELD_PATH, 'etc', 'local_internal_options.conf')
     with open(local_int_conf_path, 'r') as local_file_read:
         lines = local_file_read.readlines()
         for line in lines:
@@ -317,20 +317,20 @@ def test_agentd_parametrized_reconnections(configure_authd_server, start_authd, 
                  attempts to the server. For this purpose, different values for
                  'max_retries' and 'retry_interval' parameters are tested.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_authd_server:
             type: fixture
-            brief: Initializes a simulated 'wazuh-authd' connection.
+            brief: Initializes a simulated 'fortishield-authd' connection.
         - start_authd:
             type: fixture
-            brief: Enable the 'wazuh-authd' daemon to accept connections and perform enrollments.
+            brief: Enable the 'fortishield-authd' daemon to accept connections and perform enrollments.
         - stop_agent:
             type: fixture
-            brief: Stop Wazuh's agent.
+            brief: Stop Fortishield's agent.
         - set_keys:
             type: fixture
             brief: Write to 'client.keys' file the agent's enrollment details.
@@ -345,12 +345,12 @@ def test_agentd_parametrized_reconnections(configure_authd_server, start_authd, 
             brief: Stop the Remoted server
 
     assertions:
-        - Verify that when the 'wazuh-agentd' daemon initializes, it connects to
-          the 'wazuh-remoted' daemon of the manager before reaching the maximum number of attempts.
+        - Verify that when the 'fortishield-agentd' daemon initializes, it connects to
+          the 'fortishield-remoted' daemon of the manager before reaching the maximum number of attempts.
         - Verify the successful enrollment of the agent if the auto-enrollment option is enabled.
         - Verify that the rollback feature of the server works correctly.
 
-    input_description: An external YAML file (wazuh_conf.yaml) includes configuration settings for the agent.
+    input_description: An external YAML file (fortishield_conf.yaml) includes configuration settings for the agent.
                        Different test cases are found in the test module and include parameters
                        for the environment setup using the TCP and UDP protocols.
 

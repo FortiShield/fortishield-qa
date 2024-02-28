@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2022, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2022, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 import os
 import ansible_runner
@@ -7,8 +7,8 @@ import pytest
 import json
 import yaml
 
-from wazuh_testing.tools.file import remove_file
-from wazuh_testing import end_to_end as e2e
+from fortishield_testing.tools.file import remove_file
+from fortishield_testing import end_to_end as e2e
 
 
 suite_path = os.path.dirname(os.path.realpath(__file__))
@@ -37,7 +37,7 @@ def validate_inventory(inventory_path, target_hosts):
 
     This function checks:
         1. If the groups/subgroups in the inventory are in our list of valid groups.
-        2. If the hostnames follow our standard (<os>-<wazuh-installation-type>)
+        2. If the hostnames follow our standard (<os>-<fortishield-installation-type>)
 
     Args:
         inventory_path (str): Path to Ansible inventory.
@@ -64,7 +64,7 @@ def validate_inventory(inventory_path, target_hosts):
         if host not in inventory_hosts:
             missing_hosts.extend([host])
     if missing_hosts != []:
-        readme_file = '[README.md](https://github.com/wazuh/wazuh-qa/blob/master/tests/end_to_end/README.md)'
+        readme_file = '[README.md](https://github.com/fortishield/fortishield-qa/blob/master/tests/end_to_end/README.md)'
         raise Exception(f"Not all the hosts required to run the tests are present in the inventory.\n"
                         f"Hosts in the inventory: {inventory_hosts}\n"
                         f"Expected hosts: {target_hosts}\n"
@@ -195,7 +195,7 @@ def clean_alerts_index(get_indexer_credentials, get_manager_ip):
     """Remove the temporary file that contains the alerts and delete indices using the API.
 
       Args:
-          credentials (dict): wazuh-indexer credentials.
+          credentials (dict): fortishield-indexer credentials.
     """
     yield
     remove_file(e2e.fetched_alerts_json_path)
@@ -204,10 +204,10 @@ def clean_alerts_index(get_indexer_credentials, get_manager_ip):
 
 @pytest.fixture(scope='module')
 def get_indexer_credentials(request):
-    """Get wazuh-indexer username and password.
+    """Get fortishield-indexer username and password.
 
        Returns:
-            dict: wazuh-indexer credentials.
+            dict: fortishield-indexer credentials.
     """
     inventory_playbook = request.config.getoption('--inventory-path')
 

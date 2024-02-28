@@ -1,27 +1,27 @@
 - name: Download agent package
   get_url:
-    url: "{{ wazuh_custom_packages_installation_agent_macos_url }}"
+    url: "{{ fortishield_custom_packages_installation_agent_macos_url }}"
     dest: /Users/vagrant
     validate_certs: no
 
 - include_tasks: "installation_from_custom_packages.yml"
-  when: wazuh_custom_packages_installation_agent_enabled
+  when: fortishield_custom_packages_installation_agent_enabled
 
 - name: macOS | Set agent configuration (ossec.conf)
   template:
     src: var-ossec-etc-ossec-agent.conf.j2
-    dest: "{{ macos_wazuh_dir }}/etc/ossec.conf"
+    dest: "{{ macos_fortishield_dir }}/etc/ossec.conf"
     owner: root
-    group: wazuh
+    group: fortishield
     mode: 0644
-  notify: MacOS | restart wazuh-agent
+  notify: MacOS | restart fortishield-agent
   tags:
     - init
     - config
 
 - name: macOS | Check if client.keys exists
   stat:
-    path: "{{ macos_wazuh_dir }}/etc/client.keys"
+    path: "{{ macos_fortishield_dir }}/etc/client.keys"
   register: client_keys_file
   tags:
     - config
@@ -29,11 +29,11 @@
 - name: macOS | Set local_internal_options.conf
   template:
     src: var-ossec-etc-local-internal-options.conf.j2
-    dest: "{{ macos_wazuh_dir }}/etc/local_internal_options.conf"
+    dest: "{{ macos_fortishield_dir }}/etc/local_internal_options.conf"
     owner: root
-    group: wazuh
+    group: fortishield
     mode: 0640
-  notify: MacOS | restart wazuh-agent
+  notify: MacOS | restart fortishield-agent
   tags:
     - init
     - config
@@ -41,13 +41,13 @@
 - name: Create auto-enrollment password file
   template:
     src: authd_pass.j2
-    dest: "{{ macos_wazuh_dir }}/etc/authd.pass"
-    owner: wazuh
-    group: wazuh
+    dest: "{{ macos_fortishield_dir }}/etc/authd.pass"
+    owner: fortishield
+    group: fortishield
     mode: 0640
   when:
-    - wazuh_agent_config.enrollment.enabled == 'yes'
-    - wazuh_agent_config.enrollment.authorization_pass_path | length > 0
+    - fortishield_agent_config.enrollment.enabled == 'yes'
+    - fortishield_agent_config.enrollment.authorization_pass_path | length > 0
     - authd_pass | length > 0
   tags:
     - config

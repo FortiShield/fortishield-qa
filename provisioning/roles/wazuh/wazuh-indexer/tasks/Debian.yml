@@ -11,37 +11,37 @@
   when: (ansible_facts['distribution'] == "Debian" and ansible_facts['distribution_major_version'] == "9")
   block:
 
-    - name: Install Wazuh indexer dependencies
+    - name: Install Fortishield indexer dependencies
       apt:
         name: [
           'unzip', 'wget', 'curl', 'apt-transport-https', software-properties-common
         ]
         state: present
 
-- name: Install wazuh-indexer
+- name: Install fortishield-indexer
   block:
-    - name: Add Wazuh indexer repository
+    - name: Add Fortishield indexer repository
       block:
         - name: Add apt repository signing key
           apt_key:
-            url: "{{ wazuh_repo.gpg }}"
+            url: "{{ fortishield_repo.gpg }}"
             state: present
 
-        - name: Add Wazuh indexer repository
+        - name: Add Fortishield indexer repository
           apt_repository:
-            repo: "{{ wazuh_repo.apt }}"
+            repo: "{{ fortishield_repo.apt }}"
             state: present
-            filename: 'wazuh-indexer'
+            filename: 'fortishield-indexer'
             update_cache: yes
 
-    - name: Install Wazuh indexer
+    - name: Install Fortishield indexer
       apt:
-        name: wazuh-indexer={{ indexer_version }}-1
+        name: fortishield-indexer={{ indexer_version }}-1
         state: present
       register: install
       tags: install
-  when: not wazuh_custom_packages_installation_indexer_enabled
+  when: not fortishield_custom_packages_installation_indexer_enabled
 
 - include_tasks: "install_from_custom_package.yml"
   when:
-    - wazuh_custom_packages_installation_indexer_enabled
+    - fortishield_custom_packages_installation_indexer_enabled

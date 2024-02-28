@@ -1,3 +1,3 @@
-# Wazuh DB
-This tests are aimed to test all the functionality of WazuhDB Daemon.
+# Fortishield DB
+This tests are aimed to test all the functionality of FortishieldDB Daemon.
 They will...

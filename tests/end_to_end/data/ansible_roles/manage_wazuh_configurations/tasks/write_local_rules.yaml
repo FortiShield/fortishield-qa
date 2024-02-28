@@ -2,7 +2,7 @@
 # -------------------
 #
 # GENERIC:
-#  - (String) config_block: Custom Wazuh rules
+#  - (String) config_block: Custom Fortishield rules
 
 - name: Configure local rules
   become: true

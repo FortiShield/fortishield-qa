@@ -1,14 +1,14 @@
 all:
   hosts:
-    wazuh-manager:
+    fortishield-manager:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-agent1:
+    fortishield-agent1:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-agent2:
+    fortishield-agent2:
       ansible_connection: docker
       ansible_python_interpreter: python
-    wazuh-agent3:
+    fortishield-agent3:
       ansible_connection: docker
       ansible_python_interpreter: python

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        files are modified. Specifically, these tests will check if FIM enable the synchronization
        of file/registry on Windows systems when the 'enabled' tag of the synchronization option is
        set to 'yes'.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,8 +39,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#synchronization
 
 pytest_args:
     - fim_mode:
@@ -58,16 +58,16 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import global_parameters, DATA, LOG_FILE_PATH, REGULAR
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.file import create_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.utils import generate_params
-from wazuh_testing.modules.fim import (TEST_DIR_1, WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY,
+from fortishield_testing import global_parameters, DATA, LOG_FILE_PATH, REGULAR
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.file import create_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.utils import generate_params
+from fortishield_testing.modules.fim import (TEST_DIR_1, WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY,
                                        YAML_CONF_SYNC_WIN32, TEST_DIRECTORIES, TEST_REGISTRIES,
                                        SYNCHRONIZATION_ENABLED, SYNCHRONIZATION_REGISTRY_ENABLED)
-from wazuh_testing.modules.fim.event_monitor import (callback_detect_registry_integrity_event,
+from fortishield_testing.modules.fim.event_monitor import (callback_detect_registry_integrity_event,
                                                      callback_detect_file_integrity_event)
 
 # Marks
@@ -83,7 +83,7 @@ configurations_path = os.path.join(test_data_path, YAML_CONF_SYNC_WIN32)
 test_directories = [os.path.join(PREFIX, TEST_DIR_1)]
 test_regs = [os.path.join(WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY)]
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 conf_params = {TEST_DIRECTORIES: test_directories[0],
                TEST_REGISTRIES: test_regs[0],
@@ -94,7 +94,7 @@ conf_params = {TEST_DIRECTORIES: test_directories[0],
 
 parameters, metadata = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 
 
 # fixtures
@@ -114,12 +114,12 @@ def create_a_file(get_configuration):
 def test_sync_enabled(get_configuration, configure_environment, create_a_file, restart_syscheckd,
                       wait_for_fim_start_sync):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon uses the value of the 'enabled' tag to start/stop
+    description: Check if the 'fortishield-syscheckd' daemon uses the value of the 'enabled' tag to start/stop
                  the file/registry synchronization. For this purpose, the test will monitor a directory/key.
                  Finally, it will verify that the FIM 'integrity' event generated corresponds with a
                  file or a registry when the synchronization is enabled, depending on the test case.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -144,8 +144,8 @@ def test_sync_enabled(get_configuration, configure_environment, create_a_file, r
         - Verify that FIM 'integrity' events generated correspond to a file/registry depending on
           the value of the 'enabled' and the 'registry_enabled' tags (synchronization enabled).
 
-    input_description: Different test cases are contained in external YAML file (wazuh_sync_conf_win32.yaml)
-                       which includes configuration settings for the 'wazuh-syscheckd' daemon. That is combined with
+    input_description: Different test cases are contained in external YAML file (fortishield_sync_conf_win32.yaml)
+                       which includes configuration settings for the 'fortishield-syscheckd' daemon. That is combined with
                        the testing directory/key to be monitored defined in this module.
 
     expected_output:
@@ -155,13 +155,13 @@ def test_sync_enabled(get_configuration, configure_environment, create_a_file, r
         - scheduled
     '''
     # The file synchronization event should be triggered
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                                     callback=callback_detect_file_integrity_event, update_position=True).result()
 
     assert event['component'] == 'fim_file', 'Did not recieve the expected "fim_file" event'
 
     # The registry synchronization event should be triggered
-    event = wazuh_log_monitor.start(timeout=global_parameters.default_timeout, update_position=True,
+    event = fortishield_log_monitor.start(timeout=global_parameters.default_timeout, update_position=True,
                                     callback=callback_detect_registry_integrity_event).result()
 
     assert event['component'] == 'fim_registry_key', 'Did not recieve the expected "fim_registry_key" event'

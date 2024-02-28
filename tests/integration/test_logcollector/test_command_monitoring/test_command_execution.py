@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logcollector' daemon monitors configured files and commands for new log messages.
+brief: The 'fortishield-logcollector' daemon monitors configured files and commands for new log messages.
        Specifically, these tests will check if commands with different characteristics are executed
        correctly by the logcollector. They will also check if the 'info' and 'debug' lines are
        written in the logs when running these commands.
@@ -26,7 +26,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-logcollector
+    - fortishield-logcollector
 
 os_platform:
     - linux
@@ -49,10 +49,10 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/log-data-collection/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#command
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#alias
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/localfile.html#log-format
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/log-data-collection/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#command
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#alias
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/localfile.html#log-format
 
 tags:
     - logcollector_cmd_exec
@@ -61,18 +61,18 @@ import os
 import pytest
 import sys
 
-from wazuh_testing.tools import monitoring, LOG_FILE_PATH
-from wazuh_testing import global_parameters
-import wazuh_testing.logcollector as logcollector
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import LOG_COLLECTOR_DETECTOR_PREFIX
+from fortishield_testing.tools import monitoring, LOG_FILE_PATH
+from fortishield_testing import global_parameters
+import fortishield_testing.logcollector as logcollector
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import LOG_COLLECTOR_DETECTOR_PREFIX
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.darwin, pytest.mark.sunos5, pytest.mark.tier(level=0)]
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_command_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield.github.iomand_conf.yaml')
 
 local_internal_options = {
     'logcollector.remote_commands': '1',
@@ -138,7 +138,7 @@ if sys.platform == 'linux':
     metadata.append({'log_format': 'full_command', 'command': 'ss -l -p -u -t -4 -6 -n', 'alias': '',
                      'info': 'many_arguments'})
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"{x['log_format']}_{x['info']}" for x in metadata]
 
 
@@ -152,21 +152,21 @@ def get_configuration(request):
 def test_command_execution(configure_local_internal_options_module, get_configuration,
                            configure_environment, file_monitoring, restart_logcollector):
     '''
-    description: Check if the 'wazuh-logcollector' daemon runs commands with special characteristics.
+    description: Check if the 'fortishield-logcollector' daemon runs commands with special characteristics.
                  For this purpose, the test will configure the logcollector to run a command, setting
                  it in the 'command' tag and using the 'command' and 'full_command' log formats.
                  The properties of that command can be, for example, a non-existent command or one that
                  includes special characters. Finally, the test will verify that the event, indicating
                  that the command is executed, has been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - configure_local_internal_options_module:
             type: fixture
-            brief: Configure the Wazuh local internal options.
+            brief: Configure the Fortishield local internal options.
         - get_configuration:
             type: fixture
             brief: Get configurations from the module.
@@ -184,12 +184,12 @@ def test_command_execution(configure_local_internal_options_module, get_configur
         - Verify that the logcollector runs the command specified in the 'command' tag.
 
     input_description: A configuration template (test_command_execution) is contained in an external
-                       YAML file (wazuh_command_conf.yaml), which includes configuration settings for
-                       the 'wazuh-logcollector' daemon and, it is combined with the test cases
+                       YAML file (fortishield.github.iomand_conf.yaml), which includes configuration settings for
+                       the 'fortishield-logcollector' daemon and, it is combined with the test cases
                        (log formats and commands to run) defined in the module.
 
     expected_output:
-        - r'.*wazuh-logcollector.*' (this log must indicate the command executed)
+        - r'.*fortishield-logcollector.*' (this log must indicate the command executed)
 
     tags:
         - logs
@@ -197,7 +197,7 @@ def test_command_execution(configure_local_internal_options_module, get_configur
     config = get_configuration['metadata']
     msg = config['command']
 
-    wazuh_log_monitor.start(timeout=global_parameters.default_timeout,
+    fortishield_log_monitor.start(timeout=global_parameters.default_timeout,
                             error_message=logcollector.GENERIC_CALLBACK_ERROR_COMMAND_MONITORING,
                             callback=monitoring.make_callback(pattern=msg,
                                                               prefix=LOG_COLLECTOR_DETECTOR_PREFIX,

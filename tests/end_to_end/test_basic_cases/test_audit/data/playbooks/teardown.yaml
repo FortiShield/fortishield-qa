@@ -2,10 +2,10 @@
   hosts: manager
   tasks:
 
-    - name: Delete wazuh audit rules file
+    - name: Delete fortishield audit rules file
       become: true
       file:
-        path: /etc/audit/rules.d/wazuh.rules
+        path: /etc/audit/rules.d/fortishield.rules
         state: absent
 
     - name: Delete audit rules

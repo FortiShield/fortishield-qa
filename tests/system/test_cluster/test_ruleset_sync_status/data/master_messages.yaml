@@ -1,4 +1,4 @@
-wazuh-master:
+fortishield-master:
   - regex: .*\[Local integrity\] Starting.*
     path: /var/ossec/logs/cluster.log
     timeout: 120

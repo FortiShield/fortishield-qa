@@ -1,12 +1,12 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-remoted' program is the server side daemon that communicates with the agents.
-       Specifically, this test will check if 'wazuh-remoted' can receive syslog messages through
+brief: The 'fortishield-remoted' program is the server side daemon that communicates with the agents.
+       Specifically, this test will check if 'fortishield-remoted' can receive syslog messages through
        the socket.
 
 components:
@@ -18,7 +18,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-remoted
+    - fortishield-remoted
 
 os_platform:
     - linux
@@ -39,7 +39,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-remoted.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-remoted.html
 
 tags:
     - remoted
@@ -47,19 +47,19 @@ tags:
 import os
 
 import pytest
-import wazuh_testing.remote as remote
-from wazuh_testing import is_udp
-from wazuh_testing.tools.configuration import load_wazuh_configurations
+import fortishield_testing.remote as remote
+from fortishield_testing import is_udp
+from fortishield_testing.tools.configuration import load_fortishield_configurations
 
 # Marks
 pytestmark = pytest.mark.tier(level=0)
 
 # Configuration
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_syslog.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_syslog.yaml')
 
 syslog_messages = {
-    'dummy': "Syslog message sent by wazuh-qa to test remoted syslog",
+    'dummy': "Syslog message sent by fortishield-qa to test remoted syslog",
     'failed_login_sshd': remote.EXAMPLE_INVALID_USER_LOG_EVENT,
     'failed_login_sshd_pri_header': f"<1>{remote.EXAMPLE_INVALID_USER_LOG_EVENT}",
     'multi_log_failed_login_sshd_logon_success':
@@ -96,7 +96,7 @@ metadata = [
     {'protocol': 'tcp', 'port': 51000}
 ]
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=parameters, metadata=metadata)
 configuration_ids = [f"syslog_{x['PROTOCOL']}_{x['PORT']}" for x in parameters]
 
 
@@ -108,11 +108,11 @@ def get_configuration(request):
 
 
 @pytest.mark.parametrize("message", syslog_messages.keys())
-def test_syslog_message(message, get_configuration, configure_environment, restart_wazuh):
+def test_syslog_message(message, get_configuration, configure_environment, restart_fortishield):
     '''
-    description: Check if 'wazuh-remoted' can receive syslog messages through the socket.
+    description: Check if 'fortishield-remoted' can receive syslog messages through the socket.
     
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -128,14 +128,14 @@ def test_syslog_message(message, get_configuration, configure_environment, resta
             brief: Configure a custom environment for testing.
         - restart_remoted:
             type: fixture
-            brief: Restart 'wazuh-remoted' daemon in manager.
+            brief: Restart 'fortishield-remoted' daemon in manager.
     
     assertions:
         - Verify the syslog message is received.
     
     input_description: A configuration template (test_syslog_message) is contained in an external YAML file,
-                       (wazuh_syslog.yaml). That template is combined with different test cases defined
-                       in the module. Those include configuration settings for the 'wazuh-remoted' daemon
+                       (fortishield_syslog.yaml). That template is combined with different test cases defined
+                       in the module. Those include configuration settings for the 'fortishield-remoted' daemon
                        and agents info.
     
     expected_output:
@@ -149,12 +149,12 @@ def test_syslog_message(message, get_configuration, configure_environment, resta
         pytest.skip('UDP only supports one message per datagram.')
 
     # Monitor the archives.log
-    wazuh_archives_log_monitor = remote.create_archives_log_monitor()
+    fortishield_archives_log_monitor = remote.create_archives_log_monitor()
 
     # Check if remoted correctly started with the new conf
     log_callback = remote.callback_detect_remoted_started(port=port, protocol=protocol, connection_type='syslog')
-    wazuh_log_monitor.start(timeout=5, callback=log_callback, update_position=False,
-                            error_message="Wazuh remoted didn't start as expected.")
+    fortishield_log_monitor.start(timeout=5, callback=log_callback, update_position=False,
+                            error_message="Fortishield remoted didn't start as expected.")
 
-    # Check if wazuh-remoted receives syslog messages
-    remote.check_syslog_event(wazuh_archives_log_monitor, syslog_messages[message], port, protocol)
+    # Check if fortishield-remoted receives syslog messages
+    remote.check_syslog_event(fortishield_archives_log_monitor, syslog_messages[message], port, protocol)

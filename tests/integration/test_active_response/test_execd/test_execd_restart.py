@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,7 +9,7 @@ type: integration
 
 brief: Active responses execute a script in response to the triggering of specific alerts based
        on the alert level or rule group. These tests will check if the 'active responses',
-       which are executed by the 'wazuh-execd' daemon via scripts, run correctly.
+       which are executed by the 'fortishield-execd' daemon via scripts, run correctly.
 
 components:
     - active_response
@@ -20,8 +20,8 @@ targets:
     - agent
 
 daemons:
-    - wazuh-analysisd
-    - wazuh-execd
+    - fortishield-analysisd
+    - fortishield-execd
 
 os_platform:
     - linux
@@ -42,7 +42,7 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/active-response/#active-response
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/active-response/#active-response
 '''
 import os
 import platform
@@ -50,36 +50,36 @@ import pytest
 import time
 import subprocess
 
-import wazuh_testing.execd as execd
-from wazuh_testing.tools import WAZUH_PATH, LOG_FILE_PATH
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.services import control_service
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.authd_sim import AuthdSimulator
-from wazuh_testing.tools.remoted_sim import RemotedSimulator
+import fortishield_testing.execd as execd
+from fortishield_testing.tools import FORTISHIELD_PATH, LOG_FILE_PATH
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.services import control_service
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.authd_sim import AuthdSimulator
+from fortishield_testing.tools.remoted_sim import RemotedSimulator
 
 pytestmark = [pytest.mark.linux, pytest.mark.win32, pytest.mark.tier(level=0), pytest.mark.agent]
 
 CURRENT_PLATFORM = platform.system()
 CONF_FOLDER = '' if CURRENT_PLATFORM == 'Windows' else 'etc'
-CLIENT_KEYS_PATH = os.path.join(WAZUH_PATH, CONF_FOLDER, 'client.keys')
-SERVER_KEY_PATH = os.path.join(WAZUH_PATH, CONF_FOLDER, 'manager.key')
-SERVER_CERT_PATH = os.path.join(WAZUH_PATH, CONF_FOLDER, 'manager.cert')
+CLIENT_KEYS_PATH = os.path.join(FORTISHIELD_PATH, CONF_FOLDER, 'client.keys')
+SERVER_KEY_PATH = os.path.join(FORTISHIELD_PATH, CONF_FOLDER, 'manager.key')
+SERVER_CERT_PATH = os.path.join(FORTISHIELD_PATH, CONF_FOLDER, 'manager.cert')
 CRYPTO = "aes"
 SERVER_ADDRESS = '127.0.0.1'
 PROTOCOL = "tcp"
 
 test_metadata = [
     {
-        'command': 'restart-wazuh0',
+        'command': 'restart-fortishield0',
         'rule_id': '554',
         'results': {
             'success': True,
         }
     },
     {
-        'command': 'restart-wazuh0',
+        'command': 'restart-fortishield0',
         'rule_id': '554',
         'results': {
             'success': False,
@@ -97,8 +97,8 @@ params = [
 ]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=test_metadata)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=test_metadata)
 
 remoted_simulator = None
 
@@ -134,7 +134,7 @@ def start_agent(request, get_configuration):
     try:
         control_service('stop')
         agent_auth_pat = 'bin' if platform.system() == 'Linux' else ''
-        subprocess.call([f'{WAZUH_PATH}/{agent_auth_pat}/agent-auth', '-m',
+        subprocess.call([f'{FORTISHIELD_PATH}/{agent_auth_pat}/agent-auth', '-m',
                         SERVER_ADDRESS])
         control_service('start')
 
@@ -156,9 +156,9 @@ def get_configuration(request):
 
 def wait_message_line(line):
     """Callback function to wait for Active Response JSON message."""
-    if CURRENT_PLATFORM == 'Windows' and "active-response/bin/restart-wazuh.exe: {\"version\"" in line:
+    if CURRENT_PLATFORM == 'Windows' and "active-response/bin/restart-fortishield.exe: {\"version\"" in line:
         return True
-    elif "active-response/bin/restart-wazuh: {\"version\"" in line:
+    elif "active-response/bin/restart-fortishield: {\"version\"" in line:
         return True
     return None
 
@@ -169,7 +169,7 @@ def wait_invalid_input_message_line(line):
 
 
 def wait_shutdown_message_line(line):
-    """Callback function to wait for Wazuh shutdown message."""
+    """Callback function to wait for Fortishield shutdown message."""
     return True if "Shutdown received. Deleting responses." in line else None
 
 
@@ -180,7 +180,7 @@ def build_message(metadata, expected):
         metadata (dict): Components must be: 'command' and 'rule_id'
         expected (dict): Only one component called 'success' with boolean value.
     """
-    origin = '"name":"","module":"wazuh-analysisd"'
+    origin = '"name":"","module":"fortishield-analysisd"'
     rules = f'"level":5,"description":"Test.","id":{metadata["rule_id"]}'
 
     if not expected['success']:
@@ -194,12 +194,12 @@ def build_message(metadata, expected):
 def test_execd_restart(set_debug_mode, get_configuration, test_version,
                        configure_environment, start_agent, set_ar_conf_mode):
     '''
-    description: Check if 'restart-wazuh' command of 'active response' is executed correctly.
+    description: Check if 'restart-fortishield' command of 'active response' is executed correctly.
                  For this purpose, a simulated agent is used, to which the active response is sent.
-                 This response includes the order to restart the Wazuh agent,
+                 This response includes the order to restart the Fortishield agent,
                  which must restart after receiving this response.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
@@ -212,7 +212,7 @@ def test_execd_restart(set_debug_mode, get_configuration, test_version,
             brief: Get configurations from the module.
         - test_version:
             type: fixture
-            brief: Validate Wazuh version.
+            brief: Validate Fortishield version.
         - configure_environment:
             type: fixture
             brief: Configure a custom environment for testing.
@@ -224,17 +224,17 @@ def test_execd_restart(set_debug_mode, get_configuration, test_version,
             brief: Configure Active Responses used in tests.
 
     assertions:
-        - Verify that the 'active response' 'restart-wazuh' is received.
+        - Verify that the 'active response' 'restart-fortishield' is received.
         - Verify that the agent is ready to restart.
 
     input_description: Different use cases are found in the test module and include
-                       parameters for 'restart-wazuh' command and the expected result.
+                       parameters for 'restart-fortishield' command and the expected result.
 
     expected_output:
         - r'DEBUG: Received message'
         - r'Shutdown received. Deleting responses.'
         - r'Starting'
-        - r'active-response/bin/restart-wazuh'
+        - r'active-response/bin/restart-fortishield'
         - r'Ended'
         - r'Invalid input format' (If the 'active response' fails)
 

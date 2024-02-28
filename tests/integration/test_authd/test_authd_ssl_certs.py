@@ -1,15 +1,15 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the 'wazuh-authd' daemon is able to handle secure connections using
-       the 'SSL' (Secure Socket Layer) protocol. The 'wazuh-authd' daemon can automatically add
-       a Wazuh agent to a Wazuh manager and provide the key to the agent.
+brief: These tests will check if the 'fortishield-authd' daemon is able to handle secure connections using
+       the 'SSL' (Secure Socket Layer) protocol. The 'fortishield-authd' daemon can automatically add
+       a Fortishield agent to a Fortishield manager and provide the key to the agent.
        It is used along with the 'agent-auth' application.
 
 components:
@@ -19,9 +19,9 @@ targets:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-db
-    - wazuh-modulesd
+    - fortishield-authd
+    - fortishield-db
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -38,8 +38,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-authd.html
-    - https://documentation.wazuh.com/current/user-manual/registering/host-verification-registration.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-authd.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/host-verification-registration.html
 
 tags:
     - enrollment
@@ -49,13 +49,13 @@ import ssl
 import time
 
 import pytest
-from wazuh_testing.tools import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import set_section_wazuh_conf, write_wazuh_conf, \
-    load_wazuh_configurations
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import SocketController, FileMonitor
-from wazuh_testing.tools.security import CertificateController
-from wazuh_testing.tools.services import control_service, check_daemon_status
+from fortishield_testing.tools import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import set_section_fortishield_conf, write_fortishield_conf, \
+    load_fortishield_configurations
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import SocketController, FileMonitor
+from fortishield_testing.tools.security import CertificateController
+from fortishield_testing.tools.services import control_service, check_daemon_status
 
 # Marks
 
@@ -63,7 +63,7 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
 
 # Configurations
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_authd_configuration.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_authd_configuration.yaml')
 
 SSL_AGENT_CA = '/var/ossec/etc/test_rootCA.pem'
 SSL_AGENT_CERT = '/tmp/test_sslagent.cert'
@@ -84,7 +84,7 @@ params = [{
 } for ssl_verify_host in SSL_VERIFY_HOSTS for option in SIM_OPTIONS]
 metadata = [{'sim_option': option, 'verify_host': ssl_verify_host} for ssl_verify_host in SSL_VERIFY_HOSTS for option in
             SIM_OPTIONS]
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 # Simulation options
 # a. Unverified Host:
 # - No certificate
@@ -101,7 +101,7 @@ log_monitor_paths = []
 
 receiver_sockets_params = [((AGENT_IP, 1515), 'AF_INET', 'SSL_TLSv1_2')]
 
-monitored_sockets_params = [('wazuh-modulesd', None, True), ('wazuh-db', None, True), ('wazuh-authd', None, True)]
+monitored_sockets_params = [('fortishield-modulesd', None, True), ('fortishield-db', None, True), ('fortishield-authd', None, True)]
 
 receiver_sockets, monitored_sockets, log_monitors = None, None, None  # Set in the fixtures
 
@@ -128,20 +128,20 @@ def generate_ca_certificate(get_configuration):
 
 # Tests
 
-def override_wazuh_conf(configuration):
-    # Stop Wazuh
-    control_service('stop', daemon='wazuh-authd')
+def override_fortishield_conf(configuration):
+    # Stop Fortishield
+    control_service('stop', daemon='fortishield-authd')
     time.sleep(1)
-    check_daemon_status(running_condition=False, target_daemon='wazuh-authd')
+    check_daemon_status(running_condition=False, target_daemon='fortishield-authd')
     truncate_file(LOG_FILE_PATH)
 
     # Configuration for testing
-    test_config = set_section_wazuh_conf(configuration.get('sections'))
+    test_config = set_section_fortishield_conf(configuration.get('sections'))
     # Set new configuration
-    write_wazuh_conf(test_config)
-    # Start Wazuh daemons
+    write_fortishield_conf(test_config)
+    # Start Fortishield daemons
     time.sleep(1)
-    control_service('start', daemon='wazuh-authd')
+    control_service('start', daemon='fortishield-authd')
 
     """Wait until agentd has begun"""
 
@@ -158,12 +158,12 @@ def override_wazuh_conf(configuration):
 def test_authd_ssl_certs(get_configuration, generate_ca_certificate, tear_down):
     '''
     description:
-        Checks if the 'wazuh-authd' daemon can manage 'SSL' connections with agents
+        Checks if the 'fortishield-authd' daemon can manage 'SSL' connections with agents
         and the 'host verification' feature is working properly. For this purpose,
         it generates and signs the necessary certificates and builds the
         enrollment requests using them.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.2.0
 
     tier: 0
@@ -180,7 +180,7 @@ def test_authd_ssl_certs(get_configuration, generate_ca_certificate, tear_down):
             brief: cleans the client.keys file
 
     assertions:
-        - Verify that the agent can only connect to the 'wazuh-authd' daemon socket using a valid certificate.
+        - Verify that the agent can only connect to the 'fortishield-authd' daemon socket using a valid certificate.
         - Verify that using a valid certificate the agent can only enroll using the IP address linked to it.
 
     input_description:
@@ -197,7 +197,7 @@ def test_authd_ssl_certs(get_configuration, generate_ca_certificate, tear_down):
     '''
     verify_host = (get_configuration['metadata']['verify_host'] == 'yes')
     option = get_configuration['metadata']['sim_option']
-    override_wazuh_conf(get_configuration)
+    override_fortishield_conf(get_configuration)
     address, family, connection_protocol = receiver_sockets_params[0]
     SSL_socket = SocketController(address, family=family, connection_protocol=connection_protocol, open_at_start=False)
     if option != 'NO CERT':

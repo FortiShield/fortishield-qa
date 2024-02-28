@@ -1,17 +1,17 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
-       files are modified. Specifically, these tests will check if the 'wazuh-syscheckd' daemon skips
+       files are modified. Specifically, these tests will check if the 'fortishield-syscheckd' daemon skips
        the scans on the special directories of Linux systems ('/dev', '/proc', '/sys', and NFS folders),
        using the 'skip_' tags for this purpose.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files
        for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -41,11 +41,11 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#skip-dev
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#skip-nfs
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#skip-proc
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#skip-sys
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#skip-dev
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#skip-nfs
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#skip-proc
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#skip-sys
     - https://en.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
 
 pytest_args:
@@ -67,14 +67,14 @@ from unittest.mock import patch
 
 import distro
 import pytest
-from wazuh_testing import LOG_FILE_PATH, T_20
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import set_section_wazuh_conf, load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.file import truncate_file
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.tools.services import restart_wazuh_with_new_conf
-from wazuh_testing.modules.fim.utils import regular_file_cud, generate_params, check_time_travel
-from wazuh_testing.modules.fim.event_monitor import (detect_initial_scan, callback_detect_event,
+from fortishield_testing import LOG_FILE_PATH, T_20
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import set_section_fortishield_conf, load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.file import truncate_file
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.tools.services import restart_fortishield_with_new_conf
+from fortishield_testing.modules.fim.utils import regular_file_cud, generate_params, check_time_travel
+from fortishield_testing.modules.fim.event_monitor import (detect_initial_scan, callback_detect_event,
                                                      callback_detect_registry_integrity_state_event)
 
 
@@ -84,11 +84,11 @@ pytestmark = [pytest.mark.linux, pytest.mark.tier(level=1)]
 
 # Variables
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
 testdir = os.path.join(PREFIX, 'testdir1')
 test_directories = [testdir]
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 
 
 # configurations
@@ -98,7 +98,7 @@ def change_conf(dir_value):
                            apply_to_all=({'SKIP': skip} for skip in ['yes', 'no']),
                            modes=['scheduled'])
 
-    return load_wazuh_configurations(configurations_path, __name__,
+    return load_fortishield_configurations(configurations_path, __name__,
                                      params=p,
                                      metadata=m
                                      )
@@ -149,7 +149,7 @@ def extra_configuration_before_yield():
 
 def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon skips the Linux '/proc' directory at scanning when
+    description: Check if the 'fortishield-syscheckd' daemon skips the Linux '/proc' directory at scanning when
                  the 'skip_proc' tag is set to 'yes'. For this purpose, the test will monitor a PID folder
                  in the '/proc' directory. To generate the PID folder, it will call a script that contains
                  an endless loop to create the process that adds that folder to the '/proc' directory. Then,
@@ -157,7 +157,7 @@ def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, 
                  that the FIM 'added' event related to the PID folder ('skip_proc == no') or the FIM 'integrity'
                  event ('skip_proc == yes') is generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -179,8 +179,8 @@ def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, 
         - Verify that no FIM events are generated from a monitored folder inside the '/proc' directory when
           the 'skip_proc' tag is set to 'yes' and vice versa.
 
-    input_description: A test case (skip_proc) is contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon, and these are
+    input_description: A test case (skip_proc) is contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon, and these are
                        combined with the testing directory to be monitored defined in the module.
                        To generate the directory to monitor in '/proc', the 'proc.py' script is used,
                        which runs an endless loop to keep the PID active.
@@ -208,8 +208,8 @@ def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, 
         # Get new skip_proc configuration
         for conf in new_conf:
             if conf['metadata']['skip'] == 'no' and conf['tags'] == ['skip_proc']:
-                new_ossec_conf = set_section_wazuh_conf(conf.get('sections'))
-        restart_wazuh_with_new_conf(new_ossec_conf)
+                new_ossec_conf = set_section_fortishield_conf(conf.get('sections'))
+        restart_fortishield_with_new_conf(new_ossec_conf)
         truncate_file(LOG_FILE_PATH)
         proc_monitor = FileMonitor(LOG_FILE_PATH)
         detect_initial_scan(proc_monitor)
@@ -219,7 +219,7 @@ def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, 
             proc_monitor.start(timeout=3, callback=callback_detect_event,
                                error_message='Did not receive expected "Sending FIM event: ..." event')
 
-        check_time_travel(time_travel=True, monitor=wazuh_log_monitor)
+        check_time_travel(time_travel=True, monitor=fortishield_log_monitor)
 
         found_event = False
         while not found_event:
@@ -234,21 +234,21 @@ def test_skip_proc(get_configuration, configure_environment, restart_syscheckd, 
 
     else:
         with pytest.raises(TimeoutError):
-            event = wazuh_log_monitor.start(timeout=3, callback=callback_detect_registry_integrity_state_event)
+            event = fortishield_log_monitor.start(timeout=3, callback=callback_detect_registry_integrity_state_event)
             raise AttributeError(f'Unexpected event {event}')
 
 
 @pytest.mark.parametrize('directory, tags_to_apply', [(os.path.join('/', 'dev'), {'skip_dev'})])
-@patch('wazuh_testing.fim.modify_file_inode')
+@patch('fortishield_testing.fim.modify_file_inode')
 def test_skip_dev(modify_inode_mock, directory, tags_to_apply, get_configuration, configure_environment,
                   restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon skips the Linux '/dev' directory at scanning when the
+    description: Check if the 'fortishield-syscheckd' daemon skips the Linux '/dev' directory at scanning when the
                  'skip_dev' tag is set to 'yes'. For this purpose, the test will monitor the '/dev' directory.
                  Then, it will make file operations inside it, and finally, the test will verify that FIM events
                  from the '/dev' folder are generated or not depending on the value of the 'skip_dev' tag.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -279,8 +279,8 @@ def test_skip_dev(modify_inode_mock, directory, tags_to_apply, get_configuration
         - Verify that no FIM events are generated from the '/dev' directory when
           the 'skip_dev' tag is set to 'yes' and vice versa.
 
-    input_description: A test case (skip_dev) is contained in external YAML file (wazuh_conf.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and the testing
+    input_description: A test case (skip_dev) is contained in external YAML file (fortishield_conf.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and the testing
                        directory to be monitored.
 
     expected_output:
@@ -293,4 +293,4 @@ def test_skip_dev(modify_inode_mock, directory, tags_to_apply, get_configuration
     check_apply_test(tags_to_apply, get_configuration['tags'])
     trigger = get_configuration['metadata']['skip'] == 'no'
 
-    regular_file_cud(directory, wazuh_log_monitor, min_timeout=T_20, triggers_event=trigger)
+    regular_file_cud(directory, fortishield_log_monitor, min_timeout=T_20, triggers_event=trigger)

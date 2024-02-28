@@ -1,14 +1,14 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh persistent information, exposing a socket
-       to receive requests and provide information. The Wazuh core uses list-based databases to store information
+brief: Fortishield-db is the daemon in charge of the databases with all the Fortishield persistent information, exposing a socket
+       to receive requests and provide information. The Fortishield core uses list-based databases to store information
        related to agent keys, and FIM/Rootcheck event data.
        This test checks the usage of the backup command used generate backups and restore the database using backups
        generated with this same command.
@@ -16,13 +16,13 @@ brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh pers
 tier: 0
 
 modules:
-    - wazuh_db
+    - fortishield_db
 
 components:
     - manager
 
 daemons:
-    - wazuh-db
+    - fortishield-db
 
 os_platform:
     - linux
@@ -47,20 +47,20 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-db.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-db.html
 
 tags:
-    - wazuh_db
+    - fortishield_db
 '''
 import os
 import time
 import yaml
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.modules import TIER0, LINUX, SERVER
-from wazuh_testing.wazuh_db import query_wdb
-from wazuh_testing.tools.file import get_list_of_content_yml
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.modules import TIER0, LINUX, SERVER
+from fortishield_testing.fortishield_db import query_wdb
+from fortishield_testing.tools.file import get_list_of_content_yml
 
 
 # Marks
@@ -69,13 +69,13 @@ pytestmark = [TIER0, LINUX, SERVER]
 
 # Configurations
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-messages_file = os.path.join(os.path.join(test_data_path, 'global'), 'wazuh_db_backup_command.yaml')
+messages_file = os.path.join(os.path.join(test_data_path, 'global'), 'fortishield_db_backup_command.yaml')
 module_tests = get_list_of_content_yml(messages_file)
 log_monitor_paths = []
-wdb_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
-backups_path = os.path.join(WAZUH_PATH, 'backup', 'db')
+wdb_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'wdb'))
+backups_path = os.path.join(FORTISHIELD_PATH, 'backup', 'db')
 receiver_sockets_params = [(wdb_path, 'AF_UNIX', 'TCP')]
-monitored_sockets_params = [('wazuh-db', None, True)]
+monitored_sockets_params = [('fortishield-db', None, True)]
 receiver_sockets = None  # Set in the fixtures
 
 
@@ -106,13 +106,13 @@ def add_database_values(request):
 def test_wdb_backup_command(configure_sockets_environment, connect_to_sockets_module, remove_backups,
                             add_database_values, test_case, backups_path):
     '''
-    description: Check that every input message using the 'backup' command in wazuh-db socket generates
-                 the proper output to wazuh-db socket. To do this, it performs a series of queries to the socket with
+    description: Check that every input message using the 'backup' command in fortishield-db socket generates
+                 the proper output to fortishield-db socket. To do this, it performs a series of queries to the socket with
                  parameters from the list of test_cases, and compare the result with the test_case's 'restore_response'
                  field, as well as checking that the files have been created and the state of the data in DB in cases
                  where the 'restore' parameter is used.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - configure_sockets_environment:
@@ -137,7 +137,7 @@ def test_wdb_backup_command(configure_sockets_environment, connect_to_sockets_mo
         - Verify that after restoring the DB has the expected data.
 
     input_description:
-        - Test cases are defined in the wazuh_db_backup_command.yaml file. This file contains the amount of backups to
+        - Test cases are defined in the fortishield_db_backup_command.yaml file. This file contains the amount of backups to
           create, if a restore of the DB will be done, and different combinations of parameters used for the restore,
           as well as the expected responses.
 
@@ -150,7 +150,7 @@ def test_wdb_backup_command(configure_sockets_environment, connect_to_sockets_mo
         - f'Error - Found {backups.__len__()} files, expected {backups_amount + 1}'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     case_data = test_case[0]

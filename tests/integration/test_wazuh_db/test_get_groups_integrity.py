@@ -1,14 +1,14 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh persistent information, exposing a socket
-       to receive requests and provide information. The Wazuh core uses list-based databases to store information
+brief: Fortishield-db is the daemon in charge of the databases with all the Fortishield persistent information, exposing a socket
+       to receive requests and provide information. The Fortishield core uses list-based databases to store information
        related to agent keys, and FIM/Rootcheck event data.
        This test checks the usage of the get-groups-integrity command used to determine if the agent groups are synced
        or if a sync is needed.
@@ -16,13 +16,13 @@ brief: Wazuh-db is the daemon in charge of the databases with all the Wazuh pers
 tier: 0
 
 modules:
-    - wazuh_db
+    - fortishield_db
 
 components:
     - manager
 
 daemons:
-    - wazuh-db
+    - fortishield-db
 
 os_platform:
     - linux
@@ -47,18 +47,18 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-db.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-db.html
 
 tags:
-    - wazuh_db
+    - fortishield_db
 '''
 import os
 import time
 import pytest
 
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.wazuh_db import query_wdb, insert_agent_in_db, remove_agent
-from wazuh_testing.tools.file import get_list_of_content_yml
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.fortishield_db import query_wdb, insert_agent_in_db, remove_agent
+from fortishield_testing.tools.file import get_list_of_content_yml
 
 # Marks
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0), pytest.mark.server]
@@ -68,7 +68,7 @@ test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data
 messages_file = os.path.join(os.path.join(test_data_path, 'global'), 'get_groups_integrity_messages.yaml')
 module_tests = get_list_of_content_yml(messages_file)
 
-wdb_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
+wdb_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'db', 'wdb'))
 
 
 # Tests
@@ -80,12 +80,12 @@ wdb_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'db', 'wdb'))
                          )
 def test_get_groups_integrity(test_case, create_groups):
     '''
-    description: Check that every input message using the 'get-groups-integrity' command in wazuh-db socket generates
-                 the proper output to wazuh-db socket. To do this, it performs a query to the socket with a command
+    description: Check that every input message using the 'get-groups-integrity' command in fortishield-db socket generates
+                 the proper output to fortishield-db socket. To do this, it performs a query to the socket with a command
                  taken from the list of test_cases's 'input' field, and compare the result with the test_case's
                  'output' field.
 
-    wazuh_min_version: 4.4.0
+    fortishield_min_version: 4.4.0
 
     parameters:
         - test_case:
@@ -109,7 +109,7 @@ def test_get_groups_integrity(test_case, create_groups):
         - 'Unable to add agent'
 
     tags:
-        - wazuh_db
+        - fortishield_db
         - wdb_socket
     '''
     output = test_case["output"]

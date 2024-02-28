@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these files
        are modified. Specifically, these tests will check if FIM stops monitoring the target of
        a 'symbolic_link' when the attribute 'follow_symbolic_link' is disabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured files for
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured files for
        changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -46,8 +46,8 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -64,14 +64,14 @@ tags:
 import os
 
 import pytest
-import wazuh_testing.fim as fim
+import fortishield_testing.fim as fim
 from test_fim.test_files.test_follow_symbolic_link.common import testdir_target, testdir1
 # noinspection PyUnresolvedReferences
 from test_fim.test_files.test_follow_symbolic_link.common import test_directories, extra_configuration_before_yield, \
      extra_configuration_after_yield
-from wazuh_testing import logger
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import logger
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -80,13 +80,13 @@ pytestmark = [pytest.mark.linux, pytest.mark.sunos5, pytest.mark.darwin, pytest.
 # variables
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf.yaml')
-wazuh_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
+configurations_path = os.path.join(test_data_path, 'fortishield_conf.yaml')
+fortishield_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
 
 # configurations
 
 conf_params, conf_metadata = fim.generate_params(extra_params={'FOLLOW_MODE': 'no'})
-configurations = load_wazuh_configurations(configurations_path, __name__,
+configurations = load_fortishield_configurations(configurations_path, __name__,
                                            params=conf_params,
                                            metadata=conf_metadata
                                            )
@@ -109,14 +109,14 @@ def get_configuration(request):
 def test_follow_symbolic_disabled(path, tags_to_apply, get_configuration, configure_environment, restart_syscheckd,
                                   wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon considers a 'symbolic link' to be a regular file when
+    description: Check if the 'fortishield-syscheckd' daemon considers a 'symbolic link' to be a regular file when
                  the attribute 'follow_symbolic_link' is set to 'no'. For this purpose, the test will monitor
                  a 'symbolic link' pointing to a file/directory. Once FIM starts, it will create and not expect
                  events inside the pointed folder. Then, the test will modify the link target and check that
                  no events are triggered. Finally, it will remove the link target and verify that no FIM events
                  have been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -144,7 +144,7 @@ def test_follow_symbolic_disabled(path, tags_to_apply, get_configuration, config
         - Verify that no FIM events are generated when performing file operations on a 'symbolic link' target.
 
     input_description: Two test cases (monitored_file and monitored_dir) are contained in external YAML file
-                       (wazuh_conf.yaml) which includes configuration settings for the 'wazuh-syscheckd' daemon
+                       (fortishield_conf.yaml) which includes configuration settings for the 'fortishield-syscheckd' daemon
                        and, these are combined with the testing directories to be monitored defined in
                        the 'common.py' module.
 
@@ -163,24 +163,24 @@ def test_follow_symbolic_disabled(path, tags_to_apply, get_configuration, config
     # If the symlink targets to a directory, create a file in it and ensure no event is raised.
     if tags_to_apply == {'monitored_dir'}:
         fim.create_file(fim.REGULAR, path, regular_file)
-        fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+        fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
         with pytest.raises(TimeoutError):
-            wazuh_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
+            fortishield_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
             logger.error(error_msg)
             raise AttributeError(error_msg)
 
     # Modify the target file and don't expect any events
     fim.modify_file(path, regular_file, new_content='Modify sample')
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
     with pytest.raises(TimeoutError):
-        wazuh_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
+        fortishield_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
         logger.error(error_msg)
         raise AttributeError(error_msg)
 
     # Delete the target file and don't expect any events
     fim.delete_file(path, regular_file)
-    fim.check_time_travel(scheduled, monitor=wazuh_log_monitor)
+    fim.check_time_travel(scheduled, monitor=fortishield_log_monitor)
     with pytest.raises(TimeoutError):
-        wazuh_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
+        fortishield_log_monitor.start(timeout=5, callback=fim.callback_detect_event)
         logger.error(error_msg)
         raise AttributeError(error_msg)

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts
        when these files are modified. Specifically, these tests will check if FIM events are
        generated when multiple environment variables are used to monitor directories.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks
        configured files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - linux
@@ -44,8 +44,8 @@ os_version:
     - Windows Server 2016
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#directories
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#directories
 
 pytest_args:
     - fim_mode:
@@ -63,11 +63,11 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import T_20, LOG_FILE_PATH
-from wazuh_testing.tools import PREFIX
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim.utils import generate_params, regular_file_cud
+from fortishield_testing import T_20, LOG_FILE_PATH
+from fortishield_testing.tools import PREFIX
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim.utils import generate_params, regular_file_cud
 
 
 # Marks
@@ -80,7 +80,7 @@ test_directories = [os.path.join(PREFIX, 'testdir1'),
                     os.path.join(PREFIX, 'testdir4')
                     ]
 dir1, dir2, dir3, dir4 = test_directories
-mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by wazuh/wazuh-qa#2174")
+mark_skip_agentWindows = pytest.mark.skipif(sys.platform == 'win32', reason="It will be blocked by fortishield/fortishield-qa#2174")
 
 # Check big environment variables ending with backslash
 if sys.platform == 'win32':
@@ -94,12 +94,12 @@ multiple_env_var = os.pathsep.join(paths)
 environment_variables = [("TEST_ENV_ONE_PATH", dir1), ("TEST_ENV_MULTIPLES_PATH", multiple_env_var)]
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_dir.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_dir.yaml')
 
 conf_params = {'TEST_ENV_VARIABLES': test_env, 'MODULE_NAME': __name__}
 p, m = generate_params(extra_params=conf_params)
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixture
@@ -120,13 +120,13 @@ def get_configuration(request):
 def test_tag_directories(directory, get_configuration, truncate_monitored_files, put_env_variables,
                          configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects CUD events ('added', 'modified', and 'deleted')
+    description: Check if the 'fortishield-syscheckd' daemon detects CUD events ('added', 'modified', and 'deleted')
                  when environment variables are used to monitor directories. For this purpose, the test
                  will monitor a directory that is defined in an environment variable. Then, different
                  operations will be performed on testing files, and finally, the test will verify
                  that the proper FIM events have been generated.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 2
 
@@ -153,8 +153,8 @@ def test_tag_directories(directory, get_configuration, truncate_monitored_files,
     assertions:
         - Verify that FIM events are generated when environment variables are used to monitor directories.
 
-    input_description: A test case (ossec_conf) is contained in external YAML file (wazuh_conf_dir.yaml) which
-                       includes configuration settings for the 'wazuh-syscheckd' daemon and, it is combined
+    input_description: A test case (ossec_conf) is contained in external YAML file (fortishield_conf_dir.yaml) which
+                       includes configuration settings for the 'fortishield-syscheckd' daemon and, it is combined
                        with the directories to be monitored defined as environment variables in this module.
 
     expected_output:
@@ -163,7 +163,7 @@ def test_tag_directories(directory, get_configuration, truncate_monitored_files,
     tags:
         - scheduled
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
     
-    regular_file_cud(directory, wazuh_log_monitor, file_list=["testing_env_variables"],
+    regular_file_cud(directory, fortishield_log_monitor, file_list=["testing_env_variables"],
                      min_timeout=T_20)

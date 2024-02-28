@@ -8,11 +8,11 @@ nodes:
 {% endif %}
 {% endfor %}
 
-  # Wazuh server nodes
-  # Use node_type only with more than one Wazuh manager
+  # Fortishield server nodes
+  # Use node_type only with more than one Fortishield manager
   server:
 {% for (key,value) in instances.items() %}
-{% if (value.role is defined and value.role == 'wazuh') %}
+{% if (value.role is defined and value.role == 'fortishield') %}
     - name: {{ value.name }}
       ip: {{ value.ip }}
 {% endif %}

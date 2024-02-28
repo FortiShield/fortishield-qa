@@ -1,7 +1,7 @@
 # Certificates generation
 - hosts: wi1
   roles:
-    - role: "../roles/wazuh/wazuh-indexer"
+    - role: "../roles/fortishield/fortishield-indexer"
       indexer_network_host: "{{ private_ip }}"
       perform_installation: false
   become: true
@@ -10,10 +10,10 @@
   tags:
     - generate-certs
 
-# Wazuh indexer cluster
+# Fortishield indexer cluster
 - hosts: wi_cluster
   roles:
-    - role: "../roles/wazuh/wazuh-indexer"
+    - role: "../roles/fortishield/fortishield-indexer"
       indexer_network_host: "{{ private_ip }}"
   become: true
   become_user: root
@@ -22,21 +22,21 @@
 
 - hosts: manager
   roles:
-    - role: "../roles/wazuh/ansible-wazuh-manager"
+    - role: "../roles/fortishield/ansible-fortishield-manager"
   become: true
   become_user: root
 
 - hosts: filebeat
   roles:
-    - role: "../roles/wazuh/ansible-filebeat-oss"
+    - role: "../roles/fortishield/ansible-filebeat-oss"
   become: true
   become_user: root
 
 # Indexer + dashboard node
 - hosts: dashboard
   roles:
-    - role: "../roles/wazuh/wazuh-indexer"
-    - role: "../roles/wazuh/wazuh-dashboard"
+    - role: "../roles/fortishield/fortishield-indexer"
+    - role: "../roles/fortishield/fortishield-dashboard"
   become: true
   become_user: root
   vars:
@@ -46,15 +46,15 @@
     indexer_node_data: false
     indexer_cluster_nodes: "{{ indexer_discovery_nodes }}"
     ansible_shell_allow_world_readable_temp: true
-    wazuh_api_credentials:
+    fortishield_api_credentials:
       - id: default
         url: https://{{ hostvars.master.private_ip }}
         port: 55000
-        username: wazuh
-        password: wazuh
+        username: fortishield
+        password: fortishield
 
 - hosts: agent
   roles:
-    - role: "../roles/wazuh/ansible-wazuh-agent"
+    - role: "../roles/fortishield/ansible-fortishield-agent"
       become: "{{ ansible_os_family != 'Windows' }}"
       become_user: root

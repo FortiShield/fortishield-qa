@@ -9,14 +9,14 @@
     state: present
     cache_valid_time: 3600
     install_recommends: false
-  register: wazuh_manager_https_packages_installed
-  until: wazuh_manager_https_packages_installed is succeeded
+  register: fortishield_manager_https_packages_installed
+  until: fortishield_manager_https_packages_installed is succeeded
 
-- name: Debian/Ubuntu | Installing Wazuh repository key (Ubuntu 14)
+- name: Debian/Ubuntu | Installing Fortishield repository key (Ubuntu 14)
   become: true
   shell: |
     set -o pipefail
-    curl -s {{ wazuh_manager_config.repo.gpg }} | apt-key add -
+    curl -s {{ fortishield_manager_config.repo.gpg }} | apt-key add -
   args:
     warn: false
     executable: /bin/bash
@@ -24,28 +24,28 @@
   when:
     - ansible_distribution == "Ubuntu"
     - ansible_distribution_major_version | int == 14
-    - not wazuh_manager_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled
+    - not fortishield_manager_sources_installation.enabled
+    - not fortishield_custom_packages_installation_manager_enabled
 
-- name: Debian/Ubuntu | Installing Wazuh repository key
+- name: Debian/Ubuntu | Installing Fortishield repository key
   apt_key:
-    url: "{{ wazuh_manager_config.repo.gpg }}"
-    id: "{{ wazuh_manager_config.repo.key_id }}"
+    url: "{{ fortishield_manager_config.repo.gpg }}"
+    id: "{{ fortishield_manager_config.repo.key_id }}"
   when:
     - not (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
-    - not wazuh_manager_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled
+    - not fortishield_manager_sources_installation.enabled
+    - not fortishield_custom_packages_installation_manager_enabled
 
-- name: Debian/Ubuntu | Add Wazuh repositories
+- name: Debian/Ubuntu | Add Fortishield repositories
   apt_repository:
-    filename: wazuh_repo
-    repo: "{{ wazuh_manager_config.repo.apt }}"
+    filename: fortishield_repo
+    repo: "{{ fortishield_manager_config.repo.apt }}"
     state: present
     update_cache: true
   changed_when: false
   when:
-    - not wazuh_manager_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled
+    - not fortishield_manager_sources_installation.enabled
+    - not fortishield_custom_packages_installation_manager_enabled
 
 - name: Debian/Ubuntu | Set Distribution CIS filename for Debian/Ubuntu
   set_fact:
@@ -60,8 +60,8 @@
     - (ansible_distribution == "Ubuntu" and ansible_distribution_major_version | int == 14)
 
 - when:
-    - wazuh_manager_config.cis_cat.disable == 'no'
-    - wazuh_manager_config.cis_cat.install_java == 'yes'
+    - fortishield_manager_config.cis_cat.disable == 'no'
+    - fortishield_manager_config.cis_cat.install_java == 'yes'
   block:
     - name: Debian/Ubuntu | Install OpenJDK 1.8
       apt: name=openjdk-8-jre state=present cache_valid_time=3600
@@ -76,15 +76,15 @@
     state: present
     cache_valid_time: 3600
     install_recommends: false
-  register: wazuh_manager_openscap_installed
-  until: wazuh_manager_openscap_installed is succeeded
-  when: wazuh_manager_config.openscap.disable == 'no'
+  register: fortishield_manager_openscap_installed
+  until: fortishield_manager_openscap_installed is succeeded
+  when: fortishield_manager_config.openscap.disable == 'no'
   tags:
     - init
 
 - name: Debian/Ubuntu | Get OpenScap installed version
   shell: "dpkg-query --showformat='${Version}' --show libopenscap8"
-  when: wazuh_manager_config.openscap.disable == 'no'
+  when: fortishield_manager_config.openscap.disable == 'no'
   register: openscap_version
   changed_when: false
   tags:
@@ -92,7 +92,7 @@
 
 - name: Debian/Ubuntu | Check OpenScap version
   shell: "dpkg --compare-versions '{{ openscap_version.stdout }}' '>=' '1.2'; echo $?"
-  when: wazuh_manager_config.openscap.disable == 'no'
+  when: fortishield_manager_config.openscap.disable == 'no'
   register: openscap_version_valid
   changed_when: false
   tags:
@@ -102,22 +102,22 @@
   apt:
     name: ['make', 'gcc', 'automake', 'autoconf', 'libtool', 'tar', 'libssl-dev', 'g++']
     state: present
-  when: wazuh_manager_sources_installation.enabled
+  when: fortishield_manager_sources_installation.enabled
 
-- name: Debian/Ubuntu | Install wazuh-manager
+- name: Debian/Ubuntu | Install fortishield-manager
   apt:
     name:
-      - "wazuh-manager={{ wazuh_manager_version }}-*"
+      - "fortishield-manager={{ fortishield_manager_version }}-*"
     state: present
   tags: init
   when:
-    - not wazuh_manager_sources_installation.enabled
-    - not wazuh_custom_packages_installation_manager_enabled
+    - not fortishield_manager_sources_installation.enabled
+    - not fortishield_custom_packages_installation_manager_enabled
 
 - include_tasks: "installation_from_sources.yml"
   when:
-    - wazuh_manager_sources_installation.enabled
+    - fortishield_manager_sources_installation.enabled
 
 - include_tasks: "installation_from_custom_packages.yml"
   when:
-    - wazuh_custom_packages_installation_manager_enabled
+    - fortishield_custom_packages_installation_manager_enabled

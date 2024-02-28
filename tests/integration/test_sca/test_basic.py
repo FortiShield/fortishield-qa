@@ -1,6 +1,6 @@
 '''
-copyright: Copyright (C) 2015-2023, Wazuh Inc.
-           Created by Wazuh, Inc. <info@wazuh.com>.
+copyright: Copyright (C) 2015-2023, Fortishield Inc.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
@@ -16,7 +16,7 @@ targets:
     - manager
     - agent
 daemons:
-    - wazuh-modulesd
+    - fortishield-modulesd
 
 os_platform:
     - linux
@@ -33,7 +33,7 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/sec-config-assessment/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/sec-config-assessment/index.html
 
 tags:
     - sca
@@ -41,11 +41,11 @@ tags:
 import os
 import pytest
 
-from wazuh_testing import LOG_FILE_PATH
-from wazuh_testing.tools.configuration import load_configuration_template, get_test_cases_data
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.sca import event_monitor as evm
-from wazuh_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
+from fortishield_testing import LOG_FILE_PATH
+from fortishield_testing.tools.configuration import load_configuration_template, get_test_cases_data
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.sca import event_monitor as evm
+from fortishield_testing.modules.sca import SCA_DEFAULT_LOCAL_INTERNAL_OPTIONS as local_internal_options
 
 
 pytestmark = [pytest.mark.linux, pytest.mark.tier(level=0)]
@@ -75,35 +75,35 @@ t2_configurations = load_configuration_template(configurations_path, t2_configur
 
 @pytest.mark.parametrize('configuration, metadata', zip(t1_configurations, t1_configuration_metadata), ids=t1_case_ids)
 def test_sca_enabled(configuration, metadata, prepare_cis_policies_file, truncate_monitored_files,
-                     set_wazuh_configuration, configure_local_internal_options_function, restart_wazuh_function):
+                     set_fortishield_configuration, configure_local_internal_options_function, restart_fortishield_function):
     '''
     description: Check SCA behavior when enabled tag is set to yes.
 
     test_phases:
-        - Set a custom Wazuh configuration.
+        - Set a custom Fortishield configuration.
         - Copy cis_sca ruleset file into agent.
-        - Restart wazuh.
+        - Restart fortishield.
         - Check that sca module starts if enabled is set to 'yes'
         - Check in the log that the sca module started appears.
         - Check that sca scan starts and finishes
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - prepare_cis_policies_file:
             type: fixture
             brief: copy test sca policy file. Delete it after test.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options_function:
             type: fixture
             brief: Configure the local_internal_options_file.
@@ -112,7 +112,7 @@ def test_sca_enabled(configuration, metadata, prepare_cis_policies_file, truncat
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - restart_modulesd_function:
             type: fixture
-            brief: Restart the wazuh-modulesd daemon.
+            brief: Restart the fortishield-modulesd daemon.
         - wait_for_sca_enabled:
             type: fixture
             brief: Wait for the sca Module to start before starting the test.
@@ -131,41 +131,41 @@ def test_sca_enabled(configuration, metadata, prepare_cis_policies_file, truncat
         - r'.*sca.*INFO: (Starting Security Configuration Assessment scan).'
         - r".*sca.*INFO: Security Configuration Assessment scan finished. Duration: (\\d+) seconds."
     '''
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-    evm.check_sca_enabled(wazuh_log_monitor)
-    evm.check_sca_scan_started(wazuh_log_monitor)
-    evm.check_sca_scan_ended(wazuh_log_monitor)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+    evm.check_sca_enabled(fortishield_log_monitor)
+    evm.check_sca_scan_started(fortishield_log_monitor)
+    evm.check_sca_scan_ended(fortishield_log_monitor)
 
 
 @pytest.mark.parametrize('configuration, metadata', zip(t2_configurations, t2_configuration_metadata), ids=t2_case_ids)
 def test_sca_disabled(configuration, metadata, prepare_cis_policies_file, truncate_monitored_files,
-                      set_wazuh_configuration, configure_local_internal_options_function, restart_wazuh_function):
+                      set_fortishield_configuration, configure_local_internal_options_function, restart_fortishield_function):
     '''
     description: Check SCA behavior when enabled tag is set no.
 
     test_phases:
-        - Set a custom Wazuh configuration.
+        - Set a custom Fortishield configuration.
         - Copy cis_sca ruleset file into agent.
-        - Restart wazuh.
+        - Restart fortishield.
         - Check that sca module is disabled if enabled tag is set to 'no'
 
-    wazuh_min_version: 4.6.0
+    fortishield_min_version: 4.6.0
 
     tier: 0
 
     parameters:
         - configuration:
             type: dict
-            brief: Wazuh configuration data. Needed for set_wazuh_configuration fixture.
+            brief: Fortishield configuration data. Needed for set_fortishield_configuration fixture.
         - metadata:
             type: dict
-            brief: Wazuh configuration metadata.
+            brief: Fortishield configuration metadata.
         - prepare_cis_policies_file:
             type: fixture
             brief: copy test sca policy file. Delete it after test.
-        - set_wazuh_configuration:
+        - set_fortishield_configuration:
             type: fixture
-            brief: Set the wazuh configuration according to the configuration data.
+            brief: Set the fortishield configuration according to the configuration data.
         - configure_local_internal_options_function:
             type: fixture
             brief: Configure the local_internal_options_file.
@@ -174,7 +174,7 @@ def test_sca_disabled(configuration, metadata, prepare_cis_policies_file, trunca
             brief: Truncate all the log files and json alerts files before and after the test execution.
         - restart_modulesd_function:
             type: fixture
-            brief: Restart the wazuh-modulesd daemon.
+            brief: Restart the fortishield-modulesd daemon.
         - wait_for_sca_enabled:
             type: fixture
             brief: Wait for the sca Module to start before starting the test.
@@ -190,5 +190,5 @@ def test_sca_disabled(configuration, metadata, prepare_cis_policies_file, trunca
         - r".*sca.*INFO: (Module disabled). Exiting."
     '''
 
-    wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
-    evm.check_sca_disabled(wazuh_log_monitor)
+    fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
+    evm.check_sca_disabled(fortishield_log_monitor)

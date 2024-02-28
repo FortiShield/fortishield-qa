@@ -2,7 +2,7 @@ import os
 
 import pytest
 import yaml
-from wazuh_testing.tools import WAZUH_API_CONF
+from fortishield_testing.tools import FORTISHIELD_API_CONF
 
 
 @pytest.fixture(scope='module')
@@ -13,7 +13,7 @@ def set_default_api_conf(request):
     api_tmp_backup = 'api_backup_tmp.yaml'
     api_conf_backup = dict()
     for host in test_hosts:
-        api_conf_backup[host] = yaml.safe_load(hm.get_file_content(host, WAZUH_API_CONF))
+        api_conf_backup[host] = yaml.safe_load(hm.get_file_content(host, FORTISHIELD_API_CONF))
 
     with open(api_tmp_backup, 'w') as f:
         f.write(yaml.dump(api_conf_backup))

@@ -1,11 +1,11 @@
 import os
 import pytest
 
-from wazuh_testing import LOG_FILE_PATH, CIS_RULESET_PATH
-from wazuh_testing.modules import sca
-from wazuh_testing.modules.sca import event_monitor as evm
-from wazuh_testing.tools.file import copy, delete_file, copy_files_in_folder, delete_path_recursively
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import LOG_FILE_PATH, CIS_RULESET_PATH
+from fortishield_testing.modules import sca
+from fortishield_testing.modules.sca import event_monitor as evm
+from fortishield_testing.tools.file import copy, delete_file, copy_files_in_folder, delete_path_recursively
+from fortishield_testing.tools.monitoring import FileMonitor
 
 
 # Variables
@@ -18,8 +18,8 @@ def wait_for_sca_enabled():
     '''
     Wait for the sca module to start.
     '''
-    wazuh_monitor = FileMonitor(LOG_FILE_PATH)
-    evm.check_sca_enabled(wazuh_monitor)
+    fortishield_monitor = FileMonitor(LOG_FILE_PATH)
+    evm.check_sca_enabled(fortishield_monitor)
 
 
 @pytest.fixture()

@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -11,7 +11,7 @@ brief: File Integrity Monitoring (FIM) system watches selected files and trigger
        when these files are modified. Specifically, these tests will check if FIM detects
        all registry modification events when monitoring the maximum number of keys (64)
        set using multiple 'windows_registry' tags.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -23,7 +23,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -39,8 +39,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#windows-registry
 
 pytest_args:
     - fim_mode:
@@ -58,10 +58,10 @@ import os
 import time
 
 import pytest
-from wazuh_testing import global_parameters
-from wazuh_testing.fim import LOG_FILE_PATH, generate_params
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import global_parameters
+from fortishield_testing.fim import LOG_FILE_PATH, generate_params
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 from common import multiple_keys_and_entries_keys, multiple_keys_and_entries_values
 
@@ -79,9 +79,9 @@ subkeys = [os.path.join('SOFTWARE', 'Classes', f'testkey{i}') for i in range(n_r
 test_regs = [os.path.join(KEY, sub_key) for sub_key in subkeys]
 registry_str = ",".join(test_regs)
 
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-configurations_path = os.path.join(test_data_path, 'wazuh_conf_multiple_entries.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_conf_multiple_entries.yaml')
 
 # Configurations
 
@@ -90,7 +90,7 @@ conf_params = {f'WINDOWS_REGISTRY{i}': testreg for i, testreg in enumerate(test_
 conf_params['MODULE_NAME'] = __name__
 
 p, m = generate_params(extra_params=conf_params, modes=['scheduled'])
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 # Fixtures
@@ -111,13 +111,13 @@ def get_configuration(request):
 def test_multiple_entries(tags_to_apply, get_configuration, configure_environment, restart_syscheckd,
                           wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon detects every event when adding, modifying, and deleting
+    description: Check if the 'fortishield-syscheckd' daemon detects every event when adding, modifying, and deleting
                  a subkey/value within each one of the monitored keys. Also, it verifies that it can monitor
                  the maximum allowed number of keys using multiple 'windows_registry' tags (64). For this purpose,
                  the test will monitor multiple keys and make key/value operations inside them. Finally, it
                  will check if all FIM events are generated for each operation made.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -143,8 +143,8 @@ def test_multiple_entries(tags_to_apply, get_configuration, configure_environmen
             in multiple 'windows_registry' tags (up to a limit of 64).
 
     input_description: A test case (multiple_reg_entries) is contained in external YAML file
-                       (wazuh_conf_multiple_entries.yaml) which includes configuration settings
-                       for the 'wazuh-syscheckd' daemon. That is combined with the testing
+                       (fortishield_conf_multiple_entries.yaml) which includes configuration settings
+                       for the 'fortishield-syscheckd' daemon. That is combined with the testing
                        registry keys to be monitored defined in this module.
 
     expected_output:
@@ -156,6 +156,6 @@ def test_multiple_entries(tags_to_apply, get_configuration, configure_environmen
     '''
     check_apply_test(tags_to_apply, get_configuration['tags'])
 
-    multiple_keys_and_entries_keys(n_regs, subkeys, wazuh_log_monitor, KEY, timeout=global_parameters.default_timeout)
+    multiple_keys_and_entries_keys(n_regs, subkeys, fortishield_log_monitor, KEY, timeout=global_parameters.default_timeout)
     time.sleep(2)  # These 2 seconds are needed to avoid overlapping between keys and values
-    multiple_keys_and_entries_values(n_regs, subkeys, wazuh_log_monitor, KEY, timeout=global_parameters.default_timeout)
+    multiple_keys_and_entries_values(n_regs, subkeys, fortishield_log_monitor, KEY, timeout=global_parameters.default_timeout)

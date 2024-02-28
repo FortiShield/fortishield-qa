@@ -32,7 +32,7 @@ These tests need only one parameter (artifacts) in order to be run. If this para
 ```shell
 ========================================== test session starts ===========================================
 platform linux -- Python 3.9.5, pytest-6.2.2, py-1.10.0, pluggy-0.13.1
-rootdir: /home/yanazaeva/git/wazuh-qa
+rootdir: /home/yanazaeva/git/fortishield-qa
 plugins: testinfra-5.0.0, metadata-1.11.0, html-3.1.1
 collected 5 items                                                                                        
 

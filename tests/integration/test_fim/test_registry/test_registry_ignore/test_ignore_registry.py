@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -10,7 +10,7 @@ type: integration
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these
        files are modified. Specifically, these tests will verify that FIM ignores the registry entries
        set in the 'registry_ignore' option using both regex and regular names for specifying them.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -38,8 +38,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#registry-ignore
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#registry-ignore
 
 pytest_args:
     - fim_mode:
@@ -57,9 +57,9 @@ import os
 import sys
 
 import pytest
-from wazuh_testing import T_20, fim
-from wazuh_testing.tools.configuration import load_wazuh_configurations, check_apply_test
-from wazuh_testing.tools.monitoring import FileMonitor
+from fortishield_testing import T_20, fim
+from fortishield_testing.tools.configuration import load_fortishield_configurations, check_apply_test
+from fortishield_testing.tools.monitoring import FileMonitor
 
 # Marks
 
@@ -76,7 +76,7 @@ ignore_value = "value_ignored"
 ignore_value_regex = "ignored_value$"
 
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(fim.LOG_FILE_PATH)
 test_regs = [os.path.join(key, subkey_1), os.path.join(key, subkey_2)]
 
 reg1, reg2 = test_regs
@@ -92,10 +92,10 @@ conf_params = {'WINDOWS_REGISTRY_1': reg1,
                'VALUE_IGNORE_2': os.path.join(reg2, ignore_value),
                'VALUE_IGNORE_REGEX': ignore_value_regex
                }
-configurations_path = os.path.join(test_data_path, 'wazuh_registry_ignore_conf.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_registry_ignore_conf.yaml')
 p, m = fim.generate_params(extra_params=conf_params, modes=['scheduled'])
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=p, metadata=m)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=p, metadata=m)
 
 
 @pytest.fixture(scope='function')
@@ -125,14 +125,14 @@ def test_ignore_registry_key(root_key, registry, arch, subkey, triggers_event, t
                              get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start,
                              reset_registry_ignore_path):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon ignores the events from keys that are in a monitored subkey
+    description: Check if the 'fortishield-syscheckd' daemon ignores the events from keys that are in a monitored subkey
                  when using the 'registry_ignore' option. It also ensures that events for keys that are not being
                  ignored are still detected. For this purpose, the test will monitor a subkey containing keys to be
                  ignored using names or regular expressions. Then it will create these keys and check if FIM events
                  should be generated. Finally, the test will verify that the FIM events generated are consistent
                  with the ignored keys and monitored subkey.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -178,8 +178,8 @@ def test_ignore_registry_key(root_key, registry, arch, subkey, triggers_event, t
           a key is added. Whether it is ignored or not.
 
     input_description: A test case (ignore_registry_key) is contained in an external YAML file
-                       (wazuh_registry_ignore_conf.yaml) which includes configuration settings
-                       for the 'wazuh-syscheckd' daemon. That is combined with the testing
+                       (fortishield_registry_ignore_conf.yaml) which includes configuration settings
+                       for the 'fortishield-syscheckd' daemon. That is combined with the testing
                        registry keys to be monitored defined in the module.
 
     expected_output:
@@ -199,7 +199,7 @@ def test_ignore_registry_key(root_key, registry, arch, subkey, triggers_event, t
 
     # Let syscheck perform a new scan
     if triggers_event:
-        event = wazuh_log_monitor.start(timeout=T_20,
+        event = fortishield_log_monitor.start(timeout=T_20,
                                         callback=fim.callback_key_event,
                                         error_message='Did not receive expected '
                                                       '"Sending FIM event: ..." event').result()
@@ -209,7 +209,7 @@ def test_ignore_registry_key(root_key, registry, arch, subkey, triggers_event, t
 
     else:
         with pytest.raises(TimeoutError):
-            event = wazuh_log_monitor.start(timeout=T_20,
+            event = fortishield_log_monitor.start(timeout=T_20,
                                             callback=fim.callback_key_event,
                                             error_message='Did not receive expected '
                                                           '"Sending FIM event: ..." event').result()
@@ -229,14 +229,14 @@ def test_ignore_registry_key(root_key, registry, arch, subkey, triggers_event, t
 def test_ignore_registry_value(root_key, registry, arch, value, triggers_event, tags_to_apply,
                                get_configuration, configure_environment, restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon ignores the events from values that are in a monitored subkey
+    description: Check if the 'fortishield-syscheckd' daemon ignores the events from values that are in a monitored subkey
                  when using the 'registry_ignore' option. It also ensures that events for values that are not being
                  ignored are still detected. For this purpose, the test will monitor a subkey containing values to be
                  ignored using names or regular expressions. Then it will create these values and check if FIM events
                  should be generated. Finally, the test will verify that the FIM events generated are consistent
                  with the ignored values and monitored subkey.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -279,8 +279,8 @@ def test_ignore_registry_value(root_key, registry, arch, value, triggers_event, 
           a value is added. Whether it is ignored or not.
 
     input_description: A test case (ignore_registry_value) is contained in an external YAML file
-                       (wazuh_registry_ignore_conf.yaml) which includes configuration settings
-                       for the 'wazuh-syscheckd' daemon. That is combined with the testing
+                       (fortishield_registry_ignore_conf.yaml) which includes configuration settings
+                       for the 'fortishield-syscheckd' daemon. That is combined with the testing
                        registry keys to be monitored defined in the module.
 
     expected_output:
@@ -300,7 +300,7 @@ def test_ignore_registry_value(root_key, registry, arch, value, triggers_event, 
 
     # Let syscheck perform a new scan
     if triggers_event:
-        event = wazuh_log_monitor.start(timeout=T_20, callback=fim.callback_value_event,
+        event = fortishield_log_monitor.start(timeout=T_20, callback=fim.callback_value_event,
                                         error_message='Did not receive expected "Sending FIM event:.." event').result()
 
         assert event['data']['type'] == 'added', 'Wrong event type.'
@@ -310,6 +310,6 @@ def test_ignore_registry_value(root_key, registry, arch, value, triggers_event, 
 
     else:
         with pytest.raises(TimeoutError):
-            event = wazuh_log_monitor.start(timeout=T_20, callback=fim.callback_value_event,
+            event = fortishield_log_monitor.start(timeout=T_20, callback=fim.callback_value_event,
                                             error_message='Did not receive expected '
                                                           '"Sending FIM event: ..." event').result()

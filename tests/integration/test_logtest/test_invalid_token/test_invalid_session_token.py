@@ -1,16 +1,16 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: The 'wazuh-logtest' tool allows the testing and verification of rules and decoders against provided log examples
-       remotely inside a sandbox in 'wazuh-analysisd'. This functionality is provided by the manager, whose work
+brief: The 'fortishield-logtest' tool allows the testing and verification of rules and decoders against provided log examples
+       remotely inside a sandbox in 'fortishield-analysisd'. This functionality is provided by the manager, whose work
        parameters are configured in the ossec.conf file in the XML rule_test section. Test logs can be evaluated through
-       the 'wazuh-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
+       the 'fortishield-logtest' tool or by making requests via RESTful API. These tests will check if the logtest
        configuration is valid. Also checks rules, decoders, decoders, alerts matching logs correctly.
 
 components:
@@ -22,7 +22,7 @@ targets:
     - manager
 
 daemons:
-    - wazuh-analysisd
+    - fortishield-analysisd
 
 os_platform:
     - linux
@@ -39,9 +39,9 @@ os_version:
     - Ubuntu Bionic
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/reference/tools/wazuh-logtest.html
-    - https://documentation.wazuh.com/current/user-manual/capabilities/wazuh-logtest/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/daemons/wazuh-analysisd.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/tools/fortishield-logtest.html
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/fortishield-logtest/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/daemons/fortishield-analysisd.html
 
 tags:
     - logtest_configuration
@@ -51,9 +51,9 @@ import os
 import pytest
 import yaml
 
-from wazuh_testing.logtest import callback_session_initialized, callback_invalid_token
-from wazuh_testing.tools import WAZUH_PATH
-from wazuh_testing.tools.monitoring import SocketController
+from fortishield_testing.logtest import callback_session_initialized, callback_invalid_token
+from fortishield_testing.tools import FORTISHIELD_PATH
+from fortishield_testing.tools.monitoring import SocketController
 
 # Marks
 
@@ -69,7 +69,7 @@ with open(messages_path) as f:
 
 # Variables
 
-logtest_path = os.path.join(os.path.join(WAZUH_PATH, 'queue', 'sockets', 'logtest'))
+logtest_path = os.path.join(os.path.join(FORTISHIELD_PATH, 'queue', 'sockets', 'logtest'))
 
 
 # Functions used on the test
@@ -89,18 +89,18 @@ def close_connection(connection):
                          ids=[test_case['name'] for test_case in test_cases])
 def test_invalid_session_token(restart_required_logtest_daemons, wait_for_logtest_startup, test_case):
     '''
-    description: Check if `wazuh-logtest` correctly detects and handles errors when using a session token.
+    description: Check if `fortishield-logtest` correctly detects and handles errors when using a session token.
                  To do this, it sends the inputs through a socket, receives and decodes the message. Then, it checks
                  if any invalid token or session token is not caught.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 0
 
     parameters:
         - restart_required_logtest_daemons:
             type: fixture
-            brief: Wazuh logtests daemons handler.
+            brief: Fortishield logtests daemons handler.
         - wait_for_logtest_startup:
             type: fixture
             brief: Wait until logtest has begun.

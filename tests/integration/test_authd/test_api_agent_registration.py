@@ -1,13 +1,13 @@
 '''
-copyright: Copyright (C) 2015-2021, Wazuh Inc.
+copyright: Copyright (C) 2015-2021, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 type: integration
 
-brief: These tests will check if the 'wazuh-authd' daemon correctly handles the enrollment requests
+brief: These tests will check if the 'fortishield-authd' daemon correctly handles the enrollment requests
        from the API.
 
 tier: 0
@@ -20,8 +20,8 @@ components:
     - manager
 
 daemons:
-    - wazuh-authd
-    - wazuh-api
+    - fortishield-authd
+    - fortishield-api
 
 os_platform:
     - linux
@@ -46,7 +46,7 @@ os_version:
     - Red Hat 6
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/registering/restful-api-registration.html
+    - https://documentation.fortishield.github.io/current/user-manual/registering/restful-api-registration.html
 
 tags:
     - authd
@@ -59,10 +59,10 @@ import os
 import pytest
 import time
 
-from wazuh_testing.tools import API_LOG_FILE_PATH, CLIENT_KEYS_PATH
-from wazuh_testing.api import get_api_details_dict
-from wazuh_testing.tools.file import truncate_file, read_yaml
-from wazuh_testing.tools.services import control_service
+from fortishield_testing.tools import API_LOG_FILE_PATH, CLIENT_KEYS_PATH
+from fortishield_testing.api import get_api_details_dict
+from fortishield_testing.tools.file import truncate_file, read_yaml
+from fortishield_testing.tools.services import control_service
 
 
 # Marks
@@ -150,10 +150,10 @@ def test_agentd_server_configuration(truncate_api_log, clean_registered_agents, 
                                      api_registration_parameters):
     '''
     description:
-        Checks `wazuh-api` responds correctly to agent registration requests. Also, ensure client.keys is update
+        Checks `fortishield-api` responds correctly to agent registration requests. Also, ensure client.keys is update
         accordingly to the new agents parameters.
 
-    wazuh_min_version:
+    fortishield_min_version:
         4.4.0
 
     parameters:

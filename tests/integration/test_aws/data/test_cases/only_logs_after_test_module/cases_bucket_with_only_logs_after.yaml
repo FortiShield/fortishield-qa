@@ -2,12 +2,12 @@
   description: CloudTrail only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: cloudtrail
-    BUCKET_NAME: wazuh-cloudtrail-integration-tests
+    BUCKET_NAME: fortishield-cloudtrail-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: cloudtrail
-    bucket_name: wazuh-cloudtrail-integration-tests
+    bucket_name: fortishield-cloudtrail-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 5
 
@@ -15,12 +15,12 @@
   description: VPC only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: vpcflow
-    BUCKET_NAME: wazuh-vpcflow-integration-tests
+    BUCKET_NAME: fortishield-vpcflow-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: vpcflow
-    bucket_name: wazuh-vpcflow-integration-tests
+    bucket_name: fortishield-vpcflow-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -28,12 +28,12 @@
   description: Config only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: config
-    BUCKET_NAME: wazuh-config-integration-tests
+    BUCKET_NAME: fortishield-config-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: config
-    bucket_name: wazuh-config-integration-tests
+    bucket_name: fortishield-config-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 5
 
@@ -41,12 +41,12 @@
   description: ALB only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: alb
-    BUCKET_NAME: wazuh-alb-integration-tests
+    BUCKET_NAME: fortishield-alb-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: alb
-    bucket_name: wazuh-alb-integration-tests
+    bucket_name: fortishield-alb-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 5
 
@@ -54,12 +54,12 @@
   description: CLB only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: clb
-    BUCKET_NAME: wazuh-clb-integration-tests
+    BUCKET_NAME: fortishield-clb-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: clb
-    bucket_name: wazuh-clb-integration-tests
+    bucket_name: fortishield-clb-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 5
 
@@ -67,12 +67,12 @@
   description: NLB only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: nlb
-    BUCKET_NAME: wazuh-nlb-integration-tests
+    BUCKET_NAME: fortishield-nlb-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: nlb
-    bucket_name: wazuh-nlb-integration-tests
+    bucket_name: fortishield-nlb-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 5
 
@@ -80,12 +80,12 @@
   description: KMS only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-kms-integration-tests
+    BUCKET_NAME: fortishield-kms-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-kms-integration-tests
+    bucket_name: fortishield-kms-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -93,12 +93,12 @@
   description: Macie only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-macie-integration-tests
+    BUCKET_NAME: fortishield-macie-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-macie-integration-tests
+    bucket_name: fortishield-macie-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -106,12 +106,12 @@
   description: Trusted Advisor only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: custom
-    BUCKET_NAME: wazuh-trusted-advisor-integration-tests
+    BUCKET_NAME: fortishield-trusted-advisor-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: custom
-    bucket_name: wazuh-trusted-advisor-integration-tests
+    bucket_name: fortishield-trusted-advisor-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -119,12 +119,12 @@
   description: GuardDuty only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: guardduty
-    BUCKET_NAME: wazuh-guardduty-integration-tests
+    BUCKET_NAME: fortishield-guardduty-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: guardduty
-    bucket_name: wazuh-guardduty-integration-tests
+    bucket_name: fortishield-guardduty-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -132,12 +132,12 @@
   description: Native GuardDuty only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: guardduty
-    BUCKET_NAME: wazuh-native-guardduty-integration-tests
+    BUCKET_NAME: fortishield-native-guardduty-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: guardduty
-    bucket_name: wazuh-native-guardduty-integration-tests
+    bucket_name: fortishield-native-guardduty-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -145,12 +145,12 @@
   description: WAF only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: waf
-    BUCKET_NAME: wazuh-waf-integration-tests
+    BUCKET_NAME: fortishield-waf-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: waf
-    bucket_name: wazuh-waf-integration-tests
+    bucket_name: fortishield-waf-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
 
@@ -158,12 +158,12 @@
   description: Server Access only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: server_access
-    BUCKET_NAME: wazuh-server-access-integration-tests
+    BUCKET_NAME: fortishield-server-access-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: ''
   metadata:
     bucket_type: server_access
-    bucket_name: wazuh-server-access-integration-tests
+    bucket_name: fortishield-server-access-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
     table_name: s3_server_access
@@ -172,12 +172,12 @@
   description: Umbrella only logs after configurations
   configuration_parameters:
     BUCKET_TYPE: cisco_umbrella
-    BUCKET_NAME: wazuh-umbrella-integration-tests
+    BUCKET_NAME: fortishield-umbrella-integration-tests
     ONLY_LOGS_AFTER: 2022-NOV-20
     PATH: dnslogs
   metadata:
     bucket_type: cisco_umbrella
-    bucket_name: wazuh-umbrella-integration-tests
+    bucket_name: fortishield-umbrella-integration-tests
     only_logs_after: 2022-NOV-20
     expected_results: 3
     path: dnslogs

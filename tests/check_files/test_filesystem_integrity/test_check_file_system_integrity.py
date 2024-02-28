@@ -1,5 +1,5 @@
-# Copyright (C) 2015-2021, Wazuh Inc.
-# Created by Wazuh, Inc. <info@wazuh.com>.
+# Copyright (C) 2015-2021, Fortishield Inc.
+# Created by Fortishield, Inc. <info@fortishield.github.io>.
 # This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
 import json
@@ -9,7 +9,7 @@ import re
 import warnings
 from deepdiff import DeepDiff
 
-from wazuh_testing.tools.file import validate_json_file, read_json_file, write_json_file, get_file_lines
+from fortishield_testing.tools.file import validate_json_file, read_json_file, write_json_file, get_file_lines
 
 WARNING_LIST_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'warning_list.txt')
 
@@ -279,7 +279,7 @@ def test_check_file_system_integrity(get_first_file, get_second_file, get_output
         - red: When there are paths with changes that do not appear in the warning list.
 
     Example run:
-        python3 -m pytest wazuh-qa/tests/check_files/test_check_files/test_system_check_files.py
+        python3 -m pytest fortishield-qa/tests/check_files/test_check_files/test_system_check_files.py
         --before-file initial_state --after_file after_installing_manager --output-path /tmp/system_check_files
 
     Args:

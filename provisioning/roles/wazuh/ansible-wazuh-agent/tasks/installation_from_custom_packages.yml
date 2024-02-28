@@ -1,31 +1,31 @@
 ---
-  - name: Install Wazuh Agent from .deb packages
+  - name: Install Fortishield Agent from .deb packages
     apt:
-      deb: "{{ wazuh_custom_packages_installation_agent_deb_url }}"
+      deb: "{{ fortishield_custom_packages_installation_agent_deb_url }}"
       state: present
     when:
       - ansible_os_family|lower == "debian"
-      - wazuh_custom_packages_installation_agent_enabled
+      - fortishield_custom_packages_installation_agent_enabled
 
-  - name: Install Wazuh Agent from .rpm packages | yum
+  - name: Install Fortishield Agent from .rpm packages | yum
     yum:
-      name: "{{ wazuh_custom_packages_installation_agent_rpm_url }}"
+      name: "{{ fortishield_custom_packages_installation_agent_rpm_url }}"
       state: present
     when:
       - ansible_os_family|lower == "redhat"
-      - wazuh_custom_packages_installation_agent_enabled
+      - fortishield_custom_packages_installation_agent_enabled
       - not (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8")
       - not (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
-  - name: Install Wazuh Agent from .rpm packages | dnf
+  - name: Install Fortishield Agent from .rpm packages | dnf
     dnf:
-      name: "{{ wazuh_custom_packages_installation_agent_rpm_url }}"
+      name: "{{ fortishield_custom_packages_installation_agent_rpm_url }}"
       state: present
       disable_gpg_check: True
 
     when:
       - ansible_os_family|lower == "redhat"
-      - wazuh_custom_packages_installation_agent_enabled
+      - fortishield_custom_packages_installation_agent_enabled
       - (ansible_distribution|lower == "centos" and ansible_distribution_major_version >= "8") or
         (ansible_distribution|lower == "redhat" and ansible_distribution_major_version >= "8")
 
@@ -33,45 +33,45 @@
 
   - name: Install MacOS agent from pkg | custom macos pkg
     become: true
-    shell: installer -pkg wazuh-* -target /
+    shell: installer -pkg fortishield-* -target /
     args:
       chdir: /Users/vagrant
     when: ansible_os_family == "Darwin"
 
 # Solaris
-  - name: Install Solaris 10 wazuh agent custom package
+  - name: Install Solaris 10 fortishield agent custom package
     become: true
-    shell: pkgadd -d wazuh*
+    shell: pkgadd -d fortishield*
     environment:
       PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
     args:
       chdir: "/export/home/vagrant"
     when:
       - ansible_os_family == 'Solaris'
-      - wazuh_custom_packages_installation_agent_solaris_10_url is defined
+      - fortishield_custom_packages_installation_agent_solaris_10_url is defined
 
-  - name: Install Solaris 11 wazuh agent custom package
+  - name: Install Solaris 11 fortishield agent custom package
     become: true
-    shell: pkg install -g wazuh* wazuh-agent
+    shell: pkg install -g fortishield* fortishield-agent
     environment:
       PATH: "/opt/python3/bin/:/usr/sbin:/usr/bin:/usr/sbin/:/opt/csw/gnu/:/usr/sfw/bin/:/opt/csw/bin/"
     args:
       chdir: "/export/home/vagrant"
     when:
       - ansible_os_family == 'Solaris'
-      - wazuh_custom_packages_installation_agent_solaris_11_url is defined
+      - fortishield_custom_packages_installation_agent_solaris_11_url is defined
 
 # Windows
   - name: Donwload Windows agent msi
     win_get_url:
-      url: "{{ wazuh_custom_packages_installation_agent_msi_url }}"
-      dest: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
+      url: "{{ fortishield_custom_packages_installation_agent_msi_url }}"
+      dest: "{{fortishield_winagent_config.download_dir}}{{fortishield_winagent_package_name_generic}}"
     when:
       - ansible_os_family == "Windows"
 
-  - name: Install Wazuh Agent from .msi packages | custom win_package
+  - name: Install Fortishield Agent from .msi packages | custom win_package
     win_package:
-      path: "{{wazuh_winagent_config.download_dir}}{{wazuh_winagent_package_name_generic}}"
+      path: "{{fortishield_winagent_config.download_dir}}{{fortishield_winagent_package_name_generic}}"
       state: present
     when:
       - ansible_os_family == "Windows"

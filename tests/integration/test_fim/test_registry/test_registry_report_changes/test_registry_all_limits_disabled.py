@@ -1,7 +1,7 @@
 '''
-copyright: Copyright (C) 2015-2022, Wazuh Inc.
+copyright: Copyright (C) 2015-2022, Fortishield Inc.
 
-           Created by Wazuh, Inc. <info@wazuh.com>.
+           Created by Fortishield, Inc. <info@fortishield.github.io>.
 
            This program is free software; you can redistribute it and/or modify it under the terms of GPLv2
 
@@ -9,10 +9,10 @@ type: integration
 
 brief: File Integrity Monitoring (FIM) system watches selected files and triggering alerts when these files
        are modified. Specifically, these tests will verify that FIM does not limit the size of the key
-       monitored to generate 'diff' information or the 'queue/diff/local' folder where Wazuh stores the
+       monitored to generate 'diff' information or the 'queue/diff/local' folder where Fortishield stores the
        compressed files used to perform the 'diff' operation. Having the 'file_size' and 'disk_quota'
        options disabled, and the 'report_changes' option enabled.
-       The FIM capability is managed by the 'wazuh-syscheckd' daemon, which checks configured
+       The FIM capability is managed by the 'fortishield-syscheckd' daemon, which checks configured
        files for changes to the checksums, permissions, and ownership.
 
 components:
@@ -24,7 +24,7 @@ targets:
     - agent
 
 daemons:
-    - wazuh-syscheckd
+    - fortishield-syscheckd
 
 os_platform:
     - windows
@@ -40,8 +40,8 @@ os_version:
     - Windows XP
 
 references:
-    - https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html
-    - https://documentation.wazuh.com/current/user-manual/reference/ossec-conf/syscheck.html#diff
+    - https://documentation.fortishield.github.io/current/user-manual/capabilities/file-integrity/index.html
+    - https://documentation.fortishield.github.io/current/user-manual/reference/ossec-conf/syscheck.html#diff
 
 pytest_args:
     - fim_mode:
@@ -58,13 +58,13 @@ tags:
 import os
 
 import pytest
-from wazuh_testing import LOG_FILE_PATH, global_parameters
-from wazuh_testing.tools.configuration import load_wazuh_configurations
-from wazuh_testing.tools.monitoring import FileMonitor
-from wazuh_testing.modules.fim import (WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, MONITORED_KEY_2, KEY_WOW64_32KEY,
+from fortishield_testing import LOG_FILE_PATH, global_parameters
+from fortishield_testing.tools.configuration import load_fortishield_configurations
+from fortishield_testing.tools.monitoring import FileMonitor
+from fortishield_testing.modules.fim import (WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY, MONITORED_KEY_2, KEY_WOW64_32KEY,
                                        KEY_WOW64_64KEY)
-from wazuh_testing.modules.fim.event_monitor import ERR_MSG_CONTENT_CHANGES_EMPTY
-from wazuh_testing.modules.fim.utils import (generate_params, calculate_registry_diff_paths, create_values_content,
+from fortishield_testing.modules.fim.event_monitor import ERR_MSG_CONTENT_CHANGES_EMPTY
+from fortishield_testing.modules.fim.utils import (generate_params, calculate_registry_diff_paths, create_values_content,
                                              registry_value_create, registry_value_update, registry_value_delete)
 
 # Marks
@@ -76,7 +76,7 @@ pytestmark = [pytest.mark.win32, pytest.mark.tier(level=1)]
 test_regs = [os.path.join(WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY),
              os.path.join(WINDOWS_HKEY_LOCAL_MACHINE, MONITORED_KEY_2)]
 test_data_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
-wazuh_log_monitor = FileMonitor(LOG_FILE_PATH)
+fortishield_log_monitor = FileMonitor(LOG_FILE_PATH)
 scan_delay = 2
 value_content_size = 204800
 
@@ -89,9 +89,9 @@ params, metadata = generate_params(modes=['scheduled'], extra_params={'WINDOWS_R
                                                                       'DISK_QUOTA_ENABLED': 'no',
                                                                       'DISK_QUOTA_LIMIT': '4KB'})
 
-configurations_path = os.path.join(test_data_path, 'wazuh_registry_report_changes_limits_quota.yaml')
+configurations_path = os.path.join(test_data_path, 'fortishield_registry_report_changes_limits_quota.yaml')
 
-configurations = load_wazuh_configurations(configurations_path, __name__, params=params, metadata=metadata)
+configurations = load_fortishield_configurations(configurations_path, __name__, params=params, metadata=metadata)
 
 
 # Fixtures
@@ -111,13 +111,13 @@ def get_configuration(request):
 def test_all_limits_disabled(key, subkey, arch, value_name, get_configuration, configure_environment,
                              restart_syscheckd, wait_for_fim_start):
     '''
-    description: Check if the 'wazuh-syscheckd' daemon generates all FIM events when the 'file_size' and
+    description: Check if the 'fortishield-syscheckd' daemon generates all FIM events when the 'file_size' and
                  the 'disk_quota' tags have set a small limit but they are disabled. For this purpose,
                  the test will monitor a key and create multiple values with a content of big size inside it.
                  That values exceed both, 'file_size' and 'disk_quota' limits. Finally, the test will verify
                  that all FIM events have been generated, since that those limits are disabled.
 
-    wazuh_min_version: 4.2.0
+    fortishield_min_version: 4.2.0
 
     tier: 1
 
@@ -142,7 +142,7 @@ def test_all_limits_disabled(key, subkey, arch, value_name, get_configuration, c
             brief: Configure a custom environment for testing.
         - restart_syscheckd:
             type: fixture
-            brief: Clear the Wazuh logs file and start a new monitor.
+            brief: Clear the Fortishield logs file and start a new monitor.
         - wait_for_fim_start:
             type: fixture
             brief: Wait for realtime start, whodata start, or end of initial FIM scan.
@@ -153,8 +153,8 @@ def test_all_limits_disabled(key, subkey, arch, value_name, get_configuration, c
         - Verify that FIM events include the 'content_changes' field.
 
     input_description: A test case (test_limits) is contained in external YAML file
-                       (wazuh_registry_report_changes_limits_quota.yaml) which includes
-                       configuration settings for the 'wazuh-syscheckd' daemon. That is
+                       (fortishield_registry_report_changes_limits_quota.yaml) which includes
+                       configuration settings for the 'fortishield-syscheckd' daemon. That is
                        combined with the testing registry keys to be monitored defined
                        in this module.
 
@@ -174,12 +174,12 @@ def test_all_limits_disabled(key, subkey, arch, value_name, get_configuration, c
         assert event['data'].get('content_changes') is not None, ERR_MSG_CONTENT_CHANGES_EMPTY
 
     # Create the value inside the key - we do it here because it key or arch is not known before the test launches
-    registry_value_create(key, subkey, wazuh_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
+    registry_value_create(key, subkey, fortishield_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
                           scan_delay=scan_delay, min_timeout=global_parameters.default_timeout, triggers_event=True)
     # Modify the value to check if the diff file is generated or not, as expected
-    registry_value_update(key, subkey, wazuh_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
+    registry_value_update(key, subkey, fortishield_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
                           scan_delay=scan_delay, min_timeout=global_parameters.default_timeout, triggers_event=True,
                           validators_after_update=[report_changes_validator_diff])
     # Delete the vaue created to clean up enviroment
-    registry_value_delete(key, subkey, wazuh_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
+    registry_value_delete(key, subkey, fortishield_log_monitor, arch=arch, value_list=values, wait_for_scan=True,
                           scan_delay=scan_delay, min_timeout=global_parameters.default_timeout, triggers_event=True)
